@@ -23,7 +23,7 @@ export function Section({
   ...props
 }: SectionProps) {
   return (
-    <section className={cn("py-20 px-4 sm:px-6 relative overflow-hidden", className)} {...props}>
+    <section className={cn("py-12 sm:py-16 px-4 sm:px-6 relative overflow-hidden", className)} {...props}>
       <div className={cn("mx-auto w-full", maxWidthMap[maxWidth], containerClassName)}>
         {children}
       </div>

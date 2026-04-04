@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, X, Sparkles, BookOpen, Clock, Users } from "lucide-react";
+import { ArrowRight, X, Sparkles, BookOpen, Clock, Users, Play } from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -25,16 +25,16 @@ export default function PremiumCoursesSection() {
   const [selected, setSelected] = useState<Course | null>(null);
 
   const courses: Course[] = [
-    {
-      title: "MERN Stack Development",
-      desc: "Build modern web apps using React & Node.",
-      tag: "Full Stack",
-      video: "https://cdn.pixabay.com/video/2019/04/10/22616-330089849_large.mp4",
-      color: "from-orange-500/20 to-orange-500/5",
-      details: "Comprehensive training in MongoDB, Express, React, and Node.js. Includes real-world projects and deployment strategies.",
-      duration: "4 Months",
-      students: "1.2k+ Joined",
-    },
+    // {
+    //   title: "MERN Stack Development",
+    //   desc: "Build modern web apps using React & Node.",
+    //   tag: "Full Stack",
+    //   video: "https://cdn.pixabay.com/video/2019/04/10/22616-330089849_large.mp4",
+    //   color: "from-orange-500/20 to-orange-500/5",
+    //   details: "Comprehensive training in MongoDB, Express, React, and Node.js. Includes real-world projects and deployment strategies.",
+    //   duration: "4 Months",
+    //   students: "1.2k+ Joined",
+    // },
     {
       title: "Java Fullstack Development",
       desc: "Enterprise apps using Spring Boot.",
@@ -45,16 +45,16 @@ export default function PremiumCoursesSection() {
       duration: "5 Months",
       students: "800+ Joined",
     },
-    {
-      title: "Python Fullstack Development",
-      desc: "Build apps using Django & Flask.",
-      tag: "Data Driven",
-      video: "https://cdn.pixabay.com/video/2020/09/27/50868-462310862_large.mp4",
-      color: "from-yellow-500/20 to-yellow-500/5",
-      details: "Learn Python from scratch to advanced web development with Django and Flask. Includes integration with AI/ML tools.",
-      duration: "4 Months",
-      students: "1.5k+ Joined",
-    },
+    // {
+    //   title: "Python Fullstack Development",
+    //   desc: "Build apps using Django & Flask.",
+    //   tag: "Data Driven",
+    //   video: "https://cdn.pixabay.com/video/2020/09/27/50868-462310862_large.mp4",
+    //   color: "from-yellow-500/20 to-yellow-500/5",
+    //   details: "Learn Python from scratch to advanced web development with Django and Flask. Includes integration with AI/ML tools.",
+    //   duration: "4 Months",
+    //   students: "1.5k+ Joined",
+    // },
     {
       title: "Data Science & AI",
       desc: "AI, ML, and data modeling.",
@@ -75,16 +75,16 @@ export default function PremiumCoursesSection() {
       duration: "4 Months",
       students: "450+ Joined",
     },
-    {
-      title: "Data Analytics",
-      desc: "Transform raw data into business insights.",
-      tag: "Analytics",
-      video: "https://cdn.pixabay.com/video/2023/07/22/172675-847844070_large.mp4",
-      color: "from-sky-500/20 to-sky-500/5",
-      details: "Master Excel, SQL, Tableau, and PowerBI. Learn to clean, analyze, and visualize data to drive strategic business decisions.",
-      duration: "3 Months",
-      students: "1.1k+ Joined",
-    }
+    // {
+    //   title: "Data Analytics",
+    //   desc: "Transform raw data into business insights.",
+    //   tag: "Analytics",
+    //   video: "https://cdn.pixabay.com/video/2023/07/22/172675-847844070_large.mp4",
+    //   color: "from-sky-500/20 to-sky-500/5",
+    //   details: "Master Excel, SQL, Tableau, and PowerBI. Learn to clean, analyze, and visualize data to drive strategic business decisions.",
+    //   duration: "3 Months",
+    //   students: "1.1k+ Joined",
+    // }
   ];
 
   return (
@@ -95,13 +95,13 @@ export default function PremiumCoursesSection() {
       <div className="flex flex-col gap-6 mb-16">
         {/* Centered Badge + Heading */}
         <div className="text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-4">
-            <Sparkles className="h-4 w-4" />
-            Empower your future
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-zinc-900 dark:text-zinc-100">
-            Industry Specialized <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-emerald-400">Learning Paths</span>
-          </h2>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 text-xs font-bold uppercase tracking-widest mb-4">
+              <Sparkles className="h-4 w-4" />
+              Empower your future
+            </div>
+            <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-zinc-900 dark:text-zinc-100 mb-4">
+              Industry Specialized <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-400 to-sky-500">Learning Programs</span>
+            </h2>
         </div>
 
         {/* Description + Button row */}
@@ -128,18 +128,26 @@ export default function PremiumCoursesSection() {
             <Card
               variant="outline"
               hover="lift"
-              className="p-4 border border-zinc-200/80 dark:border-zinc-800/80 transition-shadow duration-300 group h-full flex flex-col bg-white dark:bg-zinc-950 rounded-3xl shadow-sm hover:shadow-lg"
+              className="p-4 border border-zinc-200/80 dark:border-zinc-800/80 transition-shadow duration-300 group h-110 flex flex-col bg-white dark:bg-zinc-950 rounded-3xl shadow-sm hover:shadow-lg"
             >
               {/* Inset Video Container without gradients/badges */}
-              <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden mb-6 bg-zinc-100 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800">
+              <div
+                className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden mb-6 bg-zinc-100 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 cursor-pointer group/video"
+                onClick={() => setSelected(course)}
+              >
                 <video
                   src={course.video}
                   autoPlay
                   loop
                   muted
                   playsInline
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover/video:scale-105"
                 />
+                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                  <div className="w-14 h-14 rounded-full bg-white/30 backdrop-blur-md flex items-center justify-center border border-white/50 text-white shadow-xl transform scale-90 group-hover/video:scale-100 transition-all duration-300">
+                    <Play className="w-6 h-6 ml-1 fill-white" />
+                  </div>
+                </div>
                 {/* Optional: Simple subtle inner shadow to mimic video container depth */}
                 <div className="absolute inset-0 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.02)] rounded-2xl pointer-events-none" />
               </div>
@@ -163,6 +171,72 @@ export default function PremiumCoursesSection() {
           </motion.div>
         ))}
       </div>
+
+      {/* Video Modal */}
+      <AnimatePresence>
+        {selected && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            onClick={() => setSelected(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-5xl rounded-3xl overflow-hidden bg-zinc-950 border border-zinc-800 shadow-2xl"
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setSelected(null)}
+                className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center transition-colors backdrop-blur-md border border-white/10"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Video Player */}
+              <div className="relative w-full aspect-video bg-black">
+                <video
+                  src={selected.video}
+                  autoPlay
+                  controls
+                  className="w-full h-full object-contain"
+                />
+              </div>
+
+              {/* Course Info below video */}
+              <div className="p-6 md:p-8 bg-zinc-950">
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                  <div>
+                    <div className="inline-flex px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold mb-3">
+                      {selected.tag}
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-2">
+                      {selected.title}
+                    </h3>
+                    <p className="text-zinc-400 max-w-2xl">
+                      {selected.details}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4 shrink-0">
+                    <div className="flex flex-col items-center p-3 rounded-2xl bg-zinc-900 border border-zinc-800 min-w-[100px]">
+                      <Clock className="w-5 h-5 text-emerald-400 mb-1" />
+                      <span className="text-sm font-medium text-white">{selected.duration}</span>
+                    </div>
+                    <div className="flex flex-col items-center p-3 rounded-2xl bg-zinc-900 border border-zinc-800 min-w-[100px]">
+                      <Users className="w-5 h-5 text-blue-400 mb-1" />
+                      <span className="text-sm font-medium text-white">{selected.students}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Section>
   );
 }

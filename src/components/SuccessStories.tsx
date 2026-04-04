@@ -117,8 +117,8 @@ export default function SuccessStories() {
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-6">
             Success Stories
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-zinc-900 dark:text-zinc-100 mb-2 leading-tight">
-            Our Alumni <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-emerald-400">Impact Stories</span>
+          <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-zinc-900 dark:text-zinc-100 mb-4">
+            Our Students <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-400 to-sky-500">Success Stories</span>
           </h2>
         </div>
 
@@ -167,7 +167,7 @@ export default function SuccessStories() {
                 <img
                   src={item.image}
                   alt={item.name}
-                  className="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
+                  className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
                 />
                 
                 {/* Review Overlay */}

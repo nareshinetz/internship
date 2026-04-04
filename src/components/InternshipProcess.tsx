@@ -102,9 +102,9 @@ export default function InternshipProcess() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-4xl md:text-5xl font-bold text-zinc-900 dark:text-zinc-100"
+          className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-zinc-900 dark:text-zinc-100"
         >
-          Your Journey to <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-emerald-400">Excellence</span>
+          Your Journey to <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-400 to-sky-500">Excellence</span>
         </motion.h2>
       </div>
 
@@ -114,7 +114,7 @@ export default function InternshipProcess() {
         transition={{ duration: 0.6, delay: 0.1 }}
         className="text-lg text-zinc-600 dark:text-zinc-400 w-full mb-16 max-w-2xl mx-auto text-center"
       >
-        The content below makes students feel that they are joining a structured career-focused system, not just another ordinary class.
+        The content makes students feel that they are joining a structured career-focused system, not just another ordinary class.
       </motion.p>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 relative">
