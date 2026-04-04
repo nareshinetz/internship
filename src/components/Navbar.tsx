@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
@@ -105,8 +105,10 @@ function InetzLogo({ className }: { className?: string }) {
 //   );
 // }
 
+// 2. Main Navbar Component
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isMobileSubOpen, setIsMobileSubOpen] = useState(false);
@@ -114,8 +116,7 @@ export function Navbar() {
   const activeHref = useMemo(() => {
     const exact = navItems.find((i) => i.href === pathname)?.href;
     if (exact) return exact;
-    return navItems.find((i) => pathname?.startsWith(i.href) && i.href !== "/")
-      ?.href;
+    return navItems.find((i) => pathname?.startsWith(i.href) && i.href !== "/")?.href;
   }, [pathname]);
 
   useEffect(() => {
@@ -131,7 +132,7 @@ export function Navbar() {
           <InetzLogo />
         </Link>
  
-        {/* Desktop Nav */}
+        {/* Desktop Navigation */}
         <nav className="hidden items-center gap-2 lg:flex p-1 bg-zinc-50/50 dark:bg-zinc-900/50 rounded-full border border-zinc-100/50 dark:border-zinc-800/50">
           {navItems.map((item) => {
             const isActive = item.href === activeHref;
@@ -203,18 +204,48 @@ export function Navbar() {
               </div>
             );
           })}
+          {isLoggedIn && (
+            <Link 
+              href="/dashboard" 
+              className={cn(
+                "px-6 py-2 text-sm font-bold transition-all duration-300",
+                pathname === "/dashboard" ? "text-orange-500" : "text-zinc-500 hover:text-orange-500"
+              )}
+            >
+              Dashboard
+            </Link>
+          )}
         </nav>
 
-        {/* Action Buttons */}
+        {/* Action Controls */}
         <div className="flex items-center gap-3">
           {/* <ThemeToggle /> */}
           <div className="hidden sm:flex items-center gap-3">
-            <Button href="/login" variant="ghost" size="sm" className="font-semibold">
-              Login
-            </Button>
-            <Button href="/register" variant="primary" size="sm" className="px-6 rounded-full font-bold shadow-lg shadow-orange-500/20">
-              Register
-            </Button>
+            {!isLoggedIn ? (
+              <>
+                <Button href="/login" variant="ghost" size="sm" className="font-semibold">
+                  Login
+                </Button>
+                <Button href="/register" variant="primary" size="sm" className="px-6 rounded-full font-bold shadow-lg shadow-orange-500/20">
+                  Register
+                </Button>
+              </>
+            ) : (
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
+                   <User className="w-5 h-5" />
+                </div>
+                <Button 
+                  onClick={handleLogout} 
+                  variant="outline" 
+                  size="sm" 
+                  className="rounded-full font-bold border-zinc-200 dark:border-zinc-700 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 transition-colors"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </Button>
+              </div>
+            )}
           </div>
 
           <Button
@@ -291,14 +322,30 @@ export function Navbar() {
                   </div>
                 );
               })}
+
+              {isLoggedIn && (
+                <Link href="/dashboard" className="flex items-center gap-3 p-4 rounded-2xl text-lg font-semibold text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-950/20">
+                  <LayoutDashboard className="w-5 h-5" />
+                  Dashboard
+                </Link>
+              )}
               
-              <div className="grid grid-cols-2 gap-3 mt-4">
-                <Button href="/login" variant="outline" size="lg" className="rounded-2xl">
-                  Login
-                </Button>
-                <Button href="/register" variant="primary" size="lg" className="rounded-2xl">
-                  Register
-                </Button>
+              <div className="grid grid-cols-1 gap-3 mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+                {!isLoggedIn ? (
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button href="/login" variant="outline" size="lg" className="rounded-2xl">
+                      Login
+                    </Button>
+                    <Button href="/register" variant="primary" size="lg" className="rounded-2xl">
+                      Register
+                    </Button>
+                  </div>
+                ) : (
+                  <Button onClick={handleLogout} variant="primary" size="lg" className="rounded-2xl bg-red-600 hover:bg-red-700 border-none">
+                    <LogOut className="w-5 h-5 mr-2" />
+                    Logout
+                  </Button>
+                )}
               </div>
             </div>
           </motion.div>
@@ -307,4 +354,3 @@ export function Navbar() {
     </header>
   );
 }
-

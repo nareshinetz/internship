@@ -1,3 +1,4 @@
+@import url('https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css');
 @import "tailwindcss";
 
 @variant dark (&:where(.dark, .dark *));
@@ -25,5 +26,15 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans);
-  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Vertical timeline connector positioning */
+.timeline-path {
+  stroke-dasharray: 6 6;
+  opacity: 0.3;
+}
+@media (prefers-color-scheme: dark) {
+  .timeline-path {
+    opacity: 0.1;
+  }
 }
