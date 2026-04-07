@@ -71,7 +71,7 @@ const TechLogo = ({ name }: { name: string }) => {
 
   return (
     <i
-      className={`${deviconMapping[key] || "devicon-github-original"} text-3xl`}
+      className={`${deviconMapping[key] || "devicon-github-original"} text-2xl`}
       style={{ color: iconColor }}
     />
   );
@@ -84,7 +84,6 @@ const InternshipPrograms = () => {
   const [isSyllabusOpen, setIsSyllabusOpen] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
 
-  // Authentication check
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -101,7 +100,6 @@ const InternshipPrograms = () => {
     if (isLoggedIn) {
       router.push(`/apply?track=${activeStack}&duration=${activeDuration}`);
     } else {
-      // Redirect to login and save the current path as a callback
       router.push(`/login?callback=/programs/details?track=${activeStack}`);
     }
   };
@@ -110,16 +108,16 @@ const InternshipPrograms = () => {
   const durations: Duration[] = ["1 Week", "2 Weeks", "1 Month", "3 Months"];
   const current = programData[activeStack]?.[activeDuration];
 
-  if (!current) return <div className="p-20 text-center italic text-zinc-400 animate-pulse">Syncing track...</div>;
+  if (!current) return <div className="p-20 text-center italic text-zinc-400 animate-pulse font-sans">Syncing track...</div>;
 
   return (
     <div className="min-h-screen bg-white text-zinc-900 font-sans selection:bg-emerald-100">
       
-      {/* 1. HERO SECTION */}
-      <section className="relative w-full py-20 overflow-hidden border-b border-zinc-100 bg-zinc-50/50">
+      {/* 1. HERO SECTION - Adjusted Padding */}
+      <section className="relative w-full py-16 overflow-hidden border-b border-zinc-100 bg-zinc-50/50">
         <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
-          {/* Stack Selection - Zoom Optimized */}
-          <div className="flex flex-wrap justify-center gap-4 mb-12">
+          {/* Stack Selection - Tighter Margins */}
+          <div className="flex flex-wrap justify-center gap-3 mb-8">
             {stacks.map((s) => {
               const isActive = activeStack === s;
               return (
@@ -129,9 +127,9 @@ const InternshipPrograms = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className={cn(
-                    "relative px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-[0.15em] transition-all duration-300 border",
+                    "relative px-5 py-2 rounded-full text-[11px] font-bold uppercase tracking-[0.12em] transition-all duration-300 border",
                     isActive 
-                      ? "text-white border-zinc-900 shadow-xl" 
+                      ? "text-white border-zinc-900 shadow-lg" 
                       : "bg-white text-zinc-400 border-zinc-200 hover:border-zinc-400"
                   )}
                 >
@@ -148,22 +146,23 @@ const InternshipPrograms = () => {
             })}
           </div>
 
-          <h1 className="text-4xl md:text-7xl font-bold tracking-tighter text-zinc-900 mb-6 font-serif">
+          {/* Heading - Slightly smaller to "zoom out" */}
+          <h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-zinc-900 mb-6 font-sans">
             {current.title} <span className="text-emerald-600">Track</span>
           </h1>
 
-          <div className="inline-flex gap-1 p-1.5 bg-white rounded-2xl border border-zinc-200 shadow-2xl mx-auto">
+          <div className="inline-flex gap-1 p-1 bg-white rounded-xl border border-zinc-200 shadow-xl mx-auto">
             {durations.map((d) => (
               <button
                 key={d}
                 onClick={() => setActiveDuration(d)}
                 className={cn(
-                  "relative px-8 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all z-10",
+                  "relative px-6 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all z-10 font-sans",
                   activeDuration === d ? "text-white" : "text-zinc-400 hover:text-zinc-600"
                 )}
               >
                 {activeDuration === d && (
-                  <motion.div layoutId="durTab" className="absolute inset-0 bg-[#fb8500] rounded-xl -z-10" />
+                  <motion.div layoutId="durTab" className="absolute inset-0 bg-[#fb8500] rounded-lg -z-10" />
                 )}
                 {d}
               </button>
@@ -172,43 +171,43 @@ const InternshipPrograms = () => {
         </div>
       </section>
 
-      {/* 2. MAIN LAYOUT */}
-      <main className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 lg:grid-cols-12 gap-16">
-        <div className="lg:col-span-8 space-y-16">
+      {/* 2. MAIN LAYOUT - Adjusted Gap */}
+      <main className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-12 gap-10 font-sans">
+        <div className="lg:col-span-8 space-y-12">
           
           {/* SYLLABUS SECTION */}
-          <section className="space-y-8">
+          <section className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold flex items-center gap-3">
-                <LayoutGrid className="w-6 h-6 text-emerald-500" /> Technical Roadmap
+              <h2 className="text-xl font-bold flex items-center gap-2 font-sans">
+                <LayoutGrid className="w-5 h-5 text-emerald-500" /> Technical Roadmap
               </h2>
-              <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 bg-zinc-100 px-3 py-1 rounded-full">
+              <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-400 bg-zinc-100 px-2.5 py-1 rounded-full font-sans">
                 {current.syllabus.length} Modules
               </span>
             </div>
 
-            <div className="border border-zinc-200 rounded-[2.5rem] overflow-hidden bg-white shadow-xl shadow-zinc-200/20">
+            <div className="border border-zinc-200 rounded-[2rem] overflow-hidden bg-white shadow-lg shadow-zinc-200/20">
               <button 
                 onClick={() => setIsSyllabusOpen(!isSyllabusOpen)} 
-                className="w-full p-8 flex justify-between items-center hover:bg-zinc-50/80 transition-colors group"
+                className="w-full p-6 flex justify-between items-center hover:bg-zinc-50/80 transition-colors group"
               >
-                <div className="flex items-center gap-5">
+                <div className="flex items-center gap-4">
                   <motion.div 
                     animate={{ rotate: isSyllabusOpen ? 360 : 0 }}
                     className={cn(
-                      "p-4 rounded-2xl transition-all duration-500", 
-                      isSyllabusOpen ? "bg-emerald-600 text-white shadow-lg shadow-emerald-200" : "bg-zinc-100 text-zinc-400"
+                      "p-3 rounded-xl transition-all duration-500", 
+                      isSyllabusOpen ? "bg-emerald-600 text-white shadow-md shadow-emerald-200" : "bg-zinc-100 text-zinc-400"
                     )}
                   >
-                    <BookOpen className="w-6 h-6" />
+                    <BookOpen className="w-5 h-5" />
                   </motion.div>
-                  <div className="text-left">
-                    <h3 className="text-xl font-bold text-zinc-900">Detailed {activeDuration} Syllabus</h3>
-                    <p className="text-sm text-zinc-500">Click to expand curriculum details</p>
+                  <div className="text-left font-sans">
+                    <h3 className="text-lg font-bold text-zinc-900">Detailed {activeDuration} Syllabus</h3>
+                    <p className="text-xs text-zinc-500">Click to expand curriculum details</p>
                   </div>
                 </div>
-                <div className={cn("p-2 rounded-full border border-zinc-100 transition-colors", isSyllabusOpen && "bg-emerald-50 border-emerald-200")}>
-                  <ChevronDown className={cn("w-5 h-5 transition-transform duration-500", isSyllabusOpen && "rotate-180 text-emerald-600")} />
+                <div className={cn("p-1.5 rounded-full border border-zinc-100 transition-colors", isSyllabusOpen && "bg-emerald-50 border-emerald-200")}>
+                  <ChevronDown className={cn("w-4 h-4 transition-transform duration-500", isSyllabusOpen && "rotate-180 text-emerald-600")} />
                 </div>
               </button>
 
@@ -221,26 +220,29 @@ const InternshipPrograms = () => {
                     transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                     className="overflow-hidden border-t border-zinc-50 bg-gradient-to-b from-white to-zinc-50/30"
                   >
-                    <div className="p-8 md:p-12 space-y-0 relative">
+                    <div className="p-6 md:p-10 space-y-0 relative font-sans">
                       <motion.div 
                         initial={{ height: 0 }}
-                        animate={{ height: 'calc(100% - 100px)' }}
+                        animate={{ height: 'calc(100% - 80px)' }}
                         transition={{ duration: 1.5, delay: 0.5 }}
-                        className="absolute left-[40px] md:left-[70px] top-[60px] w-[2px] bg-gradient-to-b from-emerald-500 via-emerald-200 to-transparent z-0" 
+                        className="absolute left-[34px] md:left-[65px] top-[50px] w-[1.5px] bg-gradient-to-b from-emerald-500 via-emerald-200 to-transparent z-0" 
                       />
 
                       {current.syllabus.map((item, idx) => (
-                        <motion.div key={idx} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1 }} className="relative flex gap-8 group pb-12 last:pb-0">
-                          <motion.div whileHover={{ scale: 1.2 }} className="w-12 h-12 rounded-2xl border-2 border-white shadow-md flex items-center justify-center text-xs font-black text-zinc-400 group-hover:border-emerald-500 group-hover:text-emerald-600 transition-all z-10 bg-white">
-                            {idx + 1 < 10 ? `0${idx + 1}` : idx + 1}
+                        <motion.div key={idx} initial={{ opacity: 0, x: -15 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1 }} className="relative flex gap-6 group pb-10 last:pb-0">
+                          <motion.div
+                            whileHover={{ scale: 1.1 }}
+                            className="min-w-[50px] px-2 h-10 rounded-xl border-2 border-white shadow-sm flex items-center justify-center text-[9px] font-bold text-zinc-400 group-hover:border-emerald-500 group-hover:text-emerald-600 transition-all z-10 bg-white text-center font-sans"
+                          >
+                            {item.label}
                           </motion.div>
-                          <div className="flex-1 pt-1">
-                            <h4 className="text-lg font-bold text-zinc-800 group-hover:text-emerald-700 transition-colors">{item.title}</h4>
-                            <div className="flex gap-3 mt-3 mb-4">{item.tools.map(t => <TechLogo key={t} name={t} />)}</div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-white/50 p-6 rounded-3xl border border-zinc-100 group-hover:border-emerald-100 transition-all">
+                          <div className="flex-1 pt-0.5">
+                            <h4 className="text-md font-bold text-zinc-800 group-hover:text-emerald-700 transition-colors font-sans">{item.title}</h4>
+                            <div className="flex gap-2.5 mt-2 mb-3">{item.tools.map(t => <TechLogo key={t} name={t} />)}</div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 bg-white/50 p-5 rounded-2xl border border-zinc-100 group-hover:border-emerald-100 transition-all">
                               {item.topics.map((topic, i) => (
-                                <div key={i} className="flex items-center gap-3 text-sm text-zinc-600">
-                                  <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" /> {topic}
+                                <div key={i} className="flex items-center gap-2 text-xs text-zinc-600 font-sans">
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" /> {topic}
                                 </div>
                               ))}
                             </div>
@@ -255,26 +257,26 @@ const InternshipPrograms = () => {
           </section>
 
           {/* CAREER TRAINING */}
-          <section className="space-y-8 pt-8 border-t border-zinc-100">
-            <h2 className="text-2xl font-bold flex items-center gap-3"><Cpu className="w-6 h-6 text-zinc-900" /> Career Training</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="group rounded-3xl bg-white border border-zinc-200 p-2 shadow-sm hover:shadow-xl transition-all">
-                <div className="h-44 relative rounded-2xl overflow-hidden">
+          <section className="space-y-6 pt-6 border-t border-zinc-100">
+            <h2 className="text-xl font-bold flex items-center gap-2 font-sans"><Cpu className="w-5 h-5 text-zinc-900" /> Career Training</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="group rounded-2xl bg-white border border-zinc-200 p-1.5 shadow-sm hover:shadow-lg transition-all">
+                <div className="h-40 relative rounded-xl overflow-hidden">
                   <img src="https://images.unsplash.com/photo-1556761175-b413da4baf72?q=80&w=800" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Technical Sync" />
-                  <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-black uppercase flex items-center gap-2"><Video className="w-3 h-3 text-emerald-600" /> Industry Sync</div>
+                  <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full text-[8px] font-bold uppercase flex items-center gap-1.5 font-sans"><Video className="w-3 h-3 text-emerald-600" /> Industry Sync</div>
                 </div>
-                <div className="p-6">
-                  <h4 className="text-base font-bold text-zinc-900">Industry Expert Sync</h4>
-                  <p className="text-xs text-zinc-400 italic mt-1">Direct reviews with Senior FAANG SDEs.</p>
+                <div className="p-4 font-sans">
+                  <h4 className="text-sm font-bold text-zinc-900">Industry Expert Sync</h4>
+                  <p className="text-[11px] text-zinc-400 italic mt-0.5">Direct reviews with Senior FAANG SDEs.</p>
                 </div>
               </div>
-              <div className="group rounded-3xl bg-zinc-900 p-8 text-white relative overflow-hidden flex flex-col justify-between h-64 border border-zinc-800 shadow-2xl">
-                <div>
-                  <Mic2 className="w-10 h-10 text-emerald-400 mb-6" />
-                  <h4 className="text-lg font-bold italic uppercase">Communication Lab</h4>
-                  <p className="text-xs text-zinc-400 mt-2">Mastering technical storytelling & PR etiquette.</p>
+              <div className="group rounded-2xl bg-zinc-900 p-6 text-white relative overflow-hidden flex flex-col justify-between h-full border border-zinc-800 shadow-xl">
+                <div className="font-sans">
+                  <Mic2 className="w-8 h-8 text-emerald-400 mb-4" />
+                  <h4 className="text-md font-bold italic uppercase">Communication Lab</h4>
+                  <p className="text-[11px] text-zinc-400 mt-1">Mastering technical storytelling & PR etiquette.</p>
                 </div>
-                <button className="w-full py-3.5 rounded-xl bg-white text-zinc-950 font-black text-[9px] uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all shadow-lg">
+                <button className="w-full py-3 rounded-lg bg-white text-zinc-950 font-bold text-[8px] uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all shadow-md font-sans">
                   Review Modules <ArrowUpRight className="w-3 h-3 inline ml-1" />
                 </button>
               </div>
@@ -282,24 +284,24 @@ const InternshipPrograms = () => {
           </section>
 
           {/* PROJECTS SECTION */}
-          <section className="space-y-8 pt-8 border-t border-zinc-100">
-            <h2 className="text-2xl font-bold flex items-center gap-3"><Code2 className="w-6 h-6 text-zinc-900" /> Student Builds</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <section className="space-y-6 pt-6 border-t border-zinc-100">
+            <h2 className="text-xl font-bold flex items-center gap-2 font-sans"><Code2 className="w-5 h-5 text-zinc-900" /> Student Builds</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {current.projects.map((proj) => (
-                <div key={proj.title} className="group bg-white rounded-[2rem] border border-zinc-200 overflow-hidden shadow-sm hover:shadow-xl transition-all">
-                  <div className="h-48 overflow-hidden relative">
+                <div key={proj.title} className="group bg-white rounded-2xl border border-zinc-200 overflow-hidden shadow-sm hover:shadow-lg transition-all">
+                  <div className="h-40 overflow-hidden relative">
                     <img src={proj.img} alt={proj.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                   </div>
-                  <div className="p-6 flex justify-between items-center">
+                  <div className="p-5 flex justify-between items-center font-sans">
                     <div>
-                      <h4 className="font-bold text-zinc-900">{proj.title}</h4>
-                      <div className="flex gap-2 mt-2">
+                      <h4 className="text-sm font-bold text-zinc-900">{proj.title}</h4>
+                      <div className="flex gap-1.5 mt-1.5">
                         {proj.tech.map((t) => (
-                          <span key={t} className="text-[8px] font-black uppercase tracking-widest text-zinc-400 border border-zinc-100 px-2 py-0.5 rounded-md">{t}</span>
+                          <span key={t} className="text-[7px] font-bold uppercase tracking-widest text-zinc-400 border border-zinc-100 px-1.5 py-0.5 rounded-md">{t}</span>
                         ))}
                       </div>
                     </div>
-                    <ArrowUpRight className="w-5 h-5 text-zinc-300 group-hover:text-emerald-500 transition-colors" />
+                    <ArrowUpRight className="w-4 h-4 text-zinc-300 group-hover:text-emerald-500 transition-colors" />
                   </div>
                 </div>
               ))}
@@ -307,21 +309,21 @@ const InternshipPrograms = () => {
           </section>
 
           {/* REVIEWS SECTION */}
-          <section className="space-y-8 pt-8 border-t border-zinc-100">
-            <h2 className="text-3xl font-bold flex items-center gap-3">
-              <Star className="w-8 h-8 text-yellow-500 fill-yellow-500" /> Student Experience
+          <section className="space-y-6 pt-6 border-t border-zinc-100">
+            <h2 className="text-2xl font-bold flex items-center gap-2 font-sans">
+              <Star className="w-6 h-6 text-yellow-500 fill-yellow-500" /> Student Experience
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {current.reviews.map((rev, i) => (
-                <div key={i} className="p-8 rounded-[2.5rem] bg-zinc-50 border border-zinc-100 relative group hover:bg-white hover:shadow-2xl transition-all duration-500">
-                  <Quote className="absolute top-6 right-8 w-8 h-8 text-zinc-200 group-hover:text-emerald-100 transition-colors" />
-                  <div className="flex gap-1 mb-4">
-                    {[...Array(rev.rating)].map((_, i) => <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />)}
+                <div key={i} className="p-6 rounded-[1.5rem] bg-zinc-50 border border-zinc-100 relative group hover:bg-white hover:shadow-xl transition-all duration-500">
+                  <Quote className="absolute top-4 right-5 w-6 h-6 text-zinc-200 group-hover:text-emerald-100 transition-colors" />
+                  <div className="flex gap-0.5 mb-3">
+                    {[...Array(rev.rating)].map((_, i) => <Star key={i} className="w-2.5 h-2.5 fill-yellow-400 text-yellow-400" />)}
                   </div>
-                  <p className="text-sm leading-relaxed text-zinc-600 mb-6 italic">"{rev.text}"</p>
-                  <div>
-                    <h5 className="font-bold text-zinc-900">{rev.name}</h5>
-                    <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">{rev.role}</p>
+                  <p className="text-[13px] leading-relaxed text-zinc-600 mb-4 italic font-sans">"{rev.text}"</p>
+                  <div className="font-sans">
+                    <h5 className="text-[13px] font-bold text-zinc-900">{rev.name}</h5>
+                    <p className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest">{rev.role}</p>
                   </div>
                 </div>
               ))}
@@ -331,40 +333,33 @@ const InternshipPrograms = () => {
 
         {/* 3. SIDEBAR */}
         <aside className="lg:col-span-4">
-          <div className="sticky top-28 space-y-6">
-            <div className="bg-white rounded-[2.5rem] p-10 border border-blue-100 shadow-2xl shadow-blue-500/10 relative overflow-hidden text-center group">
-              <Sparkles className="w-10 h-10 text-blue-600 mx-auto mb-6 animate-pulse" />
-              <h3 className="text-2xl font-bold mb-2 tracking-tight">The future is <span className="text-blue-600">code</span></h3>
-              <p className="text-sm text-zinc-400 mb-8 italic">"Build something that outlasts you."</p>
+          <div className="sticky top-24 space-y-5">
+            <div className="bg-white rounded-[2rem] p-8 border border-blue-100 shadow-xl shadow-blue-500/5 relative overflow-hidden text-center group">
+              <Sparkles className="w-8 h-8 text-blue-600 mx-auto mb-4 animate-pulse" />
+              <h3 className="text-xl font-bold mb-1.5 tracking-tight font-sans">The future is <span className="text-blue-600">code</span></h3>
+              <p className="text-xs text-zinc-400 mb-6 italic font-sans">"Build something that outlasts you."</p>
               
               <button
                 onClick={handleApply}
                 disabled={isLoggedIn === null}
-                className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl shadow-blue-500/30 hover:bg-blue-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 font-sans"
               >
-                {isLoggedIn === null ? "Checking Status..." : <>Apply for {activeStack} <ArrowRight className="w-4 h-4" /></>}
+                {isLoggedIn === null ? "Checking..." : <>Apply for {activeStack} <ArrowRight className="w-3.5 h-3.5" /></>}
               </button>
 
-              <div className="mt-8 py-3 px-4 bg-zinc-50 rounded-xl border border-zinc-100 flex items-center justify-center gap-2">
-                <Users className="w-3.5 h-3.5 text-blue-500" />
-                <span className="text-[10px] text-slate-500 font-semibold uppercase">Only 8/20 seats left</span>
+              <div className="mt-6 py-2.5 px-3 bg-zinc-50 rounded-lg border border-zinc-100 flex items-center justify-center gap-1.5 font-sans">
+                <Users className="w-3 h-3 text-blue-500" />
+                <span className="text-[9px] text-slate-500 font-semibold uppercase">Only 8/20 seats left</span>
               </div>
-              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/10 rounded-full blur-3xl group-hover:scale-150 transition-transform" />
+              <div className="absolute top-0 right-0 w-24 h-24 bg-blue-400/5 rounded-full blur-2xl group-hover:scale-150 transition-transform" />
             </div>
             
-            <div className="p-8 rounded-[2rem] bg-zinc-900 text-white flex items-center gap-5 shadow-2xl border border-zinc-800">
-              <div className="p-3 bg-white/10 rounded-2xl"><ShieldCheck className="w-6 h-6 text-emerald-400" /></div>
-              <div>
-                <h5 className="text-sm font-bold tracking-tight">Verified Training</h5>
-                <p className="text-[9px] text-zinc-500 uppercase font-bold tracking-widest mt-1">LinkedIn Credential</p>
-              </div>
-            </div>
           </div>
         </aside>
       </main>
 
-      <footer className="py-16 border-t border-zinc-100 text-center bg-zinc-50/30">
-        <p className="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-300 italic">Inetz Academy • Technical Residency Portal • 2026</p>
+      <footer className="py-12 border-t border-zinc-100 text-center bg-zinc-50/30">
+        <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-zinc-300 italic font-sans">Inetz Academy • Technical Residency Portal • 2026</p>
       </footer>
     </div>
   );

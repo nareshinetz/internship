@@ -5,10 +5,11 @@ import Script from "next/script";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  User, Mail, Phone, GraduationCap, 
-  Sparkles, ChevronDown, CheckCircle2, 
-  Send, Loader2, ShieldCheck, CreditCard,
-  ArrowLeft
+  User, Phone, GraduationCap, 
+  ChevronDown, CheckCircle2, 
+  Loader2, ShieldCheck, CreditCard,
+  ArrowLeft, Building2, Briefcase,
+  AlertCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -16,6 +17,7 @@ const ApplyAndPayPage = () => {
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     fullName: "",
@@ -30,15 +32,43 @@ const ApplyAndPayPage = () => {
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    if (errorMessage) setErrorMessage(null); // Clear error when user types
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // --- FORM VALIDATION LOGIC ---
+  const validateForm = () => {
+    const { fullName, email, phone, college, department } = formData;
+    
+    if (!fullName.trim() || !email.trim() || !phone.trim() || !college.trim() || !department.trim()) {
+      setErrorMessage("Please fill in all required fields.");
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setErrorMessage("Please enter a valid email address.");
+      return false;
+    }
+
+    if (phone.length < 10) {
+      setErrorMessage("Please enter a valid 10-digit phone number.");
+      return false;
+    }
+
+    return true;
   };
 
   const handleApplyAndPay = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // 1. Run Validation
+    if (!validateForm()) return;
+
     setIsProcessing(true);
 
     try {
-      // 1. Create Order & Save Application in Backend
+      // 2. Create Order & Save Application in Backend
       const res = await fetch("/api/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -48,7 +78,7 @@ const ApplyAndPayPage = () => {
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
 
-      // 2. Open Razorpay Checkout Modal
+      // 3. Open Razorpay Checkout Modal
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, 
         amount: data.amount,
@@ -57,7 +87,6 @@ const ApplyAndPayPage = () => {
         description: "Internship Registration Fee",
         order_id: data.orderId, 
         handler: function (response: any) {
-          // Success Path
           setPaymentSuccess(true);
           setIsProcessing(false);
           setTimeout(() => router.push("/dashboard"), 3000);
@@ -67,151 +96,140 @@ const ApplyAndPayPage = () => {
           email: formData.email,
           contact: formData.phone,
         },
-        theme: { color: "#059669" },
+        theme: { color: "#10b981" },
         modal: { ondismiss: () => setIsProcessing(false) }
       };
 
-      const rzp = new (window as any).Razorpay(options);
-      rzp.open();
+      const rzp = (window as any).Razorpay ? new (window as any).Razorpay(options) : null;
+      if (rzp) {
+        rzp.open();
+      } else {
+        throw new Error("Razorpay SDK failed to load. Please refresh.");
+      }
 
     } catch (error: any) {
-      alert("Error: " + error.message);
+      setErrorMessage(error.message || "Something went wrong. Try again.");
       setIsProcessing(false);
     }
   };
+
   return (
-    <div className="min-h-screen bg-[#FAFAFA] dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans">
-      <Script src="https://checkout.razorpay.com/v1/checkout.js" />
+    <div className="min-h-screen bg-white text-zinc-900 font-sans selection:bg-emerald-50">
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
       
       {/* SUCCESS OVERLAY */}
       <AnimatePresence>
         {paymentSuccess && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-[100] flex items-center justify-center bg-white/90 backdrop-blur-xl dark:bg-zinc-950/90 text-center p-6">
-            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="space-y-6 max-w-sm">
-              <div className="w-24 h-24 bg-emerald-100 dark:bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto shadow-xl shadow-emerald-500/10">
-                <CheckCircle2 className="w-12 h-12 text-emerald-600" />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-[100] flex items-center justify-center bg-white/95 backdrop-blur-sm text-center p-6">
+            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} className="space-y-4 max-w-xs">
+              <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mx-auto border border-emerald-100">
+                <CheckCircle2 className="w-6 h-6 text-emerald-600" />
               </div>
-              <h2 className="text-4xl font-black italic tracking-tighter">Seat Secured!</h2>
-              <p className="text-zinc-500 font-medium leading-relaxed">Welcome to the cohort, {formData.fullName}. Check your email for the onboarding kit.</p>
-              <button onClick={() => router.push('/dashboard')} className="w-full py-4 bg-zinc-900 text-white rounded-2xl font-bold text-xs uppercase tracking-widest">Go to Dashboard</button>
+              <h2 className="text-xl font-bold">Payment Successful</h2>
+              <p className="text-zinc-500 text-xs leading-relaxed">Welcome to the cohort, {formData.fullName}. Check your email for onboarding details.</p>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="max-w-7xl mx-auto px-6 py-12 md:py-20">
-        {/* HEADER */}
-        <header className="mb-12 flex items-center justify-between">
-           <button onClick={() => router.back()} className="p-2 hover:bg-zinc-100 rounded-full transition-colors">
-              <ArrowLeft className="w-5 h-5" />
+      <div className="max-w-5xl mx-auto px-6 py-12">
+        <header className="flex items-center justify-between mb-16">
+           <button onClick={() => router.back()} className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-zinc-900 transition-all">
+              <ArrowLeft className="w-3.5 h-3.5" /> Back
            </button>
-           <div className="text-right">
-              <h1 className="text-2xl font-black uppercase tracking-tighter">Inetz <span className="text-emerald-600">Student</span></h1>
-              <p className="text-[10px] font-bold text-zinc-400 tracking-widest uppercase">Registration Portal 2026</p>
-           </div>
+           <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em]">Registration Portal 2026</p>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
           
-          {/* LEFT COLUMN: THE FORM */}
-          <div className="lg:col-span-8 space-y-8">
-            <div className="space-y-2">
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Complete your <span className="text-emerald-600">profile</span></h2>
-              <p className="text-zinc-500 font-medium">This information will be used for your official internship certificate.</p>
+          <div className="lg:col-span-7">
+            <div className="mb-10">
+              <h1 className="text-3xl font-bold tracking-tight mb-2">Complete Application</h1>
+              <p className="text-zinc-400 text-sm font-medium">Verify your details for the internship certificate.</p>
             </div>
 
+            {/* ERROR NOTIFICATION */}
+            <AnimatePresence>
+              {errorMessage && (
+                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mb-8 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-600 text-xs font-semibold">
+                  <AlertCircle className="w-4 h-4" />
+                  {errorMessage}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <form onSubmit={handleApplyAndPay} className="space-y-12">
-              
-              {/* CONTACT SECTION */}
               <section className="space-y-6">
-                <div className="flex items-center gap-3">
-                   <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
-                      <User className="w-4 h-4" />
-                   </div>
-                   <h3 className="font-bold text-lg">Personal Identity</h3>
+                <div className="flex items-center gap-2 border-b border-zinc-50 pb-2">
+                    <User className="w-3.5 h-3.5 text-zinc-400" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Personal Identity</span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <InputField label="Full Name" name="fullName" value={formData.fullName} onChange={handleChange} placeholder="Sonu" />
-                  <InputField label="Email Address" type="email" name="email" value={formData.email} onChange={handleChange} placeholder="sonu@example.com" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <InputField label="Full Name" name="fullName" value={formData.fullName} onChange={handleChange} placeholder="Enter your full name" />
+                  <InputField label="Email Address" type="email" name="email" value={formData.email} onChange={handleChange} placeholder="name@example.com" />
                   <div className="md:col-span-2">
-                    <InputField label="Phone Number" name="phone" value={formData.phone} onChange={handleChange} placeholder="+91 00000 00000" icon={<Phone className="w-4 h-4" />} />
+                    <InputField label="Phone Number" name="phone" value={formData.phone} onChange={handleChange} placeholder="10-digit mobile number" icon={<Phone className="w-3.5 h-3.5" />} />
                   </div>
                 </div>
               </section>
 
-              {/* EDUCATION SECTION */}
               <section className="space-y-6">
-                <div className="flex items-center gap-3">
-                   <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
-                      <GraduationCap className="w-4 h-4" />
-                   </div>
-                   <h3 className="font-bold text-lg">Academic Credentials</h3>
+                <div className="flex items-center gap-2 border-b border-zinc-50 pb-2">
+                    <Building2 className="w-3.5 h-3.5 text-zinc-400" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Academic Background</span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="md:col-span-2">
-                    <InputField label="College / University" name="college" value={formData.college} onChange={handleChange} placeholder="Enter your college name" />
+                    <InputField label="College / University" name="college" value={formData.college} onChange={handleChange} placeholder="Full Institution Name" />
                   </div>
-                  <InputField label="Department" name="department" value={formData.department} onChange={handleChange} placeholder="CSE / IT / ECE" />
-                  <SelectField label="Current Year" name="year" value={formData.year} onChange={handleChange} options={["1st Year", "2nd Year", "3rd Year", "4th Year", "Passed out"]} />
+                  <InputField label="Department" name="department" value={formData.department} onChange={handleChange} placeholder="e.g. CSE / IT" />
+                  <SelectField label="Year of Study" name="year" value={formData.year} onChange={handleChange} options={["1st Year", "2nd Year", "3rd Year", "4th Year", "Graduate"]} />
                 </div>
               </section>
 
-              {/* PREFERENCES SECTION */}
               <section className="space-y-6">
-                <div className="flex items-center gap-3">
-                   <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
-                      <Sparkles className="w-4 h-4" />
-                   </div>
-                   <h3 className="font-bold text-lg">Program Specialization</h3>
+                <div className="flex items-center gap-2 border-b border-zinc-50 pb-2">
+                    <Briefcase className="w-3.5 h-3.5 text-zinc-400" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Program Preference</span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <SelectField label="Domain" name="domain" value={formData.domain} onChange={handleChange} options={["MERN Stack", "Python / AI", "Java Spring Boot"]} />
                   <SelectField label="Duration" name="duration" value={formData.duration} onChange={handleChange} options={["1 Month", "3 Months"]} />
-                  <SelectField label="Learning Mode" name="mode" value={formData.mode} onChange={handleChange} options={["Online", "Offline"]} />
+                  <SelectField label="Mode" name="mode" value={formData.mode} onChange={handleChange} options={["Online", "Offline"]} />
                 </div>
               </section>
-
-              {/* MOBILE ONLY BUTTON */}
-              <div className="lg:hidden">
-                <SubmitButton isProcessing={isProcessing} />
-              </div>
             </form>
           </div>
 
-          {/* RIGHT COLUMN: STICKY ORDER SUMMARY */}
-          <aside className="lg:col-span-4 sticky top-12">
-            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-[2.5rem] p-8 shadow-xl shadow-zinc-200/50 dark:shadow-none">
-              <h3 className="text-xl font-bold mb-6">Order Summary</h3>
-              
+          <aside className="lg:col-span-5">
+            <div className="sticky top-12 bg-zinc-50 border border-zinc-100 rounded-2xl p-8">
+              <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-400 mb-6">Order Summary</h3>
               <div className="space-y-4 mb-8">
-                <SummaryRow label="Program" value={formData.domain} />
-                <SummaryRow label="Duration" value={formData.duration} />
-                <SummaryRow label="Access Mode" value={formData.mode} />
-                <div className="h-px bg-zinc-100 dark:bg-zinc-800 my-4" />
-                <div className="flex justify-between items-center">
-                  <span className="font-bold text-zinc-900 dark:text-white">Registration Fee</span>
-                  <span className="text-2xl font-black text-emerald-600">₹500</span>
+                <SummaryItem label="Program" value={formData.domain} />
+                <SummaryItem label="Duration" value={formData.duration} />
+                <SummaryItem label="Mode" value={formData.mode} />
+                <div className="h-px bg-zinc-200/50 my-4" />
+                <div className="flex justify-between items-end">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Total Fee</span>
+                  <span className="text-3xl font-bold tracking-tighter text-emerald-600">₹500</span>
                 </div>
               </div>
 
-              <div className="space-y-4 mb-8">
-                <div className="flex items-center gap-3 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
-                  <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                  Secure SSL Encrypted
-                </div>
-                <div className="flex items-center gap-3 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
-                  <CreditCard className="w-4 h-4 text-emerald-500" />
-                  UPI / Cards / NetBanking
+              <button 
+                type="button"
+                onClick={handleApplyAndPay}
+                disabled={isProcessing}
+                className="w-full py-4 bg-zinc-900 text-white rounded-xl font-bold uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 hover:bg-zinc-800 transition-all active:scale-[0.99] disabled:opacity-50"
+              >
+                {isProcessing ? <Loader2 className="animate-spin w-3.5 h-3.5" /> : <CreditCard className="w-3.5 h-3.5" />}
+                {isProcessing ? "Initialising..." : "Secure Payment • ₹500"}
+              </button>
+
+              <div className="mt-6 flex flex-col items-center gap-3">
+                <div className="flex items-center gap-2 text-[9px] font-bold text-zinc-400 uppercase tracking-widest">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> SSL Encrypted Gateway
                 </div>
               </div>
-
-              <div className="hidden lg:block">
-                <SubmitButton isProcessing={isProcessing} onClick={handleApplyAndPay} />
-              </div>
-
-              <p className="mt-6 text-center text-[10px] text-zinc-400 font-medium leading-relaxed">
-                By clicking "Secure Payment", you agree to our Terms of Residency and Internship Policies.
-              </p>
             </div>
           </aside>
 
@@ -223,15 +241,15 @@ const ApplyAndPayPage = () => {
 
 // Helper Components
 const InputField = ({ label, name, value, onChange, placeholder, type = "text", icon }: any) => (
-  <div className="space-y-2">
-    <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] ml-1">{label}</label>
+  <div className="space-y-1.5">
+    <label className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest ml-1">{label}</label>
     <div className="relative">
-      {icon && <div className="absolute left-5 top-1/2 -translate-y-1/2">{icon}</div>}
+      {icon && <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300">{icon}</div>}
       <input 
         name={name} type={type} value={value} onChange={onChange} required 
         className={cn(
-          "w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl py-4 px-5 text-sm outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all",
-          icon && "pl-12"
+          "w-full bg-white border border-zinc-200 rounded-lg py-3 px-4 text-xs outline-none focus:border-zinc-900 transition-all font-medium",
+          icon && "pl-11"
         )} 
         placeholder={placeholder} 
       />
@@ -240,31 +258,22 @@ const InputField = ({ label, name, value, onChange, placeholder, type = "text", 
 );
 
 const SelectField = ({ label, name, value, onChange, options }: any) => (
-  <div className="space-y-2">
-    <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] ml-1">{label}</label>
-    <select name={name} value={value} onChange={onChange} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl py-4 px-5 text-sm outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all appearance-none">
-      {options.map((opt: string) => <option key={opt}>{opt}</option>)}
-    </select>
+  <div className="space-y-1.5">
+    <label className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest ml-1">{label}</label>
+    <div className="relative">
+      <select name={name} value={value} onChange={onChange} className="w-full bg-white border border-zinc-200 rounded-lg py-3 px-4 text-xs outline-none focus:border-zinc-900 transition-all appearance-none font-medium cursor-pointer">
+        {options.map((opt: string) => <option key={opt}>{opt}</option>)}
+      </select>
+      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-3 h-3 text-zinc-300 pointer-events-none" />
+    </div>
   </div>
 );
 
-const SummaryRow = ({ label, value }: { label: string, value: string }) => (
-  <div className="flex justify-between text-sm">
-    <span className="text-zinc-400 font-medium">{label}</span>
-    <span className="font-bold text-zinc-800 dark:text-zinc-200">{value}</span>
+const SummaryItem = ({ label, value }: { label: string, value: string }) => (
+  <div className="flex justify-between text-xs">
+    <span className="text-zinc-500 font-medium">{label}</span>
+    <span className="font-bold text-zinc-900">{value}</span>
   </div>
-);
-
-const SubmitButton = ({ isProcessing, onClick }: any) => (
-  <button 
-    type="submit" 
-    onClick={onClick}
-    disabled={isProcessing}
-    className="w-full py-5 bg-emerald-600 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] flex items-center justify-center gap-3 hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-500/20 disabled:opacity-70 active:scale-[0.98]"
-  >
-    {isProcessing ? <Loader2 className="animate-spin w-4 h-4" /> : <CreditCard className="w-4 h-4" />}
-    {isProcessing ? "Processing..." : "Secure Payment • ₹500"}
-  </button>
 );
 
 export default ApplyAndPayPage;

@@ -130,75 +130,132 @@ export const programData: Record<TechStack, Record<Duration, ProgramDetails>> = 
   },
   Java: {
     "1 Week": {
-      title: "Java Fundamentals",
-      subtitle: "Core OOP Basics",
-      heroImg: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070",
-      syllabus: [
-        { label: "Day 1", title: "Java Syntax", tools: ["java"], topics: ["JVM/JDK Architecture", "Data Types", "Operators", "First Program"] },
-        { label: "Day 2", title: "Control Flow", tools: ["java"], topics: ["Loops", "Switch Statements", "Logic Gates", "Pattern Printing"] },
-        { label: "Day 3", title: "OOPS Phase 1", tools: ["java"], topics: ["Classes & Objects", "Constructors", "This Keyword", "Encapsulation"] },
-        { label: "Day 4", title: "OOPS Phase 2", tools: ["java"], topics: ["Inheritance", "Polymorphism", "Abstract Classes", "Interfaces"] },
-        { label: "Day 5", title: "Java Collections", tools: ["java"], topics: ["ArrayList", "HashMap", "Collections Class", "Exception Handling"] },
-      ],
-      projects: [
-        { title: "E-Commerce OS", tech: ["React", "Node", "MongoDB"], img: "https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=800" },
-        { title: "SaaS Dashboard", tech: ["Next.js", "Tailwind"], img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800" }
-      ],
-      reviews: [
-        { name: "Arjun Mehta", role: "SDE Intern @ Google", text: "The MERN roadmap is incredibly dense and practical.", rating: 5 }
-      ]
-    },
+  title: "Java Fundamentals",
+  subtitle: "Core Basics & Problem Solving",
+  heroImg: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070",
+  syllabus: [
+    { label: "Day 1-2", title: "Java Introduction & Basics", tools: ["java"], topics: ["What is Java", "JDK, JRE, JVM", "Hello World Program", "Data Types & Variables", "Type Casting", "Print Statements", "Simple Calculations"] },
+    { label: "Day 3", title: "Operators", tools: ["java"], topics: ["Arithmetic Operators", "Relational Operators", "Logical Operators", "Increment / Decrement", "Swap Two Numbers", "Simple Calculator"] },
+    { label: "Day 4", title: "Conditional Statements", tools: ["java"], topics: ["if Statement", "if-else", "else-if Ladder", "switch Case", "Even/Odd Program", "Largest of 3 Numbers", "Grade System"] },
+    { label: "Day 5", title: "Loops", tools: ["java"], topics: ["for Loop", "while Loop", "do-while Loop", "break & continue", "Factorial Program", "Fibonacci Series", "Palindrome Number"] },
+    { label: "Day 6", title: "Arrays", tools: ["java"], topics: ["1D Arrays", "Array Traversing", "Basic Array Operations", "Maximum & Minimum", "Sum of Array", "Reverse Array"] },
+    { label: "Day 7", title: "Methods", tools: ["java"], topics: ["Method Syntax", "Parameters", "Return Types", "Method Overloading (Basic)", "Prime Number Program", "Palindrome using Method"] }
+  ],
+  projects: [
+    { title: "Student Marks Calculator", tech: ["Java"], img: "https://images.unsplash.com/photo-1588072432836-e10032774350?q=80&w=800" },
+    { title: "Number Utility App", tech: ["Java"], img: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?q=80&w=800" }
+  ],
+  reviews: [
+    { name: "Rahul Sharma", role: "Java Developer Intern", text: "This foundation week helped me master core Java concepts and logic building.", rating: 5 }
+  ]
+},
     "2 Weeks": {
-      title: "Java Intermediate",
-      subtitle: "Enterprise Foundations",
-      heroImg: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070",
-      syllabus: [
-        { label: "Week 1", title: "Core & Collections", tools: ["java"], topics: ["Generics", "Streams API", "Lambda Expressions", "File I/O"] },
-        { label: "Week 2", title: "Java Database", tools: ["postgresql", "java"], topics: ["JDBC Basics", "SQL Queries", "Design Patterns", "Library Management Project"] }
-      ],
-      projects: [
-        { title: "E-Commerce OS", tech: ["React", "Node", "MongoDB"], img: "https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=800" },
-        { title: "SaaS Dashboard", tech: ["Next.js", "Tailwind"], img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800" }
-      ],
-      reviews: [
-        { name: "Arjun Mehta", role: "SDE Intern @ Google", text: "The MERN roadmap is incredibly dense and practical.", rating: 5 }
-      ]
-    },
+  title: "Java Core to OOP",
+  subtitle: "Complete Foundation + OOP Mastery",
+  heroImg: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070",
+  syllabus: [
+    { label: "Day 1-2", title: "Java Introduction & Basics", tools: ["java"], topics: ["What is Java", "JDK, JRE, JVM", "Hello World Program", "Data Types & Variables", "Type Casting", "Print Details", "Simple Calculations"] },
+    { label: "Day 3", title: "Operators", tools: ["java"], topics: ["Arithmetic Operators", "Relational Operators", "Logical Operators", "Increment / Decrement", "Swap 2 Numbers", "Simple Calculator"] },
+    { label: "Day 4", title: "Conditional Statements", tools: ["java"], topics: ["if", "if-else", "else-if", "switch", "Even/Odd", "Largest of 3 Numbers", "Grade System"] },
+    { label: "Day 5", title: "Loops", tools: ["java"], topics: ["for Loop", "while Loop", "do-while", "break & continue", "Factorial", "Fibonacci", "Palindrome Number"] },
+    { label: "Day 6", title: "Arrays", tools: ["java"], topics: ["1D Array", "Traversing", "Basic Operations", "Max/Min", "Sum of Array", "Reverse Array"] },
+    { label: "Day 7", title: "Methods", tools: ["java"], topics: ["Method Syntax", "Parameters", "Return Type", "Method Overloading", "Prime Number", "Palindrome using Method"] },
+    { label: "Day 8-9", title: "OOP Concepts", tools: ["java"], topics: ["Class & Object", "Constructor", "this Keyword", "Encapsulation (Getter/Setter)", "Student Class Practice", "Employee Class Practice"] },
+    { label: "Day 10", title: "Inheritance", tools: ["java"], topics: ["Single Inheritance", "Method Overriding", "Animal-Dog Example"] },
+    { label: "Day 11", title: "Polymorphism", tools: ["java"], topics: ["Compile-time (Overloading)", "Runtime (Overriding)"] },
+    { label: "Day 12", title: "Abstraction", tools: ["java"], topics: ["Abstract Class", "Interface (Basic)"] },
+    { label: "Day 13", title: "Exception Handling", tools: ["java"], topics: ["try-catch-finally", "throw & throws", "Divide by Zero Handling", "Custom Error Message"] },
+    { label: "Day 14", title: "Strings", tools: ["java"], topics: ["String Methods", "StringBuilder", "Reverse String", "Remove Duplicates"] }
+  ],
+  projects: [
+    { title: "Student Management System", tech: ["Java"], img: "https://images.unsplash.com/photo-1588072432836-e10032774350?q=80&w=800" },
+    { title: "Banking Console App", tech: ["Java"], img: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=800" }
+  ],
+  reviews: [
+    { name: "Karthik R", role: "Java Developer Intern", text: "This roadmap gave me strong OOP clarity and real coding confidence.", rating: 5 }
+  ]
+},
     "1 Month": {
-      title: "Backend Engineer (Java)",
-      subtitle: "Spring Framework Specialist",
-      heroImg: "https://images.unsplash.com/photo-1516116216624-53e697fedbea?q=80&w=2070",
-      syllabus: [
-        { label: "Mon 1", title: "Spring Core", tools: ["spring"], topics: ["Inversion of Control", "Dependency Injection", "Spring Beans", "Annotations"] },
-        { label: "Mon 2", title: "Spring Boot API", tools: ["spring"], topics: ["REST Controllers", "Spring Data JPA", "Hibernate", "H2 Database"] },
-        { label: "Mon 3", title: "Security & Validation", tools: ["spring"], topics: ["Spring Security Basics", "DTO Patterns", "Exception Handling", "Swagger Docs"] }
-      ],
-      projects: [
-        { title: "E-Commerce OS", tech: ["React", "Node", "MongoDB"], img: "https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=800" },
-        { title: "SaaS Dashboard", tech: ["Next.js", "Tailwind"], img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800" }
-      ],
-      reviews: [
-        { name: "Arjun Mehta", role: "SDE Intern @ Google", text: "The MERN roadmap is incredibly dense and practical.", rating: 5 }
-      ]
-    },
+  title: "Core Java Mastery",
+  subtitle: "From Basics to Collections Framework",
+  heroImg: "https://images.unsplash.com/photo-1516116216624-53e697fedbea?q=80&w=2070",
+  syllabus: [
+    { label: "Day 1", title: "Java Introduction", tools: ["java"], topics: ["Java Editions", "JVM Basics", "JDK Setup", "IDE Setup", "PATH Configuration"] },
+    { label: "Day 2", title: "Java Structure", tools: ["java"], topics: ["Syntax Basics", "Program Structure", "main() Method", "Class Format"] },
+    { label: "Day 3", title: "Java Internals", tools: ["java"], topics: ["JDK vs JRE vs JVM", "JIT Compiler"] },
+    { label: "Day 4", title: "Tokens & Operators", tools: ["java"], topics: ["Java Tokens", "Arithmetic Operators", "Logical Operators", "Relational Operators"] },
+    { label: "Day 5", title: "Variables & Data Types", tools: ["java"], topics: ["Variable Naming", "Primitive Data Types", "Type Casting"] },
+    { label: "Day 6", title: "Strings", tools: ["java"], topics: ["equals()", "substring()", "replace()", "String Methods"] },
+    { label: "Day 7", title: "Arrays", tools: ["java"], topics: ["1D Arrays", "2D Arrays", "Traversal", "Array Operations"] },
+
+    { label: "Day 8", title: "Number Programming", tools: ["java"], topics: ["Palindrome", "Factorial", "Number Logic"] },
+    { label: "Day 9", title: "Conditionals & Loops", tools: ["java"], topics: ["if/else", "switch", "for Loop", "while Loop"] },
+    { label: "Day 10", title: "Methods", tools: ["java"], topics: ["Method Creation", "Parameters", "Return Types", "Method Overloading"] },
+    { label: "Day 11", title: "Static Concepts", tools: ["java"], topics: ["Static Keyword", "Non-Static Methods", "Memory Behavior"] },
+    { label: "Day 12", title: "Practice Day", tools: ["java"], topics: ["Arrays Practice", "Strings Practice", "Pattern Programs"] },
+    { label: "Day 13", title: "Classes & Objects", tools: ["java"], topics: ["Class Design", "Object Creation", "Real-world Modeling"] },
+    { label: "Day 14", title: "Constructors", tools: ["java"], topics: ["Default Constructor", "Parameterized Constructor", "Constructor Overloading"] },
+
+    { label: "Day 15", title: "Memory & this", tools: ["java"], topics: ["Heap vs Stack", "this Keyword Usage"] },
+    { label: "Day 16", title: "Encapsulation", tools: ["java"], topics: ["Getters & Setters", "Access Modifiers"] },
+    { label: "Day 17", title: "Inheritance", tools: ["java"], topics: ["Inheritance Types", "super Keyword"] },
+    { label: "Day 18", title: "Polymorphism", tools: ["java"], topics: ["Method Overloading", "Method Overriding", "Abstract Classes"] },
+    { label: "Day 19", title: "Interfaces", tools: ["java"], topics: ["Interface Basics", "Implementation"] },
+    { label: "Day 20", title: "OOP Practice", tools: ["java"], topics: ["OOP Design Problems", "Mini Projects"] },
+
+    { label: "Day 21", title: "Packages", tools: ["java"], topics: ["Packages", "Import Statements"] },
+    { label: "Day 22", title: "Object Class", tools: ["java"], topics: ["toString()", "equals()", "hashCode()"] },
+    { label: "Day 23", title: "String Handling", tools: ["java"], topics: ["StringBuffer", "StringBuilder", "Differences"] },
+    { label: "Day 24", title: "Wrapper Classes", tools: ["java"], topics: ["Primitive Wrappers", "Autoboxing", "Unboxing"] },
+    { label: "Day 25", title: "Wrapper Practice", tools: ["java"], topics: ["Parsing", "Wrapper in Collections"] },
+
+    { label: "Day 26", title: "Exception Handling", tools: ["java"], topics: ["try-catch-finally", "Checked vs Unchecked"] },
+    { label: "Day 27", title: "Custom Exceptions", tools: ["java"], topics: ["User-defined Exceptions", "Input Validation"] },
+    { label: "Day 28", title: "Collections Overview", tools: ["java"], topics: ["Collection Framework", "List vs Set vs Map"] },
+    { label: "Day 29", title: "List & Set", tools: ["java"], topics: ["ArrayList", "LinkedList", "HashSet"] },
+    { label: "Day 30", title: "Map & Queue", tools: ["java"], topics: ["HashMap", "PriorityQueue"] }
+  ],
+  projects: [
+    { title: "Library Management System", tech: ["Java"], img: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=800" },
+    { title: "Student Record System", tech: ["Java"], img: "https://images.unsplash.com/photo-1588072432836-e10032774350?q=80&w=800" }
+  ],
+  reviews: [
+    { name: "Suresh Kumar", role: "Java Backend Trainee", text: "This roadmap gave me complete clarity from basics to collections with strong coding practice.", rating: 5 }
+  ]
+},
     "3 Months": {
-      title: "Java Full-Stack Mastery",
-      subtitle: "Spring Boot & Microservices",
-      heroImg: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070",
-      syllabus: [
-        { label: "Mon 1", title: "Advanced Java & SQL", tools: ["java", "postgresql"], topics: ["Multithreading", "Memory Management", "Complex SQL Joins", "Maven/Gradle"] },
-        { label: "Mon 2", title: "Spring Boot Mastery", tools: ["spring", "postgresql"], topics: ["Microservices Intro", "Spring Cloud", "Eureka Discovery", "API Gateway"] },
-        { label: "Mon 3", title: "Full-Stack Java", tools: ["react", "spring"], topics: ["React Integration", "JWT Security", "JUnit Testing", "Docker & AWS Deploy"] },
-        { label: "Final", title: "Enterprise Capstone", tools: ["spring", "react", "docker"], topics: ["System Architecture", "Performance Profiling", "Production Launch", "SDR Review"] }
-      ],
-      projects: [
-        { title: "E-Commerce OS", tech: ["React", "Node", "MongoDB"], img: "https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=800" },
-        { title: "SaaS Dashboard", tech: ["Next.js", "Tailwind"], img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800" }
-      ],
-      reviews: [
-        { name: "Arjun Mehta", role: "SDE Intern @ Google", text: "The MERN roadmap is incredibly dense and practical.", rating: 5 }
-      ]
-    },
+  title: "Java Full-Stack Internship",
+  subtitle: "Java + Spring Boot + Frontend + Deployment",
+  heroImg: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070",
+  syllabus: [
+    { label: "Day 1-5", title: "Java Basics", tools: ["java"], topics: ["Java Intro", "JDK/JRE/JVM", "Syntax", "Data Types", "Variables", "Operators"] },
+    { label: "Day 6-10", title: "Control Flow & Arrays", tools: ["java"], topics: ["if-else", "switch", "Loops", "Arrays", "Pattern Programs"] },
+    { label: "Day 11-15", title: "Methods & Strings", tools: ["java"], topics: ["Methods", "Overloading", "String Methods", "StringBuilder"] },
+    { label: "Day 16-20", title: "OOP Concepts", tools: ["java"], topics: ["Classes", "Objects", "Constructors", "Encapsulation", "this Keyword"] },
+    { label: "Day 21-25", title: "Advanced OOP", tools: ["java"], topics: ["Inheritance", "Polymorphism", "Abstraction", "Interfaces"] },
+    { label: "Day 26-30", title: "Core Java Advanced", tools: ["java"], topics: ["Exception Handling", "Collections Framework", "Wrapper Classes"] },
+    { label: "Day 31-35", title: "Database & JDBC", tools: ["java", "mysql"], topics: ["SQL Basics", "CRUD", "Joins", "JDBC Connectivity"] },
+    { label: "Day 36-40", title: "Spring Boot Basics", tools: ["spring"], topics: ["Spring Boot Setup", "Project Structure", "REST APIs", "Controllers"] },
+    { label: "Day 41-45", title: "Spring Boot Advanced", tools: ["spring"], topics: ["JPA/Hibernate", "Entity Mapping", "Service Layer", "DTO"] },
+    { label: "Day 46-50", title: "Backend Project", tools: ["spring", "mysql"], topics: ["Full CRUD API", "Validation", "Exception Handling", "API Testing"] },
+
+    { label: "Day 51-55", title: "HTML & CSS", tools: ["html5", "css3"], topics: ["HTML Structure", "Forms", "CSS Styling", "Flexbox", "Responsive Design"] },
+    { label: "Day 56-60", title: "JavaScript Basics", tools: ["javascript"], topics: ["Variables", "Functions", "DOM", "Events", "Validation"] },
+    { label: "Day 61-65", title: "Advanced JavaScript", tools: ["javascript"], topics: ["Arrays", "Objects", "ES6", "Fetch API", "Async/Await"] },
+    { label: "Day 66-70", title: "React Basics", tools: ["react"], topics: ["Components", "Props", "State", "Hooks", "Routing"] },
+    { label: "Day 71-75", title: "React Advanced", tools: ["react"], topics: ["API Integration", "Forms", "Context API", "State Management"] },
+    { label: "Day 76-80", title: "Frontend Project", tools: ["react", "css3"], topics: ["Build UI App", "Connect APIs", "Responsive UI"] },
+    { label: "Day 81-85", title: "Full Stack Integration", tools: ["react", "spring"], topics: ["Frontend + Backend Integration", "CRUD UI", "Error Handling"] },
+    { label: "Day 86-90", title: "Deployment & GitHub", tools: ["github"], topics: ["Git Basics", "Push Code", "Frontend Deployment", "Backend Deployment", "Final Project Presentation"] }
+  ],
+  projects: [
+    { title: "Student Management System", tech: ["React", "Spring Boot", "MySQL"], img: "https://images.unsplash.com/photo-1588072432836-e10032774350?q=80&w=800" },
+    { title: "E-Commerce Web App", tech: ["React", "Spring Boot"], img: "https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=800" }
+  ],
+  reviews: [
+    { name: "Praveen Kumar", role: "Full Stack Intern", text: "This roadmap helped me build real-world Java full-stack projects and crack interviews.", rating: 5 }
+  ]
+},
   },
   Python: {
     "1 Week": {

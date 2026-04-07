@@ -10,6 +10,7 @@ export interface IApplication extends Document {
   year?: string;
   domain: string;
   mode: string;
+  duration : string;
   status: string;
   createdAt: Date;
 }
@@ -22,6 +23,7 @@ const ApplicationSchema = new Schema({
   department: { type: String },
   year: { type: String },
   domain: { type: String, default: "MERN Stack" },
+  duration : {type : String,},
   mode: { type: String, default: "Online" },
   status: { type: String, default: "pending" },
   createdAt: { type: Date, default: Date.now },
