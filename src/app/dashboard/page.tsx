@@ -2,40 +2,47 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  User, Phone, GraduationCap, CreditCard, 
-  CheckCircle2, Clock, ChevronRight, LayoutGrid,
-  Calendar, MapPin, ArrowRight, Sparkles
+import {
+  User, Phone, GraduationCap, MapPin,
+  Calendar, Mail, Briefcase, FileText,
+  ChevronRight, LayoutGrid, Info, BadgeCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+interface Application {
+  _id: string;
+  fullName?: string;
+  email?: string;
+  phoneNumber?: string;
+  collegeName?: string;
+  year?: string;
+  department?: string;
+  domain: string;
+  duration: string;
+  mode: string;
+  status: string;
+  createdAt: string;
+}
+
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
-  const [applications, setApplications] = useState([]);
-  const [allTransactions, setAllTransactions] = useState([]);
-  const [selectedAppId, setSelectedAppId] = useState(null);
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         const user = JSON.parse(sessionStorage.getItem("user") || "{}");
-        const userEmail = user?.user?.email || user?.email; // Flex for different storage structures
-        
+        const userEmail = user?.user?.email || user?.email;
         if (!userEmail) return;
 
         const response = await fetch(`/api/student/data?email=${userEmail}`);
-        console.log(response)
         const result = await response.json();
 
         if (result.success) {
           const apps = Array.isArray(result.data.profile) ? result.data.profile : [result.data.profile];
           setApplications(apps);
-          setAllTransactions(result.data.ledger || []);
-          
-          // AUTO-SELECT the first application so the screen isn't empty
-          if (apps.length > 0) {
-            setSelectedAppId(apps[0]._id);
-          }
+          if (apps.length > 0) setSelectedAppId(apps[0]._id);
         }
       } catch (error) {
         console.error("Data fetch failed", error);
@@ -46,194 +53,194 @@ const Dashboard = () => {
     fetchDashboardData();
   }, []);
 
-  // Filter transactions for the active selection
-  const activeTransactions = allTransactions.filter(
-    (tx) => tx.applicationId === selectedAppId
-  );
+  const activeApp: Application | undefined =
+  applications.find((a: Application) => a._id === selectedAppId);
 
   if (loading) return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white">
-      <div className="w-12 h-12 border-4 border-emerald-100 border-t-emerald-600 rounded-full animate-spin mb-4" />
-      <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-400">Syncing Profile...</p>
+    <div className="h-screen flex flex-col items-center justify-center bg-white">
+      <div className="w-8 h-8 border-2 border-zinc-100 border-t-zinc-900 rounded-full animate-spin mb-4" />
+      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Loading Applications...</p>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#FDFDFD] text-zinc-900 font-sans selection:bg-emerald-100">
+    <div className="h-screen bg-[#F9F9F9] text-zinc-900 font-sans overflow-hidden flex flex-col">
       
-      {/* HEADER */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-zinc-100 py-5 px-8 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
+      {/* COMPACT HEADER */}
+      <header className="bg-white border-b border-zinc-200 py-4 px-8 shrink-0">
+        <div className="max-w-[1400px] mx-auto flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+            <div className="w-8 h-8 bg-zinc-900 rounded-lg flex items-center justify-center text-white">
               <LayoutGrid className="w-4 h-4" />
             </div>
-            <h1 className="text-lg font-black italic tracking-tighter">Inetz <span className="text-emerald-600">Portal</span></h1>
+            <h1 className="text-sm font-black uppercase tracking-tight">Technical <span className="text-emerald-600">Portal</span></h1>
           </div>
-          <div className="flex items-center gap-6">
-            <div className="hidden md:block text-right">
-              <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Active Resident</p>
-              <p className="text-xs font-bold text-zinc-900">{applications[0]?.fullName || "Student"}</p>
+          <div className="flex items-center gap-3 bg-zinc-50 px-3 py-1.5 rounded-full border border-zinc-100">
+            <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-[10px] text-white font-bold">
+              {activeApp?.fullName?.charAt(0) || "S"}
             </div>
-            <div className="w-10 h-10 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center">
-              <User className="w-5 h-5 text-zinc-400" />
-            </div>
+            <span className="text-xs font-bold text-zinc-700">{activeApp?.fullName || "Resident"}</span>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+      <main className="flex-1 max-w-[1400px] w-full mx-auto p-6 overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-full">
           
-          {/* LEFT: APPLICATIONS LIST */}
-          <div className="lg:col-span-7 space-y-6">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h2 className="text-2xl font-black italic tracking-tight">Your Enrollments</h2>
-                <p className="text-xs text-zinc-400 font-medium">Manage your active learning tracks and certifications.</p>
-              </div>
-              <div className="px-4 py-2 bg-emerald-50 rounded-xl border border-emerald-100 flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                <span className="text-[10px] font-black text-emerald-700 uppercase tracking-widest">{applications.length} Active</span>
-              </div>
-            </div>
-
-            <div className="space-y-4">
+          {/* LEFT: COURSE TABS */}
+          <div className="lg:col-span-4 flex flex-col gap-4">
+            <h2 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-400 ml-2">My Applications</h2>
+            <div className="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
               {applications.map((app) => (
-                <motion.div
+                <button
                   key={app._id}
                   onClick={() => setSelectedAppId(app._id)}
-                  whileHover={{ x: 4 }}
                   className={cn(
-                    "group cursor-pointer p-8 rounded-[2.5rem] border transition-all duration-300 relative overflow-hidden",
+                    "w-full text-left p-5 rounded-2xl border transition-all relative overflow-hidden group",
                     selectedAppId === app._id 
-                      ? "bg-white border-emerald-500 shadow-2xl shadow-emerald-500/10" 
-                      : "bg-white border-zinc-100 hover:border-zinc-200 shadow-sm"
+                      ? "bg-white border-zinc-900 shadow-md" 
+                      : "bg-white border-zinc-200 hover:border-zinc-300 shadow-sm"
                   )}
                 >
-                  <div className="flex justify-between items-center relative z-10">
-                    <div className="space-y-3">
-                      <div className={cn(
-                        "inline-flex items-center gap-2 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest",
-                        app.status === 'pending' ? "bg-orange-50 text-orange-600" : "bg-emerald-50 text-emerald-600"
-                      )}>
-                        <div className={cn("w-1.5 h-1.5 rounded-full", app.status === 'pending' ? "bg-orange-500" : "bg-emerald-500 animate-pulse")} />
-                        {app.status}
-                      </div>
-                      
-                      <h3 className="text-2xl font-black italic tracking-tight group-hover:text-emerald-600 transition-colors">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className={cn("text-sm font-black transition-colors", selectedAppId === app._id ? "text-zinc-900" : "text-zinc-500")}>
                         {app.domain}
                       </h3>
-
-                      <div className="flex gap-6">
-                        <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
-                          <Calendar className="w-3.5 h-3.5" /> {app.duration}
-                        </div>
-                        <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
-                          <MapPin className="w-3.5 h-3.5" /> {app.mode}
-                        </div>
-                      </div>
+                      <p className="text-[10px] font-bold text-zinc-400 mt-1 uppercase tracking-wider">{app.duration} • {app.mode}</p>
                     </div>
-                    
-                    <div className={cn(
-                      "w-12 h-12 rounded-2xl flex items-center justify-center transition-all",
-                      selectedAppId === app._id ? "bg-emerald-600 text-white rotate-90" : "bg-zinc-50 text-zinc-300"
-                    )}>
-                      <ChevronRight className="w-6 h-6" />
-                    </div>
+                    <ChevronRight className={cn("w-4 h-4 transition-transform", selectedAppId === app._id ? "translate-x-1 text-zinc-900" : "text-zinc-200")} />
                   </div>
-                  
-                  {selectedAppId === app._id && (
-                    <motion.div layoutId="glow" className="absolute -right-20 -top-20 w-40 h-40 bg-emerald-500/5 blur-3xl rounded-full" />
-                  )}
-                </motion.div>
+                </button>
               ))}
             </div>
           </div>
 
-          {/* RIGHT: DRILL-DOWN TRANSACTIONS */}
-          <aside className="lg:col-span-5">
-            <div className="sticky top-32">
-              <AnimatePresence mode="wait">
-                {selectedAppId ? (
-                  <motion.div
-                    key={selectedAppId}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    className="bg-zinc-900 rounded-[3rem] shadow-2xl overflow-hidden border border-zinc-800"
-                  >
-                    {/* Dark Card Header */}
-                    <div className="p-10 pb-6">
-                      <div className="flex justify-between items-start mb-6">
-                        <div className="p-3 bg-white/5 rounded-2xl border border-white/10">
-                          <CreditCard className="w-6 h-6 text-emerald-400" />
-                        </div>
-                        <div className="text-right">
-                          <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Application Hash</p>
-                          <p className="text-xs font-mono text-emerald-500/80">#{selectedAppId.slice(-8).toUpperCase()}</p>
+          {/* RIGHT: APPLICATION INFORMATION DETAILS */}
+          <div className="lg:col-span-8 overflow-hidden">
+            <AnimatePresence mode="wait">
+              {activeApp ? (
+                <motion.div 
+                  key={selectedAppId}
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  className="h-full flex flex-col bg-white rounded-[2rem] border border-zinc-200 shadow-sm overflow-hidden"
+                >
+                  {/* Top Status Bar */}
+                  <div className="p-6 border-b border-zinc-100 flex justify-between items-center bg-zinc-50/50">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-white rounded-xl border border-zinc-200">
+                        <FileText className="w-4 h-4 text-zinc-500" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Application Status</p>
+                        <p className="text-xs font-bold text-emerald-600 uppercase">{activeApp.status}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Submission Date</p>
+                      <p className="text-xs font-bold text-zinc-900">
+                        {new Date(activeApp.createdAt).toLocaleDateString('en-GB')}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Detailed Information Grid */}
+                  <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-y-10 gap-x-12">
+                      
+                      {/* Section: Personal */}
+                      <div className="space-y-4">
+                        <h4 className="text-[10px] font-black text-zinc-300 uppercase tracking-[0.3em] flex items-center gap-2">
+                          <User className="w-3 h-3" /> Personal Profile
+                        </h4>
+                        <div className="space-y-4">
+                          <InfoItem label="Full Name" value={activeApp.fullName} icon={User} />
+                          <InfoItem label="Email Address" value={activeApp.email} icon={Mail} />
+                          <InfoItem label="Phone Number" value={activeApp.phoneNumber} icon={Phone} />
                         </div>
                       </div>
-                      <h3 className="text-xl font-bold text-white italic">Financial Ledger</h3>
-                    </div>
 
-                    {/* Transaction List */}
-                    <div className="px-6 pb-10 space-y-3 max-h-[450px] overflow-y-auto custom-scrollbar">
-                      {activeTransactions.length > 0 ? (
-                        activeTransactions.map((tx) => (
-                          <div key={tx._id} className="group flex justify-between items-center p-5 bg-white/5 hover:bg-white/10 rounded-[1.5rem] border border-white/5 transition-all">
-                            <div className="flex items-center gap-4">
-                              <div className={cn(
-                                "w-10 h-10 rounded-xl flex items-center justify-center",
-                                tx.status === 'success' ? "bg-emerald-500/10 text-emerald-400" : "bg-orange-500/10 text-orange-400"
-                              )}>
-                                {tx.status === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
-                              </div>
-                              <div>
-                                <p className="text-sm font-bold text-zinc-200">{tx.note}</p>
-                                <p className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider">{new Date(tx.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-lg font-black italic text-emerald-400">₹{tx.amount}</p>
-                              <p className="text-[8px] font-black text-zinc-600 uppercase tracking-tighter">Verified</p>
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="text-center py-24 bg-white/5 rounded-[2rem] border border-dashed border-white/10">
-                          <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Clock className="w-6 h-6 text-zinc-700" />
-                          </div>
-                          <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">No transactions logged</p>
+                      {/* Section: Academic */}
+                      <div className="space-y-4">
+                        <h4 className="text-[10px] font-black text-zinc-300 uppercase tracking-[0.3em] flex items-center gap-2">
+                          <GraduationCap className="w-3 h-3" /> Academic Record
+                        </h4>
+                        <div className="space-y-4">
+                          <InfoItem label="College / University" value={activeApp.collegeName} icon={GraduationCap} />
+                          <InfoItem label="Year of Study" value={activeApp.year} icon={Calendar} />
+                          <InfoItem label="Department" value={activeApp.department} icon={Briefcase} />
                         </div>
-                      )}
+                      </div>
+
+                      {/* Section: Training Details */}
+                      <div className="space-y-4 md:col-span-2 pt-6 border-t border-zinc-50">
+                        <h4 className="text-[10px] font-black text-zinc-300 uppercase tracking-[0.3em] flex items-center gap-2">
+                          <BadgeCheck className="w-3 h-3" /> Residency Configuration
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          <div className="p-4 bg-zinc-50 rounded-2xl border border-zinc-100">
+                            <p className="text-[9px] font-black text-zinc-400 uppercase mb-1">Track Selection</p>
+                            <p className="text-sm font-bold text-zinc-800">{activeApp.domain}</p>
+                          </div>
+                          <div className="p-4 bg-zinc-50 rounded-2xl border border-zinc-100">
+                            <p className="text-[9px] font-black text-zinc-400 uppercase mb-1">Duration</p>
+                            <p className="text-sm font-bold text-zinc-800">{activeApp.duration}</p>
+                          </div>
+                          <div className={cn(
+                            "p-4 rounded-2xl border",
+                            activeApp.mode === 'Offline' ? "bg-orange-50 border-orange-100" : "bg-blue-50 border-blue-100"
+                          )}>
+                            <p className={cn(
+                              "text-[9px] font-black uppercase mb-1",
+                              activeApp.mode === 'Offline' ? "text-orange-400" : "text-blue-400"
+                            )}>Training Mode</p>
+                            <p className="text-sm font-bold text-zinc-800">{activeApp.mode}</p>
+                          </div>
+                        </div>
+                      </div>
+
                     </div>
-                  </motion.div>
-                ) : (
-                  <div className="h-[500px] flex flex-col items-center justify-center p-12 border-2 border-dashed border-zinc-200 rounded-[3rem] text-zinc-300">
-                     <div className="w-16 h-16 bg-zinc-50 rounded-full flex items-center justify-center mb-6">
-                       <ArrowRight className="w-8 h-8 animate-bounce rotate-[-45deg]" />
-                     </div>
-                     <p className="text-xs font-black uppercase tracking-[0.3em] text-center leading-relaxed">
-                       Select a track <br/> to unlock details
-                     </p>
                   </div>
-                )}
-              </AnimatePresence>
-            </div>
-          </aside>
+                </motion.div>
+              ) : (
+                <div className="h-full flex flex-col items-center justify-center border-2 border-dashed border-zinc-200 rounded-[2rem] bg-zinc-50/50">
+                  <Info className="w-8 h-8 text-zinc-300 mb-2" />
+                  <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Select a course to view your submitted data</p>
+                </div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </main>
 
-      {/* Global CSS for scrollbar */}
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #E4E4E7; border-radius: 10px; }
       `}</style>
     </div>
   );
 };
+
+/* Internal Helper Component for Info Rows */
+interface InfoItemProps {
+  label: string;
+  value?: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+const InfoItem = ({ label, value, icon: Icon }: InfoItemProps) => (
+  <div className="flex items-start gap-4 group">
+    <div className="w-8 h-8 rounded-lg bg-zinc-50 flex items-center justify-center shrink-0 border border-zinc-100 group-hover:bg-zinc-900 group-hover:text-white transition-colors">
+      <Icon className="w-3.5 h-3.5" />
+    </div>
+    <div>
+      <p className="text-[9px] font-black text-zinc-400 uppercase tracking-wider leading-none mb-1">{label}</p>
+      <p className="text-sm font-bold text-zinc-800">{value || "Not Provided"}</p>
+    </div>
+  </div>
+);
 
 export default Dashboard;

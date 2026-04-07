@@ -19,7 +19,7 @@ export function HeroInternship() {
   }
 
   return (
-    <section className="relative overflow-hidden h-screen flex items-center">
+    <section className="relative overflow-hidden min-h-[100dvh] lg:h-screen flex items-center py-20 lg:py-0">
       {/* Background gradients */}
       <div
         aria-hidden="true"
@@ -28,33 +28,31 @@ export function HeroInternship() {
 
       <div className="relative mx-auto w-full max-w-6xl px-4 sm:px-6 py-16">
         {/* Grid — stretch both columns to the same height */}
-        <div className="grid  gap-8 lg:grid-cols-2 lg:gap-10 min-h-[66vh]">
+        <div className="grid gap-8 lg:grid-cols-2 lg:gap-10 min-h-[66vh]">
 
           {/* ── Left ── */}
           <div className="flex flex-col justify-center space-y-5 h-full lg:h-full lg:min-h-[66vh]">
             <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl">
-              Get training, internship, and placement
+              Stop Learning Only in Theory. Start Building 
               <span className="block bg-gradient-to-r from-orange-500 via-orange-400 to-sky-500 bg-clip-text text-transparent">
-                ready.
+                Real Projects
               </span>
             </h1>
 
             <p className="max-w-prose text-sm leading-6 text-zinc-600 dark:text-zinc-300">
-              Inetz helps you go from fundamentals to real-world delivery. Get
-              guided projects, interview practice, and mentorship designed to
-              match internship and placement expectations.
+              Join a project-driven internship program where students code daily, complete real tasks, work on practical applications, and gain the confidence to attend interviews.
             </p>
 
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-4 pt-4">
               <a
                 href="/programs"
-                className="inline-flex h-10 items-center justify-center rounded-full bg-zinc-900 px-5 text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+                className="inline-flex h-12 items-center justify-center rounded-full bg-zinc-900 px-8 text-sm font-bold text-white transition hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white shadow-lg hover:scale-105 active:scale-95"
               >
                 View all courses
               </a>
               <a
                 href="/contact"
-                className="inline-flex h-10 items-center justify-center rounded-full border border-zinc-200 bg-white px-5 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950/40 dark:text-zinc-100 dark:hover:bg-zinc-900/30"
+                className="inline-flex h-12 items-center justify-center rounded-full border border-zinc-200 bg-white px-8 text-sm font-bold text-zinc-900 transition hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950/40 dark:text-zinc-100 dark:hover:bg-zinc-900/30 shadow-md hover:scale-105 active:scale-95"
               >
                 Request a call
               </a>
@@ -62,7 +60,7 @@ export function HeroInternship() {
           </div>
 
           {/* ── Right — Video ── */}
-          <div className="relative h-full lg:min-h-[66vh] group/right">
+          <div className="relative h-[300px] sm:h-[450px] lg:h-full lg:min-h-[66vh] group/right">
             {/* Outer glow */}
             <div
               aria-hidden="true"

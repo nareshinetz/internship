@@ -70,9 +70,9 @@ export default function CertificateSection() {
                         transition={{ duration: 0.6 }}
                         viewport={{ once: true }}
                     >
-                        <h2 className="text-4xl font-bold leading-snug">
+                        <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-white mb-6">
                             Get Industry Recognized <br />
-                            <span className="text-emerald-500">Certification</span>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-300 to-sky-400">Certification</span>
                         </h2>
 
                         <p className="text-gray-300 mt-6 max-w-lg">

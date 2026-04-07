@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Sun, Moon, LogOut, LayoutDashboard, User } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard, User } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -18,7 +17,6 @@ const navItems = [
   { href: "/contact", label: "Contact" },
 ] as const;
 
-// 1. Helper Components (Defined at top to avoid ReferenceErrors)
 function InetzLogo({ className }: { className?: string }) {
   return (
     <div className={cn("relative h-12 w-44 flex items-center group", className)}>
@@ -33,34 +31,6 @@ function InetzLogo({ className }: { className?: string }) {
   );
 }
 
-function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
-  if (!mounted) return <div className="w-10 h-10" />;
-  const isDark = resolvedTheme === "dark";
-
-  return (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="p-2 w-10 h-10 rounded-full"
-      aria-label="Toggle theme"
-    >
-      <motion.div
-        initial={false}
-        animate={{ rotate: isDark ? 90 : 0, scale: [0.8, 1] }}
-        transition={{ type: "spring", stiffness: 200, damping: 10 }}
-      >
-        {isDark ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-      </motion.div>
-    </Button>
-  );
-}
-
-// 2. Main Navbar Component
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -114,26 +84,28 @@ export function Navbar() {
         <nav className="hidden items-center gap-2 lg:flex p-1 bg-zinc-50/50 dark:bg-zinc-900/50 rounded-full border border-zinc-100/50 dark:border-zinc-800/50">
           {navItems.map((item) => {
             const isActive = item.href === activeHref;
+
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "relative rounded-full px-6 py-2 text-sm font-bold transition-all duration-300",
-                  isActive
-                    ? "text-white dark:text-zinc-900"
-                    : "text-zinc-500 hover:text-orange-500 dark:text-zinc-400 dark:hover:text-orange-400",
-                )}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="navbar-active"
-                    className="absolute inset-0 bg-orange-500 dark:bg-orange-500 rounded-full -z-10 shadow-lg shadow-orange-500/20"
-                    transition={{ type: "spring", bounce: 0.25, duration: 0.5 }}
-                  />
-                )}
-                {item.label}
-              </Link>
+              <div key={item.href} className="relative">
+                <Link
+                  href={item.href}
+                  className={cn(
+                    "relative flex items-center gap-1 rounded-full px-6 py-2 text-sm font-bold transition-all duration-300",
+                    isActive
+                      ? "text-white dark:text-zinc-900"
+                      : "text-zinc-500 hover:text-orange-500 dark:text-zinc-400 dark:hover:text-orange-400",
+                  )}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="navbar-active"
+                      className="absolute inset-0 bg-orange-500 dark:bg-orange-500 rounded-full -z-10 shadow-lg shadow-orange-500/20"
+                      transition={{ type: "spring", bounce: 0.25, duration: 0.5 }}
+                    />
+                  )}
+                  {item.label}
+                </Link>
+              </div>
             );
           })}
           {isLoggedIn && (
@@ -151,8 +123,6 @@ export function Navbar() {
 
         {/* Action Controls */}
         <div className="flex items-center gap-3">
-          <ThemeToggle />
-          
           <div className="hidden sm:flex items-center gap-3">
             {!isLoggedIn ? (
               <>
@@ -204,19 +174,20 @@ export function Navbar() {
             <div className="flex flex-col p-4 gap-2">
               {navItems.map((item) => {
                 const isActive = item.href === activeHref;
+
                 return (
-                  <Link
+                  <Link 
                     key={item.href}
                     href={item.href}
                     className={cn(
                       "flex items-center justify-between p-4 rounded-2xl text-lg font-semibold transition-all",
                       isActive
-                        ? "bg-orange-500 text-white"
+                        ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
                         : "text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900"
                     )}
                   >
                     {item.label}
-                    {isActive && <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 2 }} className="w-2 h-2 rounded-full bg-white" />}
+                    {isActive && <motion.div animate={{ x: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 2 }} className="w-2 h-2 rounded-full bg-orange-500" />}
                   </Link>
                 );
               })}
