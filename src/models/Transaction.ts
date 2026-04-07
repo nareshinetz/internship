@@ -1,48 +1,50 @@
 import mongoose, { Schema, model, models, Document } from "mongoose";
 
-// 1. Define the TypeScript Interface
 export interface ITransaction extends Document {
   studentEmail: string;
+  applicationId: mongoose.Types.ObjectId; // LINK THIS TO THE APPLICATION
+  razorpayPaymentId?: string; // Add this to track the actual payment proof
+  razorpayOrderId: string;
   amount: number;
   note: string;
   status: "pending" | "success" | "failed";
   date: Date;
 }
 
-// 2. Define the Schema
 const TransactionSchema = new Schema<ITransaction>(
   {
     studentEmail: { 
       type: String, 
-      required: [true, "Student email is required for tracking"],
+      required: true,
       lowercase: true,
-      trim: true
+      index: true // Faster searching for the dashboard
     },
-    amount: { 
-      type: Number, 
-      required: [true, "Transaction amount is required"] 
+    // This is the "Glue" that connects a payment to a specific internship
+    applicationId: {
+      type: Schema.Types.ObjectId,
+      ref: "Application",
+      required: [true, "Transaction must be linked to an Application"]
     },
-    note: { 
-      type: String, 
-      required: [true, "A note or description is required"] 
+    razorpayOrderId: {
+        type: String,
+        required: true
     },
+    razorpayPaymentId: {
+        type: String, // Filled only after success
+    },
+    amount: { type: Number, required: true },
+    note: { type: String, required: true },
     status: { 
       type: String, 
       enum: ["pending", "success", "failed"], 
       default: "pending" 
     },
-    date: { 
-      type: Date, 
-      default: Date.now 
-    },
+    date: { type: Date, default: Date.now },
   },
-  { 
-    timestamps: true // Adds createdAt and updatedAt
-  }
+  { timestamps: true }
 );
 
-// 3. Export Strategy (Singleton Pattern)
-const Transaction = (models.Transaction as mongoose.Model<ITransaction>) || 
-                    model<ITransaction>("Transaction", TransactionSchema);
+// Singleton Pattern for Next.js
+const Transaction = models.Transaction || model<ITransaction>("Transaction", TransactionSchema);
 
 export default Transaction;
