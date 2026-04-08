@@ -30,6 +30,63 @@ export interface ProgramDetails {
   reviews: ReviewItem[];   // Added
 }
 
+// src/lib/program-data.ts
+
+// ... keep your existing types and programData object ...
+
+export interface CatalogItem {
+  stack: TechStack;
+  title: string;
+  description: string;
+  image: string;
+  modules: number;
+}
+
+export const catalogItems = [
+  {
+    stack: "MERN" as TechStack,
+    title: "Full-Stack Web Development",
+    description: "Master MongoDB, Express, React, and Node.js to build scalable web applications.",
+    image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=800",
+    modules: 12
+  },
+  {
+    stack: "Java" as TechStack,
+    title: "Java Full-Stack Development",
+    description: "Master enterprise-grade Java, Spring Boot, and SQL for high-performance systems.",
+    image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800",
+    modules: 14
+  },
+  {
+    stack: "Python" as TechStack,
+    title: "Python & Automation",
+    description: "Learn Python from scratch to advanced automation and scripting for real-world tasks.",
+    image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=800",
+    modules: 10
+  },
+  {
+    stack: "DataAnalytics" as TechStack, // Fixed: Linked to DataAnalytics track
+    title: "Data Analytics & BI",
+    description: "Master Excel, SQL, and Power BI to transform raw data into actionable business insights.",
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800",
+    modules: 11
+  },
+  {
+    stack: "DataScienceAI" as TechStack,
+    title: "Data Science & AI",
+    description: "Explore machine learning, deep learning, and predictive modeling with industry tools.",
+    image: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?q=80&w=800",
+    modules: 15
+  },
+  {
+    stack: "Embedded" as TechStack, // Fixed: Linked to Embedded track
+    title: "Embedded Systems & IoT",
+    description: "Bridge the gap between hardware and software using C, C++, and microcontroller systems.",
+    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800",
+    modules: 13
+  }
+];
+
 export const programData: Record<TechStack, Record<Duration, ProgramDetails>> = {
   MERN: {
     "1 Week": {
