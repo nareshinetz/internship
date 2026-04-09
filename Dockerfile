@@ -1,26 +1,21 @@
 # syntax=docker/dockerfile:1
+# Standard .next + next start (avoids .next/standalone, which can be missing with Next.js 16 + Turbopack).
 
 FROM node:20-alpine AS base
-
-FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
+
+FROM base AS deps
 COPY package.json package-lock.json* ./
 RUN npm ci
 
 FROM base AS builder
-WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Razorpay (optional build-time client key)
-# ARG NEXT_PUBLIC_RAZORPAY_KEY_ID
-# ENV NEXT_PUBLIC_RAZORPAY_KEY_ID=${NEXT_PUBLIC_RAZORPAY_KEY_ID}
-
-# Next.js 16 defaults to Turbopack; standalone output for Docker is reliable with webpack.
-RUN npx next build --webpack
+RUN npm run build -- --webpack
 
 FROM base AS runner
 WORKDIR /app
@@ -31,9 +26,12 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs \
   && adduser --system --uid 1001 nextjs
 
-COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY package.json package-lock.json* ./
+RUN npm ci --omit=dev && npm cache clean --force
+
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+COPY --from=builder --chown=nextjs:nodejs /app/next.config.ts ./
 
 USER nextjs
 
@@ -41,4 +39,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
-CMD ["node", "server.js"]
+CMD ["npx", "next", "start", "-H", "0.0.0.0"]
