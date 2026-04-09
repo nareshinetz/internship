@@ -19,7 +19,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # ARG NEXT_PUBLIC_RAZORPAY_KEY_ID
 # ENV NEXT_PUBLIC_RAZORPAY_KEY_ID=${NEXT_PUBLIC_RAZORPAY_KEY_ID}
 
-RUN npm run build
+# Next.js 16 defaults to Turbopack; standalone output for Docker is reliable with webpack.
+RUN npx next build --webpack
 
 FROM base AS runner
 WORKDIR /app
