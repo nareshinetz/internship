@@ -91,7 +91,7 @@ function ReviewAndPayContent() {
           email: formData.email,
           contact: formData.phone,
         },
-        theme: { color: "#A6056F" },
+        theme: { color: "#4F46E5" },
         modal: { ondismiss: () => setIsProcessing(false) },
       };
       
@@ -118,16 +118,16 @@ function ReviewAndPayContent() {
         <div className="lg:col-span-7 space-y-6">
           <button
             onClick={() => router.back()}
-            className="text-[10px] font-black uppercase flex items-center gap-1.5 text-slate-400 hover:text-[#A6056F] transition-all tracking-widest"
+            className="text-[10px] font-black uppercase flex items-center gap-1.5 text-slate-400 hover:text-[#4F46E5] transition-all tracking-widest"
           >
             <ArrowLeft className="w-3 h-3" /> Back
           </button>
-          <h1 className="text-2xl font-black tracking-tight text-[#632450] uppercase">Review & Apply</h1>
+          <h1 className="text-2xl font-black tracking-tight text-slate-900 uppercase">Review & Apply</h1>
 
           <div className="space-y-5">
             <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
               <div className="flex items-center gap-3 mb-4">
-                <span className="w-5 h-5 rounded bg-[#ECCC6E]/20 text-[#632450] flex items-center justify-center text-[10px] font-black">1</span>
+                <span className="w-5 h-5 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center text-[10px] font-black">1</span>
                 <h2 className="font-black text-[11px] text-slate-800 uppercase tracking-widest">Contact Information</h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -141,7 +141,7 @@ function ReviewAndPayContent() {
 
             <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
               <div className="flex items-center gap-3 mb-4">
-                <span className="w-5 h-5 rounded bg-[#ECCC6E]/20 text-[#632450] flex items-center justify-center text-[10px] font-black">2</span>
+                <span className="w-5 h-5 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center text-[10px] font-black">2</span>
                 <h2 className="font-black text-[11px] text-slate-800 uppercase tracking-widest">Education Details</h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -155,7 +155,7 @@ function ReviewAndPayContent() {
 
             <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
               <div className="flex items-center gap-3 mb-4">
-                <span className="w-5 h-5 rounded bg-[#ECCC6E]/20 text-[#632450] flex items-center justify-center text-[10px] font-black">3</span>
+                <span className="w-5 h-5 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center text-[10px] font-black">3</span>
                 <h2 className="font-black text-[11px] text-slate-800 uppercase tracking-widest">Program</h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -171,7 +171,7 @@ function ReviewAndPayContent() {
         <div className="lg:col-span-5 space-y-4">
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm sticky top-20">
             <div className="p-3 border-b border-slate-100 flex items-center gap-2 font-black text-[9px] uppercase tracking-widest text-slate-400">
-              <ShoppingCart className="w-3.5 h-3.5 text-[#A6056F]" /> Order Summary
+              <ShoppingCart className="w-3.5 h-3.5 text-indigo-600" /> Order Summary
             </div>
             <div className="p-4">
               <div className="rounded-lg overflow-hidden mb-3 h-32 bg-slate-100">
@@ -186,37 +186,37 @@ function ReviewAndPayContent() {
                   <span>Standard Fee</span>
                   <span className="line-through decoration-slate-300">₹{originalFee.toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-[10px] text-[#A6056F] font-black uppercase">
+                <div className="flex justify-between text-[10px] text-emerald-600 font-black uppercase">
                   <span>Scholarship</span>
                   <span>-₹{(originalFee - discountedFee).toLocaleString()}</span>
                 </div>
 
-                <div className="bg-[#ECCC6E]/5 border border-[#632450]/10 rounded-lg p-2.5 my-3 flex items-center justify-between gap-3">
+                <div className="bg-slate-50 border border-slate-100 rounded-lg p-2.5 my-3 flex items-center justify-between gap-3">
                   <div className="flex-shrink-0">
-                    <label className="text-[8px] font-black uppercase text-[#632450]/60 tracking-widest block">Payable Now</label>
+                    <label className="text-[8px] font-black uppercase text-slate-500 tracking-widest block">Payable Now</label>
                     <p className="text-[7px] font-bold text-slate-400 italic">(Min ₹500)</p>
                   </div>
                   <div className="relative flex-1 max-w-[110px]">
-                    <IndianRupee className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3 text-[#632450]/50" />
+                    <IndianRupee className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3 text-slate-400" />
                     <input
                       type="number"
                       value={customAmount}
                       onChange={(e) => setCustomAmount(parseInt(e.target.value) || 0)}
-                      className="w-full pl-6 pr-2 py-1.5 bg-white border border-[#632450]/20 rounded text-sm font-black text-slate-800 outline-none text-right"
+                      className="w-full pl-6 pr-2 py-1.5 bg-white border border-slate-200 rounded text-sm font-black text-slate-800 outline-none text-right focus:border-indigo-500 transition-colors"
                     />
                   </div>
                 </div>
 
                 <div className="pt-2 border-t border-dashed border-slate-200 flex justify-between items-baseline">
                   <span className="font-black text-[10px] text-slate-400 uppercase tracking-widest">Grand Total</span>
-                  <span className="font-black text-xl text-[#632450] tracking-tighter">₹{customAmount.toLocaleString()}</span>
+                  <span className="font-black text-xl text-slate-900 tracking-tighter">₹{customAmount.toLocaleString()}</span>
                 </div>
               </div>
 
               <button
                 onClick={handlePay}
                 disabled={isProcessing}
-                className="w-full mt-5 py-3.5 bg-[#A6056F] hover:bg-[#850459] text-white rounded-lg font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-[#A6056F]/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full mt-5 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-indigo-100 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {isProcessing ? <Loader2 className="animate-spin size-3" /> : <Lock className="size-3" />}
                 Enroll Now
@@ -233,8 +233,8 @@ function ReviewAndPayContent() {
 export default function ReviewAndPay() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="animate-spin text-[#A6056F]" />
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <Loader2 className="animate-spin text-indigo-600" />
       </div>
     }>
       <ReviewAndPayContent />
@@ -249,7 +249,7 @@ function Input({ label, ...props }: any) {
       <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>
       <input
         {...props} onChange={(e) => props.onChange(e.target.value)} required
-        className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-xs font-bold focus:bg-white focus:border-[#A6056F] outline-none transition-all placeholder:text-slate-300"
+        className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-xs font-bold focus:bg-white focus:border-indigo-500 outline-none transition-all placeholder:text-slate-300"
       />
     </div>
   );
@@ -262,7 +262,7 @@ function Select({ label, options, ...props }: any) {
       <div className="relative">
         <select
           {...props} onChange={(e) => props.onChange(e.target.value)}
-          className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-xs font-bold focus:bg-white focus:border-[#A6056F] outline-none appearance-none cursor-pointer"
+          className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-xs font-bold focus:bg-white focus:border-indigo-500 outline-none appearance-none cursor-pointer"
         >
           {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
         </select>

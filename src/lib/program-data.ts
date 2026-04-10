@@ -338,8 +338,8 @@ export const programData: Record<
       ],
     },
     "1 Month": {
-      price: 2500,
-      originalPrice: 3500,
+      price: 4000,
+      originalPrice: 5000,
       title: "MERN Frontend Specialist",
       subtitle: "Foundations to Asynchronous Apps",
       heroImg:
@@ -943,8 +943,8 @@ export const programData: Record<
       ],
     },
     "1 Month": {
-      price: 2500,
-      originalPrice: 3500,
+      price: 4000,
+      originalPrice: 5000,
       title: "Core Java Mastery",
       subtitle: "From Basics to Collections Framework",
       heroImg:
@@ -1454,7 +1454,7 @@ export const programData: Record<
         },
       ],
     },
-    "2 Weeks": {
+  "2 Weeks": {
       price: 2500,
       originalPrice: 3500,
       title: "Python Data Specialist",
@@ -1507,8 +1507,8 @@ export const programData: Record<
       ],
     },
     "1 Month": {
-      price: 2500,
-      originalPrice: 3500,
+      price: 4000,
+      originalPrice: 5000,
       title: "Web Developer (Python)",
       subtitle: "Django & Flask Specialist",
       heroImg:
@@ -1783,8 +1783,8 @@ export const programData: Record<
       ],
     },
     "1 Month": {
-      price: 2500,
-      originalPrice: 3500,
+      price: 4000,
+      originalPrice: 5000,
       title: "Professional Data Analyst",
       subtitle: "Python for Data Analysis",
       heroImg:
@@ -2049,8 +2049,8 @@ export const programData: Record<
       ],
     },
     "1 Month": {
-      price: 2500,
-      originalPrice: 3500,
+      price: 4000,
+      originalPrice: 5000,
       title: "Deep Learning Engineer",
       subtitle: "Vision & Language Systems",
       heroImg:
@@ -2320,8 +2320,8 @@ export const programData: Record<
       ],
     },
     "1 Month": {
-      price: 2500,
-      originalPrice: 3500,
+     price: 4000,
+      originalPrice: 5000,
       title: "IoT Systems Engineer",
       subtitle: "Connected Devices & Wireless",
       heroImg:
