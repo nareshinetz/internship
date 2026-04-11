@@ -102,10 +102,30 @@ export const catalogItems = [
     description:
       "Bridge the gap between hardware and software using C, C++, and microcontroller systems.",
     image:
-      "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800",
+      "https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=800",
     modules: 13,
   },
+  {
+    stack: "Frontend" as TechStack,
+    title: "React & Modern Web",
+    description:
+      "Master component-driven architecture, state management, and high-performance UI using React and Next.js.",
+    image:
+      "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg",
+    modules: 10,
+    duration: "1 Month",
+  },
 ];
+
+export const STACK_MAPPING: Record<string, string[]> = {
+  "Python": ["python", "django", "postgresql", "docker", "aws"],
+  "MERN": ["mongodb", "express", "react", "nodejs", "git"],
+  "Java": ["java", "spring", "postgresql", "docker", "git"], // Changed from mongodb to postgre for Java logic
+  "DataScienceAI": ["python", "tensorflow", "pandas", "numpy", "git"],
+  "DataAnalytics": ["python", "postgresql", "pandas", "numpy"], // Added for consistency
+  "Embedded": ["c", "cpp", "python", "git"], // Added for consistency
+  "default": ["html5", "css3", "javascript", "react"],
+};
 
 export const programData: Record<
   TechStack,
@@ -329,12 +349,11 @@ export const programData: Record<
         },
       ],
       reviews: [
-        {
-          name: "Arjun Mehta",
-          role: "SDE Intern @ Google",
-          text: "The MERN roadmap is incredibly dense and practical.",
-          rating: 5,
-        },
+        {name: "Arjun Mehta",role: "SDE Intern @ Google",text: "The MERN roadmap is incredibly dense and practical.",rating: 5},
+        {name: "Arjun Mehta",role: "SDE Intern @ Google",text: "The MERN roadmap is incredibly dense and practical.",rating: 5},
+        {name: "Arjun Mehta",role: "SDE Intern @ Google",text: "The MERN roadmap is incredibly dense and practical.",rating: 5},
+        {name: "Arjun Mehta",role: "SDE Intern @ Google",text: "The MERN roadmap is incredibly dense and practical.",rating: 5},
+        {name: "Arjun Mehta",role: "SDE Intern @ Google",text: "The MERN roadmap is incredibly dense and practical.",rating: 5},
       ],
     },
     "1 Month": {
