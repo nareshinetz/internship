@@ -4,7 +4,9 @@ import React, { useState, useEffect, useMemo, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Cpu, Code2, LayoutGrid, ArrowRight, CheckCircle2, Video, 
-  Mic2, ArrowUpRight, Sparkles, Quote, Star, Users, ArrowLeft, X, Download, Lock
+  Mic2, ArrowUpRight, Sparkles, Quote, Star, Users, ArrowLeft, X, Download, Lock,
+  UserCheck,
+  Briefcase
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { programData, type Duration, type TechStack } from "@/lib/program-data";
@@ -193,14 +195,101 @@ const InternshipPrograms = ({ initialStack = "Python", onBack }: { initialStack?
             </div>
           </section>
 
-          {/* 3. CAREER TRAINING */}
-          <section className="space-y-6 pt-6 border-t border-zinc-100">
-            <h2 className="text-xl font-bold flex items-center gap-2"><Cpu className="w-5 h-5" /> Career Training</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <ProgramCard title="Industry Expert Sync" description="Direct reviews with Senior FAANG SDEs." image="https://images.unsplash.com/photo-1556761175-b413da4baf72" badgeText="Industry Sync" badgeIcon={Video} />
-              <ProgramCard title="Communication Lab" description="Mastering technical storytelling & PR etiquette." image="https://images.unsplash.com/photo-1515187029135-18ee286d815b" badgeText="Soft Skills" badgeIcon={Mic2} />
+          {/* 3. CAREER MASTERY (FIXED COLORS & FULL OVERLAY) */}
+<section className="relative py-24 bg-zinc-50/50 dark:bg-transparent px-6">
+  <div className="max-w-5xl mx-auto mb-16 text-center md:text-left">
+    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/20 border border-blue-100 text-blue-600 text-[10px] font-bold uppercase tracking-widest mb-4">
+      <Sparkles size={12} /> Career Acceleration
+    </div>
+    <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-zinc-900 dark:text-white">
+      Everything to get you <span className="text-blue-600">Job Ready</span>
+    </h2>
+  </div>
+
+  <div className="relative max-w-5xl mx-auto">
+    {[
+      {
+        title: "Industry Expert Sessions",
+        description: "Weekly deep-dives with Senior SDEs from FAANG. Get your code reviewed and architecture critiqued by the best in the industry.",
+        icon: <Video className="w-5 h-5" />,
+        image: "https://images.unsplash.com/photo-1591115765373-520b7a217294?auto=format&fit=crop&q=80",
+        color: "bg-blue-600",
+        tag: "Mentorship"
+      },
+      {
+        title: "Daily Agile Tasks",
+        description: "Receive daily tickets on our private dashboard. Submit PRs, handle merge conflicts, and master the professional git workflow.",
+        icon: <Briefcase className="w-5 h-5" />,
+        image: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80",
+        color: "bg-orange-600",
+        tag: "Daily Sprints"
+      },
+      {
+        title: "Mock Interview Series",
+        description: "Simulated 1-on-1 interviews with real-time feedback scores. We cover DSA, System Design, and behavioral preparation.",
+        icon: <UserCheck className="w-5 h-5" />,
+        image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&q=80", 
+        color: "bg-purple-600",
+        tag: "Placement"
+      },
+      {
+        title: "Communication Lab",
+        description: "Technical storytelling. Learn to explain your logic clearly to recruiters and stakeholders—the bridge between code and career.",
+        icon: <Mic2 className="w-5 h-5" />,
+        image: "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&q=80",
+        color: "bg-emerald-600",
+        tag: "Soft Skills"
+      }
+    ].map((feature, idx) => (
+      <div 
+        key={idx} 
+        className="sticky top-28 w-full mb-8 last:mb-0"
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ margin: "-5% 0px -5% 0px" }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className={cn(
+            "relative w-full h-[320px] md:h-[280px] overflow-hidden rounded-[2rem] border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex flex-col md:flex-row shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-300"
+          )}
+        >
+          {/* Landscape Image - FULL COLOR */}
+          <div className="w-full md:w-[40%] h-32 md:h-full relative overflow-hidden">
+            <img 
+              src={feature.image} 
+              alt={feature.title} 
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+            />
+            <div className="absolute top-4 left-4 bg-white/95 dark:bg-zinc-800/95 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest text-zinc-900 dark:text-zinc-100 shadow-sm border border-white/10 backdrop-blur-sm">
+              {feature.tag}
             </div>
-          </section>
+          </div>
+
+          {/* Content Section */}
+          <div className="flex-1 p-6 md:p-10 flex flex-col justify-center relative">
+            <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center text-white mb-4 shadow-lg", feature.color)}>
+              {feature.icon}
+            </div>
+            
+            <h3 className="text-xl md:text-2xl font-bold text-zinc-900 dark:text-white mb-2 flex items-center gap-2">
+              {feature.title} <ArrowUpRight size={16} className="text-zinc-300" />
+            </h3>
+            
+            <p className="text-zinc-500 dark:text-zinc-400 text-sm md:text-base leading-relaxed font-medium max-w-md">
+              {feature.description}
+            </p>
+
+            {/* Corner Module Tag */}
+            <div className="absolute bottom-6 right-8 select-none">
+               <span className="text-4xl md:text-5xl font-black text-zinc-100 dark:text-zinc-800/50 italic tracking-tighter">0{idx + 1}</span>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    ))}
+  </div>
+</section>
 
           {/* 4. STUDENT BUILDS */}
           <section className="space-y-6 pt-6 border-t border-zinc-100">
