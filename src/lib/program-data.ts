@@ -228,13 +228,7 @@ export const programData: Record<
         {
           label: "Day 1",
           title: "Semantic Structure",
-          tools: ["html5"],
-          topics: [
-            "Semantic HTML5 Tags",
-            "Head vs Body",
-            "Document Hierarchy",
-            "Digital Business Card Task",
-          ],
+          tools: ["html5"],topics: ["Semantic HTML5 Tags","Head vs Body","Document Hierarchy","Digital Business Card Task",],
         },
         {
           label: "Day 2",
