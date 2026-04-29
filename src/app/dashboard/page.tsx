@@ -13,8 +13,8 @@ interface Application {
   _id: string;
   fullName?: string;
   email?: string;
-  phoneNumber?: string;
-  collegeName?: string;
+  phone?: string;
+  college?: string;
   year?: string;
   department?: string;
   domain: string;
@@ -158,7 +158,7 @@ const Dashboard = () => {
                         <div className="space-y-4">
                           <InfoItem label="Full Name" value={activeApp.fullName} icon={User} />
                           <InfoItem label="Email Address" value={activeApp.email} icon={Mail} />
-                          <InfoItem label="Phone Number" value={activeApp.phoneNumber} icon={Phone} />
+                          <InfoItem label="Phone Number" value={activeApp.phone} icon={Phone} />
                         </div>
                       </div>
 
@@ -168,7 +168,7 @@ const Dashboard = () => {
                           <GraduationCap className="w-3 h-3" /> Academic Record
                         </h4>
                         <div className="space-y-4">
-                          <InfoItem label="College / University" value={activeApp.collegeName} icon={GraduationCap} />
+                          <InfoItem label="College / University" value={activeApp.college} icon={GraduationCap} />
                           <InfoItem label="Year of Study" value={activeApp.year} icon={Calendar} />
                           <InfoItem label="Department" value={activeApp.department} icon={Briefcase} />
                         </div>

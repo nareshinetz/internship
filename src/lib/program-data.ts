@@ -50,82 +50,6 @@ export interface CatalogItem {
   modules: number;
 }
 
-export const catalogItems = [
-  {
-    stack: "MERN" as TechStack,
-    title: "Full-Stack Web Development",
-    description:
-      "Master MongoDB, Express, React, and Node.js to build scalable web applications.",
-    image:
-      "https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=800",
-    modules: 12,
-  },
-  {
-    stack: "Java" as TechStack,
-    title: "Java Full-Stack Development",
-    description:
-      "Master enterprise-grade Java, Spring Boot, and SQL for high-performance systems.",
-    image:
-      "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800",
-    modules: 14,
-  },
-  {
-    stack: "Python" as TechStack,
-    title: "Python & Automation",
-    description:
-      "Learn Python from scratch to advanced automation and scripting for real-world tasks.",
-    image:
-      "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=800",
-    modules: 10,
-  },
-  {
-    stack: "DataAnalytics" as TechStack, // Fixed: Linked to DataAnalytics track
-    title: "Data Analytics & BI",
-    description:
-      "Master Excel, SQL, and Power BI to transform raw data into actionable business insights.",
-    image:
-      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800",
-    modules: 11,
-  },
-  {
-    stack: "DataScienceAI" as TechStack,
-    title: "Data Science & AI",
-    description:
-      "Explore machine learning, deep learning, and predictive modeling with industry tools.",
-    image:
-      "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?q=80&w=800",
-    modules: 15,
-  },
-  {
-    stack: "Embedded" as TechStack, // Fixed: Linked to Embedded track
-    title: "Embedded Systems & IoT",
-    description:
-      "Bridge the gap between hardware and software using C, C++, and microcontroller systems.",
-    image:
-      "https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=800",
-    modules: 13,
-  },
-  {
-    stack: "Frontend" as TechStack,
-    title: "React & Modern Web",
-    description:
-      "Master component-driven architecture, state management, and high-performance UI using React and Next.js.",
-    image:
-      "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg",
-    modules: 10,
-    duration: "1 Month",
-  },
-];
-
-export const STACK_MAPPING: Record<string, string[]> = {
-  "Python": ["python", "django", "postgresql", "docker", "aws"],
-  "MERN": ["mongodb", "express", "react", "nodejs", "git"],
-  "Java": ["java", "spring", "postgresql", "docker", "git"], // Changed from mongodb to postgre for Java logic
-  "DataScienceAI": ["python", "tensorflow", "pandas", "numpy", "git"],
-  "DataAnalytics": ["python", "postgresql", "pandas", "numpy"], // Added for consistency
-  "Embedded": ["c", "cpp", "python", "git"], // Added for consistency
-  "default": ["html5", "css3", "javascript", "react"],
-};
 
 export const programData: Record<
   TechStack,
@@ -140,24 +64,8 @@ export const programData: Record<
       heroImg:
         "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=2072",
       syllabus: [
-        {
-          label: "Day 1",
-          title: "Semantic Structure & SEO",
-          tools: ["html5"],
-          topics: [
-            "HTML5 Semantics",
-            "Document Hierarchy",
-            "SEO Basics",
-            "Metadata",
-          ],
-        },
-        {
-          label: "Day 2",
-          title: "Visual Identity & Box Model",
-          tools: ["css3"],
-          topics: [
-            "CSS Box Model",
-            "Modern Typography",
+        {label: "Day 1",title: "Semantic Structure & SEO",tools: ["html5"],topics: ["HTML5 Semantics","Document Hierarchy","SEO Basics","Metadata",],},
+        {label: "Day 2",title: "Visual Identity & Box Model",tools: ["css3"],topics: ["CSS Box Model","Modern Typography",
             "CSS Variables",
             "Branding",
           ],

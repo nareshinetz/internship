@@ -28,6 +28,13 @@ export const BRAND_DATA: Record<string, BrandInfo> = {
   excel: { color: "#217346" },
   c: { color: "#A8B9CC" },
   cpp: { color: "#00599C" },
+  "spring-boot": { color: "#6DB33F" },
+  mysql: { color: "#4479A1" },
+  hibernate: { color: "#59666C" },
+  tomcat: { color: "#F8DC75" },
+  maven: { color: "#C71A36" },
+  intellij: { color: "#000000" },
+  postman: { color: "#FF6C37" },
 };
 
 export const DEVICON_MAP: Record<string, string> = {
@@ -36,12 +43,18 @@ export const DEVICON_MAP: Record<string, string> = {
   mongodb: "devicon-mongodb-plain",
   express: "devicon-express-original",
   java: "devicon-java-plain",
+  tomcat: "devicon-tomcat-line",
+  "spring-boot": "devicon-spring-plain",
+  spring: "devicon-spring-plain",
+  mysql: "devicon-mysql-plain",
+  intellij: "devicon-intellij-plain",
+  hibernate: "devicon-hibernate-plain", // Note: Ensure Devicon version supports this
 };
 
 export const STACK_MAPPING: Record<string, string[]> = {
-  "Python": ["python", "django", "postgresql", "docker", "aws"],
-  "MERN": ["react", "nodejs", "mongodb", "javascript", "git"],
-  "Java": ["java", "spring", "postgresql", "docker", "git"],
+  "python": ["python", "django", "postgresql", "docker", "aws"],
+  "mern": ["react", "nodejs", "mongodb", "javascript", "git"],
+  "java": ["java", "spring", "postgresql", "docker", "git"],
   "DataScienceAI": ["python", "tensorflow", "pandas", "numpy", "git"],
   "DataAnalytics": ["excel", "postgresql", "python", "powerbi"],
   "Embedded": ["c", "cpp", "python", "git"],
@@ -49,9 +62,9 @@ export const STACK_MAPPING: Record<string, string[]> = {
 };
 
 export const MARKET_INSIGHTS: Record<string, { demand: string; trend: string }> = {
-  "Python": { demand: "Critical", trend: "AI & Automation" },
-  "MERN": { demand: "High", trend: "SaaS & Scalability" },
-  "Java": { demand: "Stable", trend: "Enterprise FinTech" },
+  "python": { demand: "Critical", trend: "AI & Automation" },
+  "mern": { demand: "High", trend: "SaaS & Scalability" },
+  "java": { demand: "Stable", trend: "Enterprise FinTech" },
   "DataScienceAI": { demand: "High", trend: "Machine Learning" },
   "DataAnalytics": { demand: "Rising", trend: "Business Intelligence" },
   "Embedded": { demand: "Niche", trend: "IoT & Robotics" },

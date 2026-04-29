@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LogOut, LayoutDashboard, User } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard, User, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -43,14 +43,27 @@ export function Navbar() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch("/api/auth/me");
-        if (res.ok) {
-          const data = await res.json();
+        // 1. Fetch from session storage
+        const storedUser = sessionStorage.getItem("user");
+        
+        if (storedUser) {
+          // 2. Parse the JSON string to access the .role property
+          const parsedUser = JSON.parse(storedUser);
+          setUser(parsedUser.user);
           setIsLoggedIn(true);
-          setUser(data.user);
+          console.log(parsedUser)
         } else {
-          setIsLoggedIn(false);
-          setUser(null);
+          // 3. Fallback to API if session storage is empty
+          const res = await fetch("/api/auth/me");
+          if (res.ok) {
+            const data = await res.json();
+            setIsLoggedIn(true);
+            setUser(data.user);
+            console.log(data.user)
+          } else {
+            setIsLoggedIn(false);
+            setUser(null);
+          }
         }
       } catch (err) {
         setIsLoggedIn(false);
@@ -64,6 +77,7 @@ export function Navbar() {
     try {
       const response = await fetch("/api/auth/logout", { method: "POST" });
       if (response.ok) {
+        sessionStorage.removeItem("user"); // Clear session storage on logout
         setIsLoggedIn(false);
         router.push("/");
         router.refresh();
@@ -149,9 +163,22 @@ export function Navbar() {
               </>
             ) : (
               <div className="flex items-center gap-3">
+                {/* Admin Button - Only shown if role is admin */}
+                {user?.role === "admin" && (
+                  <Button
+                    href="/admin"
+                    variant="ghost"
+                    size="sm"
+                    className="font-bold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/20"
+                  >
+                    <ShieldCheck className="w-4 h-4 mr-2" />
+                    Admin
+                  </Button>
+                )}
+
                 <div className="h-9 w-9 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
                   <button
-                    onClick={() => router.push("/dashboard")}
+                    onClick={() => router.push(user?.role === "admin" ? "/admin" : "/dashboard")}
                     className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-all active:scale-95"
                     title="Go to Dashboard"
                   >
@@ -223,13 +250,24 @@ export function Navbar() {
               })}
 
               {isLoggedIn && (
-                <Link
-                  href="/dashboard"
-                  className="flex items-center gap-3 p-4 rounded-2xl text-lg font-semibold text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-950/20"
-                >
-                  <LayoutDashboard className="w-5 h-5" />
-                  Dashboard
-                </Link>
+                <>
+                  {user?.role === "admin" && (
+                    <Link
+                      href="/admin"
+                      className="flex items-center gap-3 p-4 rounded-2xl text-lg font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20"
+                    >
+                      <ShieldCheck className="w-5 h-5" />
+                      Admin Dashboard
+                    </Link>
+                  )}
+                  <Link
+                    href="/dashboard"
+                    className="flex items-center gap-3 p-4 rounded-2xl text-lg font-semibold text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-950/20"
+                  >
+                    <LayoutDashboard className="w-5 h-5" />
+                    {user?.role === "admin" ? "Admin Settings" : "Dashboard"}
+                  </Link>
+                </>
               )}
 
               <div className="grid grid-cols-1 gap-3 mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800">

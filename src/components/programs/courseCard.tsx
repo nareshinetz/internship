@@ -3,7 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight, BookOpen, Zap, Globe2, TrendingUp } from "lucide-react";
-import { TechStack } from "@/lib/program-data";
+import { type TechStack } from "@/lib/program-data";
 import { cn } from "@/lib/utils";
 import { BRAND_DATA, getStackLogos, getIconClass, MARKET_INSIGHTS } from "../../lib/Tech-utils";
 
@@ -11,12 +11,25 @@ interface CourseCardProps {
   stack: TechStack;
   title: string;
   image: string;
+  subtitle: string;
   description: string;
   modules: number;
   onSelect: (stack: TechStack) => void;
 }
 
-const CourseCard = ({ stack, title, image, description, modules, onSelect }: CourseCardProps) => {
+/**
+ * CourseCard Component
+ * Displays individual course tracks with market insights and tech marquee
+ */
+const CourseCard = ({ 
+  stack, 
+  title, 
+  image, 
+  subtitle, 
+  description, 
+  modules, 
+  onSelect 
+}: CourseCardProps) => {
   const logos = getStackLogos(stack);
   const market = MARKET_INSIGHTS[stack] || MARKET_INSIGHTS["default"];
 
@@ -33,7 +46,7 @@ const CourseCard = ({ stack, title, image, description, modules, onSelect }: Cou
         "hover:border-zinc-800 dark:hover:border-emerald-500/50 hover:shadow-2xl"
       )}
     >
-      {/* 1. IMAGE SECTION (Strict Width to prevent zoom feel) */}
+      {/* 1. IMAGE SECTION */}
       <div className="relative w-full md:w-[32%] h-48 md:h-56 rounded-[1.5rem] overflow-hidden shrink-0 border border-zinc-100 dark:border-zinc-800 z-10">
         <img 
           src={image} 
@@ -61,21 +74,25 @@ const CourseCard = ({ stack, title, image, description, modules, onSelect }: Cou
       <div className="flex-1 py-2 pr-4 flex flex-col justify-between z-10 w-full">
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[8px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-800/50 px-2 py-0.5 rounded-md">
+            {/* <span className="text-[8px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-800/50 px-2 py-0.5 rounded-md">
               {stack}
-            </span>
+            </span> */}
             <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
               <TrendingUp size={10} />
               <span className="text-[8px] font-bold uppercase">{market.trend}</span>
             </div>
           </div>
           
-          <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight mb-3 uppercase">
+          <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight mb-1 uppercase">
             {title}
           </h3>
 
+          {/* <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-3">
+            {subtitle}
+          </p> */}
+
           {/* TECH DOCK MARQUEE */}
-          <div className="relative mb-4 w-full max-w-[280px] overflow-hidden rounded-xl p-2">
+          <div className="relative mb-4 w-full max-w-[280px] overflow-hidden rounded-xl p-2 dark:bg-zinc-900/50">
             <motion.div 
               animate={{ x: ["0%", "-50%"] }}
               transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
