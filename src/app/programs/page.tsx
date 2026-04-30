@@ -1,25 +1,40 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TechStack } from "@/lib/program-data";
 import CourseCard from "@/components/programs/courseCard";
 import InternshipPrograms from "@/components/programs/programDetails";
 import { STACK_MAPPING, BRAND_DATA, getIconClass } from "@/lib/Tech-utils";
-import { ArrowRight, Terminal, Shield, Sparkles, Loader2 } from "lucide-react";
+import { Terminal, Loader2 } from "lucide-react";
+
+// ─── Moved outside component: stable reference, never changes ───────────────
+const ALL_SKILLS = Array.from(new Set(Object.values(STACK_MAPPING).flat()));
+// Pre-double the array so the ticker JSX doesn't allocate a new array on each render
+const TICKER_SKILLS = [...ALL_SKILLS, ...ALL_SKILLS];
 
 const ProgramsMainPage = () => {
   const [selectedStack, setSelectedStack] = useState<TechStack | null>(null);
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const allSkills = Array.from(new Set(Object.values(STACK_MAPPING).flat()));
+  // ─── Stable callbacks ──────────────────────────────────────────────────────
+  const handleSelect = useCallback(
+    (stack: string) => setSelectedStack(stack as TechStack),
+    []
+  );
 
-  // 1. FETCH DYNAMIC CATALOG FROM MONGODB
+  const handleBack = useCallback(() => setSelectedStack(null), []);
+
+  // ─── Fetch with AbortController to avoid state updates after unmount ───────
   useEffect(() => {
+    const controller = new AbortController();
+
     const fetchCatalog = async () => {
       try {
-        const res = await fetch("/api/programs/list");
+        const res = await fetch("/api/programs/list", {
+          signal: controller.signal,
+        });
         const data = await res.json();
 
         /**
@@ -34,14 +49,24 @@ const ProgramsMainPage = () => {
 
         setCourses(uniqueCatalog);
       } catch (err) {
-        console.error("Failed to load catalog data");
+        // Ignore AbortError — it's intentional on cleanup
+        if (err instanceof Error && err.name !== "AbortError") {
+          console.error("Failed to load catalog data");
+        }
       } finally {
-        setLoading(false);
+        // Only update loading state if the fetch wasn't aborted
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     };
+
     fetchCatalog();
+
+    return () => controller.abort();
   }, []);
 
+  // ─── Scroll to top when stack selection changes ────────────────────────────
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [selectedStack]);
@@ -79,7 +104,7 @@ const ProgramsMainPage = () => {
                 transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
                 className="flex gap-10 whitespace-nowrap"
               >
-                {[...allSkills, ...allSkills].map((skill, i) => (
+                {TICKER_SKILLS.map((skill, i) => (
                   <div
                     key={i}
                     className="flex items-center gap-2.5 group cursor-default"
@@ -99,7 +124,6 @@ const ProgramsMainPage = () => {
             {/* 2. HERO SECTION */}
             <header className="grid grid-cols-1 lg:grid-cols-12 gap-12 pt-10 pb-14 items-center">
               <div className="lg:col-span-7 space-y-5">
-
                 {/* Main Header */}
                 <div className="space-y-1">
                   <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-zinc-900 leading-none">
@@ -145,6 +169,8 @@ const ProgramsMainPage = () => {
                     <img
                       src="/programs.png"
                       alt="Advanced System Architecture"
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
                     />
                   </div>
@@ -177,7 +203,7 @@ const ProgramsMainPage = () => {
                       title={item.title}
                       subtitle={item.subtitle}
                       image={item.image}
-                      onSelect={(stack) => setSelectedStack(stack as TechStack)}
+                      onSelect={handleSelect}
                       description={item.subtitle}
                       modules={item.syllabus?.length}
                     />
@@ -195,7 +221,7 @@ const ProgramsMainPage = () => {
           >
             <InternshipPrograms
               initialStack={selectedStack}
-              onBack={() => setSelectedStack(null)}
+              onBack={handleBack}
             />
           </motion.div>
         )}

@@ -3,107 +3,136 @@
 import React, { useState, useEffect, Suspense } from "react";
 import Script from "next/script";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  User, Phone, ChevronDown, CheckCircle2,
-  Loader2, ShieldCheck, CreditCard,
-  ArrowLeft, Building2, Briefcase,
-  AlertCircle, IndianRupee, Lock, ShoppingCart
-} from "lucide-react";
+import { ChevronDown, Loader2, ArrowLeft, IndianRupee, Lock, ShoppingCart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { programData, type TechStack, type Duration } from "@/lib/program-data";
 
-// 1. Move the main logic into a sub-component
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-1">
+      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>
+      {children}
+    </div>
+  );
+}
+
+function Input({ label, onChange, ...props }: { label: string; onChange: (v: string) => void } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange">) {
+  return (
+    <Field label={label}>
+      <input {...props} onChange={(e) => onChange(e.target.value)} required
+        className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-xs font-bold focus:bg-white focus:border-indigo-500 outline-none transition-all placeholder:text-slate-300"
+      />
+    </Field>
+  );
+}
+
+function Select({ label, options, onChange, ...props }: any) {
+  return (
+    <Field label={label}>
+      <div className="relative">
+        <select {...props} onChange={(e) => onChange(e.target.value)}
+          className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-xs font-bold focus:bg-white focus:border-indigo-500 outline-none appearance-none cursor-pointer"
+        >
+          {options.map((o: string) => <option key={o} value={o}>{o}</option>)}
+        </select>
+        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 size-3 text-slate-400 pointer-events-none" />
+      </div>
+    </Field>
+  );
+}
+
+function StaticField({ label, value }: { label: string; value: string }) {
+  return (
+    <Field label={label}>
+      <div className="w-full bg-slate-100 border border-slate-200 rounded-lg py-2 px-3 text-xs font-bold text-slate-700">{value}</div>
+    </Field>
+  );
+}
+
+function StepCard({ step, title, children }: { step: number; title: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+      <div className="flex items-center gap-3 mb-4">
+        <span className="w-5 h-5 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center text-[10px] font-black">{step}</span>
+        <h2 className="font-black text-[11px] text-slate-800 uppercase tracking-widest">{title}</h2>
+      </div>
+      {children}
+    </div>
+  );
+}
+
 function ReviewAndPayContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const urlTrack = (searchParams.get("track") as TechStack) || "Python";
-  const urlDuration = (searchParams.get("duration") as Duration) || "1 Month";
+  const urlTrack         = (searchParams.get("track") as TechStack) || "Python";
+  const urlDuration      = (searchParams.get("duration") as Duration) || "1 Month";
+  const urlPrice         = parseInt(searchParams.get("price") || "0");
+  const urlOriginalPrice = parseInt(searchParams.get("originalPrice") || "0");
+  const urlCourseTitle   = searchParams.get("courseTitle") || "";
+
+  const fallback      = programData[urlTrack]?.[urlDuration];
+  const discountedFee = urlPrice          || fallback?.price         || 500;
+  const originalFee   = urlOriginalPrice  || fallback?.originalPrice || 2000;
 
   const [isProcessing, setIsProcessing] = useState(false);
-  const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    college: "",
-    department: "",
-    year: "1st Year",
-    track: urlTrack,
-    duration: urlDuration,
-    mode: "Online",
+  const [customAmount, setCustomAmount] = useState(discountedFee);
+  const [form, setForm] = useState({
+    fullName: "", email: "", phone: "",
+    college: "", department: "", year: "1st Year",
+    track: urlTrack, duration: urlDuration, mode: "Online",
   });
 
-  const currentProgram = programData[formData.track]?.[formData.duration];
-  const discountedFee = currentProgram?.price || 500;
-  const originalFee = currentProgram?.originalPrice || 2000;
+  const set = (key: string) => (v: string) => setForm((f) => ({ ...f, [key]: v }));
 
-  const [customAmount, setCustomAmount] = useState<number>(discountedFee);
-  
-  useEffect(() => {
-    setCustomAmount(discountedFee);
-  }, [discountedFee]);
+  useEffect(() => { setCustomAmount(discountedFee); }, [discountedFee]);
+
+  // Derived validation flags
+  const isOverAmount = customAmount > discountedFee;
+  const isUnderAmount = customAmount < 500;
+  const isAmountInvalid = isOverAmount || isUnderAmount;
 
   const handlePay = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (customAmount < 500) return alert("Min payment is ₹500");
+    if (isUnderAmount) return alert("Min payment is ₹500");
+    if (isOverAmount) return alert(`Max payment is ₹${discountedFee.toLocaleString()}`);
+    if (!form.fullName || !form.email || !form.phone) return alert("Please fill in all contact details.");
+    if (!form.college || !form.department) return alert("Please fill in your education details.");
 
     setIsProcessing(true);
     try {
-      const res = await fetch("/api/apply", {
-        method: "POST",
-        body: JSON.stringify({ ...formData, amountToPay: customAmount }),
-      });
+      const res  = await fetch("/api/apply", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, amountToPay: customAmount }) });
       const data = await res.json();
 
-      const options = {
-        key: data.key,
-        amount: data.amount,
-        currency: "INR",
-        name: "INetZ Academy",
-        order_id: data.orderId,
-        handler: async (response: any) => {
-          try {
-            const verifyRes = await fetch("/api/verify", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-              }),
-            });
-
-            const verifyData = await verifyRes.json();
-
-            if (verifyData.success) {
-              router.push("/dashboard?status=success");
-            } else {
-              alert("Verification failed. Please contact support.");
-              setIsProcessing(false);
-            }
-          } catch (err) {
-            console.error("Verification error:", err);
-            setIsProcessing(false);
-          }
-        },
-        prefill: {
-          name: formData.fullName,
-          email: formData.email,
-          contact: formData.phone,
-        },
-        theme: { color: "#4F46E5" },
-        modal: { ondismiss: () => setIsProcessing(false) },
-      };
-      
+      if (!res.ok || !data.key || !data.orderId || !data.amount) {
+        alert(data.error || "Failed to create order. Please try again.");
+        return setIsProcessing(false);
+      }
       if (!(window as any).Razorpay) {
-        alert("Razorpay SDK not loaded. Please check your internet connection.");
-        setIsProcessing(false);
-        return;
+        alert("Payment SDK not loaded. Please refresh and try again.");
+        return setIsProcessing(false);
       }
 
-      const rzp = new (window as any).Razorpay(options);
+      const rzp = new (window as any).Razorpay({
+        key: data.key, amount: data.amount, currency: "INR",
+        name: "INetZ Academy",
+        description: `${urlTrack} Internship - ${urlDuration}`,
+        order_id: data.orderId,
+        prefill: { name: form.fullName, email: form.email, contact: form.phone },
+        theme: { color: "#4F46E5" },
+        modal: { ondismiss: () => setIsProcessing(false) },
+        handler: async (response: any) => {
+          const verify = await fetch("/api/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(response) });
+          const result = await verify.json();
+          result.success ? router.push("/dashboard?status=success") : (alert("Verification failed. Contact support."), setIsProcessing(false));
+        },
+      });
+
+      rzp.on("payment.failed", (r: any) => { alert(`Payment failed: ${r.error.description}`); setIsProcessing(false); });
       rzp.open();
     } catch (err) {
+      console.error(err);
+      alert("Something went wrong. Please try again.");
       setIsProcessing(false);
     }
   };
@@ -113,62 +142,47 @@ function ReviewAndPayContent() {
       <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
 
       <main className="max-w-5xl mx-auto px-6 py-8 md:py-10 grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-        {/* LEFT: REGISTRATION FORM */}
+
+        {/* LEFT */}
         <div className="lg:col-span-7 space-y-6">
-          <button
-            onClick={() => router.back()}
-            className="text-[10px] font-black uppercase flex items-center gap-1.5 text-slate-400 hover:text-[#4F46E5] transition-all tracking-widest"
-          >
+          <button onClick={() => router.back()} className="text-[10px] font-black uppercase flex items-center gap-1.5 text-slate-400 hover:text-[#4F46E5] transition-all tracking-widest">
             <ArrowLeft className="w-3 h-3" /> Back
           </button>
           <h1 className="text-2xl font-black tracking-tight text-slate-900 uppercase">Review & Apply</h1>
 
           <div className="space-y-5">
-            <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="w-5 h-5 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center text-[10px] font-black">1</span>
-                <h2 className="font-black text-[11px] text-slate-800 uppercase tracking-widest">Contact Information</h2>
-              </div>
+            <StepCard step={1} title="Contact Information">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <Input label="Full Name" value={formData.fullName} onChange={(v: any) => setFormData({ ...formData, fullName: v })} placeholder="Name" />
-                <Input label="Email" value={formData.email} onChange={(v: any) => setFormData({ ...formData, email: v })} placeholder="Email" />
+                <Input label="Full Name"    value={form.fullName}   onChange={set("fullName")}  placeholder="John Doe" />
+                <Input label="Email"        value={form.email}      onChange={set("email")}      placeholder="john@example.com" />
                 <div className="md:col-span-2">
-                  <Input label="Phone Number" value={formData.phone} onChange={(v: any) => setFormData({ ...formData, phone: v })} placeholder="Mobile" />
+                  <Input label="Phone Number" value={form.phone}    onChange={set("phone")}      placeholder="+91" />
                 </div>
               </div>
-            </div>
+            </StepCard>
 
-            <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="w-5 h-5 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center text-[10px] font-black">2</span>
-                <h2 className="font-black text-[11px] text-slate-800 uppercase tracking-widest">Education Details</h2>
-              </div>
+            <StepCard step={2} title="Education Details">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="md:col-span-2">
-                  <Input label="College" value={formData.college} onChange={(v: any) => setFormData({ ...formData, college: v })} placeholder="Institution" />
+                  <Input label="College"   value={form.college}    onChange={set("college")}    placeholder="Institution Name" />
                 </div>
-                <Input label="Department" value={formData.department} onChange={(v: any) => setFormData({ ...formData, department: v })} placeholder="CSE / IT" />
-                <Select label="Year" value={formData.year} options={["1st Year", "2nd Year", "3rd Year", "4th Year"]} onChange={(v: any) => setFormData({ ...formData, year: v })} />
+                <Input label="Department"  value={form.department} onChange={set("department")} placeholder="e.g. CSE" />
+                <Select label="Year" value={form.year} options={["1st Year", "2nd Year", "3rd Year", "4th Year"]} onChange={set("year")} />
               </div>
-            </div>
+            </StepCard>
 
-            <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="w-5 h-5 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center text-[10px] font-black">3</span>
-                <h2 className="font-black text-[11px] text-slate-800 uppercase tracking-widest">Program</h2>
-              </div>
+            <StepCard step={3} title="Program">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <Select label="Track" value={formData.track} options={["Python", "MERN", "Java", "Data"]} onChange={(v: any) => setFormData({ ...formData, track: v })} />
-                <Select label="Duration" value={formData.duration} options={["1 Week", "1 Month", "3 Months"]} onChange={(v: any) => setFormData({ ...formData, duration: v })} />
-                <Select label="Mode" value={formData.mode} options={["Online", "Offline"]} onChange={(v: any) => setFormData({ ...formData, mode: v })} />
+                <StaticField label="Track"    value={urlTrack.toUpperCase()} />
+                <StaticField label="Duration" value={urlDuration} />
+                <Select label="Mode" value={form.mode} options={["Online", "Offline"]} onChange={set("mode")} />
               </div>
-            </div>
+            </StepCard>
           </div>
         </div>
 
-        {/* RIGHT: COMPACT ORDER SUMMARY */}
-        <div className="lg:col-span-5 space-y-4">
+        {/* RIGHT */}
+        <div className="lg:col-span-5">
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm sticky top-20">
             <div className="p-3 border-b border-slate-100 flex items-center gap-2 font-black text-[9px] uppercase tracking-widest text-slate-400">
               <ShoppingCart className="w-3.5 h-3.5 text-indigo-600" /> Order Summary
@@ -177,49 +191,72 @@ function ReviewAndPayContent() {
               <div className="rounded-lg overflow-hidden mb-3 h-32 bg-slate-100">
                 <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=600" className="w-full h-full object-cover" alt="Program" />
               </div>
+
               <h3 className="font-black text-sm leading-tight text-slate-800 uppercase tracking-tighter">
-                {formData.duration} {formData.track} Internship
+                {urlCourseTitle ? `${urlCourseTitle} — ${urlDuration}` : `${urlDuration} ${urlTrack} Internship`}
               </h3>
-              
+
               <div className="mt-4 space-y-2">
                 <div className="flex justify-between text-[10px] text-slate-400 font-bold uppercase">
                   <span>Standard Fee</span>
-                  <span className="line-through decoration-slate-300">₹{originalFee.toLocaleString()}</span>
+                  <span className="line-through">₹{originalFee.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-[10px] text-emerald-600 font-black uppercase">
                   <span>Scholarship</span>
                   <span>-₹{(originalFee - discountedFee).toLocaleString()}</span>
                 </div>
 
-                <div className="bg-slate-50 border border-slate-100 rounded-lg p-2.5 my-3 flex items-center justify-between gap-3">
-                  <div className="flex-shrink-0">
-                    <label className="text-[8px] font-black uppercase text-slate-500 tracking-widest block">Payable Now</label>
-                    <p className="text-[7px] font-bold text-slate-400 italic">(Min ₹500)</p>
+                {/* ✅ Payable Now — with over/under amount indicators */}
+                <div className={cn(
+                  "border rounded-lg p-2.5 my-3 flex items-center justify-between gap-3 transition-colors",
+                  isOverAmount  ? "bg-red-50 border-red-200"    :
+                  isUnderAmount ? "bg-amber-50 border-amber-200" :
+                  "bg-slate-50 border-slate-100"
+                )}>
+                  <div>
+                    <p className="text-[8px] font-black uppercase tracking-widest text-slate-500">Payable Now</p>
+                    {isOverAmount ? (
+                      <p className="text-[7px] font-black text-red-500 uppercase tracking-wide">
+                        Max ₹{discountedFee.toLocaleString()}
+                      </p>
+                    ) : isUnderAmount ? (
+                      <p className="text-[7px] font-black text-amber-500 uppercase tracking-wide">Min ₹500</p>
+                    ) : (
+                      <p className="text-[7px] font-bold text-slate-400 italic">(Min ₹500)</p>
+                    )}
                   </div>
                   <div className="relative flex-1 max-w-[110px]">
-                    <IndianRupee className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3 text-slate-400" />
+                    <IndianRupee className={cn("absolute left-2.5 top-1/2 -translate-y-1/2 size-3", isOverAmount ? "text-red-400" : "text-slate-400")} />
                     <input
-                      type="number"
-                      value={customAmount}
+                      type="number" min="500" max={discountedFee} value={customAmount}
                       onChange={(e) => setCustomAmount(parseInt(e.target.value) || 0)}
-                      className="w-full pl-6 pr-2 py-1.5 bg-white border border-slate-200 rounded text-sm font-black text-slate-800 outline-none text-right focus:border-indigo-500 transition-colors"
+                      className={cn(
+                        "w-full pl-6 pr-2 py-1.5 bg-white border rounded text-sm font-black text-slate-800 outline-none text-right transition-colors",
+                        isOverAmount  ? "border-red-400 focus:border-red-500 text-red-600"   :
+                        isUnderAmount ? "border-amber-400 focus:border-amber-500"             :
+                        "border-slate-200 focus:border-indigo-500"
+                      )}
                     />
                   </div>
                 </div>
 
                 <div className="pt-2 border-t border-dashed border-slate-200 flex justify-between items-baseline">
                   <span className="font-black text-[10px] text-slate-400 uppercase tracking-widest">Grand Total</span>
-                  <span className="font-black text-xl text-slate-900 tracking-tighter">₹{customAmount.toLocaleString()}</span>
+                  <span className={cn("font-black text-xl tracking-tighter", isAmountInvalid ? "text-red-500" : "text-slate-900")}>
+                    ₹{customAmount.toLocaleString()}
+                  </span>
                 </div>
               </div>
 
-              <button
-                onClick={handlePay}
-                disabled={isProcessing}
-                className="w-full mt-5 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-indigo-100 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              {/* ✅ Button disabled + red state when amount is out of range */}
+              <button onClick={handlePay} disabled={isProcessing || isAmountInvalid}
+                className={cn(
+                  "w-full mt-5 py-3.5 text-white rounded-lg font-black text-[10px] uppercase tracking-[0.2em] shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed",
+                  isAmountInvalid ? "bg-red-500 shadow-red-100" : "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-100"
+                )}
               >
                 {isProcessing ? <Loader2 className="animate-spin size-3" /> : <Lock className="size-3" />}
-                Enroll Now
+                {isOverAmount ? `Max payable is ₹${discountedFee.toLocaleString()}` : "Enroll Now"}
               </button>
             </div>
           </div>
@@ -229,45 +266,10 @@ function ReviewAndPayContent() {
   );
 }
 
-// 2. Wrap the logic in a Suspense boundary for the build to pass
 export default function ReviewAndPay() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <Loader2 className="animate-spin text-indigo-600" />
-      </div>
-    }>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-50"><Loader2 className="animate-spin text-indigo-600" /></div>}>
       <ReviewAndPayContent />
     </Suspense>
-  );
-}
-
-// Compact UI Components
-function Input({ label, ...props }: any) {
-  return (
-    <div className="space-y-1">
-      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>
-      <input
-        {...props} onChange={(e) => props.onChange(e.target.value)} required
-        className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-xs font-bold focus:bg-white focus:border-indigo-500 outline-none transition-all placeholder:text-slate-300"
-      />
-    </div>
-  );
-}
-
-function Select({ label, options, ...props }: any) {
-  return (
-    <div className="space-y-1">
-      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>
-      <div className="relative">
-        <select
-          {...props} onChange={(e) => props.onChange(e.target.value)}
-          className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-xs font-bold focus:bg-white focus:border-indigo-500 outline-none appearance-none cursor-pointer"
-        >
-          {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
-        </select>
-        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 size-3 text-slate-400 pointer-events-none" />
-      </div>
-    </div>
   );
 }

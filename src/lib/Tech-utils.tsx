@@ -55,8 +55,8 @@ export const STACK_MAPPING: Record<string, string[]> = {
   "python": ["python", "django", "postgresql", "docker", "aws"],
   "mern": ["react", "nodejs", "mongodb", "javascript", "git"],
   "java": ["java", "spring", "postgresql", "docker", "git"],
-  "DataScienceAI": ["python", "tensorflow", "pandas", "numpy", "git"],
-  "DataAnalytics": ["excel", "postgresql", "python", "powerbi"],
+  "dataScience": ["python", "tensorflow", "pandas", "numpy", "git"],
+  "dataAnalytics": ["excel", "postgresql", "python", "powerbi"],
   "Embedded": ["c", "cpp", "python", "git"],
   "default": ["html5", "css3", "javascript", "react"],
 };
@@ -65,8 +65,8 @@ export const MARKET_INSIGHTS: Record<string, { demand: string; trend: string }> 
   "python": { demand: "Critical", trend: "AI & Automation" },
   "mern": { demand: "High", trend: "SaaS & Scalability" },
   "java": { demand: "Stable", trend: "Enterprise FinTech" },
-  "DataScienceAI": { demand: "High", trend: "Machine Learning" },
-  "DataAnalytics": { demand: "Rising", trend: "Business Intelligence" },
+  "dataScience": { demand: "High", trend: "Machine Learning" },
+  "dataAnalytics": { demand: "Rising", trend: "Business Intelligence" },
   "Embedded": { demand: "Niche", trend: "IoT & Robotics" },
   "default": { demand: "Rising", trend: "Modern Web" },
 };
