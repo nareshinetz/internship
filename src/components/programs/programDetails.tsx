@@ -166,27 +166,75 @@ const InternshipPrograms = ({
       </div>
 
       {/* HERO */}
-      <section className="relative w-full py-16 overflow-hidden border-b border-zinc-100 bg-zinc-50/50">
-        <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
-          <h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-zinc-900 mb-6">
-            {current.title} <span className="text-emerald-600">Track</span>
-          </h1>
-          <div className="inline-flex gap-1 p-1 bg-white rounded-xl border border-zinc-200 shadow-xl mx-auto">
-            {DURATIONS.map((d) => (
-              <button key={d} onClick={() => setActiveDuration(d)}
-                className={cn("relative px-6 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all z-10",
-                  activeDuration === d ? "text-white" : "text-zinc-400 hover:text-zinc-600"
-                )}
-              >
-                {activeDuration === d && (
-                  <motion.div layoutId="durTab" className="absolute inset-0 bg-zinc-900 rounded-lg -z-10" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />
-                )}
-                {d}
-              </button>
-            ))}
-          </div>
+      <section className="relative w-full py-20 overflow-hidden border-b border-zinc-100 bg-white">
+  {/* Subtle Background Decoration */}
+  <div className="absolute top-0 right-0 w-1/3 h-full bg-zinc-50/50 -skew-x-12 translate-x-20 z-0" />
+
+  <div className="relative z-10 max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+    
+    {/* LEFT SIDE: Text & Controls (6 Cols) */}
+    <div className="lg:col-span-7 text-left">
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h1 className="text-4xl md:text-7xl font-semibold tracking-tight text-zinc-900 mb-8 leading-[1.1]">
+          {current.title} <br />
+          <span className="text-emerald-600">Track</span>
+        </h1>
+
+        <div className="inline-flex gap-1 p-1 bg-white rounded-xl border border-zinc-200 shadow-2xl">
+          {DURATIONS.map((d) => (
+            <button 
+              key={d} 
+              onClick={() => setActiveDuration(d)}
+              className={cn(
+                "relative px-8 py-3 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all z-10",
+                activeDuration === d ? "text-white" : "text-zinc-400 hover:text-zinc-600"
+              )}
+            >
+              {activeDuration === d && (
+                <motion.div 
+                  layoutId="durTab" 
+                  className="absolute inset-0 bg-zinc-900 rounded-lg -z-10" 
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} 
+                />
+              )}
+              {d}
+            </button>
+          ))}
         </div>
-      </section>
+      </motion.div>
+    </div>
+
+    {/* RIGHT SIDE: Landscape Image (5 Cols) */}
+    <div className="lg:col-span-5 relative">
+      {/* Decorative "Glass" Frame Background */}
+      <div className="absolute -inset-4 bg-emerald-50/50 rounded-[2rem] blur-2xl z-0" />
+      
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className="relative z-10 overflow-hidden rounded-2xl border border-zinc-200 shadow-2xl bg-zinc-100"
+      >
+        {/* Landscape Image Container */}
+        <div className="aspect-[16/10] w-full">
+          <img 
+            src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2072&auto=format&fit=crop" 
+            alt="Professional Workspace"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        
+        {/* Subtle Overlay for a Professional Look */}
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/20 to-transparent pointer-events-none" />
+      </motion.div>
+    </div>
+
+  </div>
+</section>
 
       <main className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
         <div className="lg:col-span-8 space-y-12">
@@ -258,13 +306,13 @@ const InternshipPrograms = ({
           </section>
 
           {/* CAREER MASTERY */}
-          <section className="relative py-24 bg-zinc-50/50 px-6 rounded-[3rem]">
+          <section className="relative py-24 bg-blue-900 px-6 rounded-[3rem]">
             <div className="max-w-5xl mx-auto mb-16 text-center md:text-left">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-[10px] font-bold uppercase tracking-widest mb-4">
                 <Sparkles size={12} /> Career Acceleration
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-zinc-900">
-                Everything to get you <span className="text-blue-600">Job Ready</span>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
+                Everything to get you <span className="text-green-500">Job Ready</span>
               </h2>
             </div>
             <div className="relative max-w-5xl mx-auto">
