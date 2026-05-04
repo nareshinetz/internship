@@ -36,32 +36,32 @@ export default function ProblemSolution() {
         <div className="w-full mb-16 relative">
           <div className="absolute inset-0 bg-rose-500/5 blur-[100px] pointer-events-none" />
           
-          <div className="text-center mb-12 relative z-10">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-bold uppercase tracking-widest mb-6">
-              Why Most Students Struggle
+          <div className="text-center mb-12 mt-10 relative z-10 flex flex-col items-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 text-xs font-medium mb-6">
+              <span>Why Most Students Struggle</span>
             </div>
-            <h2 className="text-balance text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-zinc-900 dark:text-white mb-6">
-              Courses alone are <span className="text-rose-500 underline decoration-rose-500/30 underline-offset-8">not enough.</span>
+            <h2 className="text-balance text-4xl sm:text-5xl font-semibold tracking-tight text-zinc-900 dark:text-white mb-6">
+              Courses alone are <span className="text-rose-500 dark:text-rose-400">not enough.</span>
             </h2>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl mx-auto relative z-10">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto relative z-10">
             {problems.map((problem, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                whileHover={{ y: -10, scale: 1.03 }}
+                whileHover={{ y: -8, scale: 1.02 }}
                 viewport={{ once: true, margin: "-50px" }}
-                transition={{ type: "spring", stiffness: 400, damping: 25, delay: i * 0.1 }}
-                className="group p-6 rounded-3xl bg-white/70 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 hover:border-rose-500/50 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 transition-all flex flex-col gap-4 shadow-xl backdrop-blur-md cursor-crosshair overflow-hidden relative"
+                transition={{ type: "spring", stiffness: 600, damping: 20, delay: i * 0.05 }}
+                className="group p-6 rounded-2xl bg-rose-50/30 dark:bg-rose-950/10 border border-rose-100 dark:border-rose-900/30 hover:border-rose-400 hover:bg-rose-100/50 dark:hover:bg-rose-900/30 transition-all flex flex-col gap-4 shadow-sm hover:shadow-xl relative overflow-hidden cursor-crosshair"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-rose-500/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 pointer-events-none scale-150 group-hover:scale-100" />
+                <div className="absolute inset-0 bg-gradient-to-br from-rose-500/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none scale-150 group-hover:scale-100" />
                 
-                <div className="w-10 h-10 rounded-full bg-rose-500/10 flex items-center justify-center border border-rose-500/20 shrink-0 group-hover:scale-110 group-hover:bg-rose-500/20 transition-all relative z-10">
-                  <XCircle className="w-5 h-5 text-rose-500" />
+                <div className="w-10 h-10 rounded-lg bg-white dark:bg-zinc-900 flex items-center justify-center text-rose-500 border border-rose-200 dark:border-rose-800 shrink-0 group-hover:scale-105 group-hover:bg-rose-500 group-hover:text-white group-hover:border-rose-500 transition-all relative z-10 shadow-sm">
+                  <XCircle className="w-5 h-5" />
                 </div>
-                <p className="text-zinc-600 dark:text-zinc-400 text-sm font-medium leading-relaxed group-hover:text-zinc-900 dark:group-hover:text-zinc-200 transition-colors relative z-10">
+                <p className="text-zinc-600 dark:text-zinc-400 text-sm font-medium leading-relaxed group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors relative z-10">
                   {problem}
                 </p>
               </motion.div>
@@ -100,13 +100,12 @@ export default function ProblemSolution() {
         <div className="w-full relative">
           <div className="absolute inset-0 bg-emerald-500/5 blur-[100px] pointer-events-none" />
           
-          <div className="text-center mb-16 relative z-10">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-widest mb-6">
-              How iNetz Solves It
+          <div className="text-center mb-16 relative z-10 flex flex-col items-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 text-xs font-medium mb-6">
+              <span>How iNetz Solves It</span>
             </div>
-            <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-zinc-900 dark:text-white mb-6">
-              How iNetz Solves It <br className="hidden md:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-400 to-sky-500 font-bold">A real internship training system.</span>
+            <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-zinc-900 dark:text-white mb-4">
+              A real internship training system.
             </h2>
           </div>
 
@@ -116,18 +115,18 @@ export default function ProblemSolution() {
                 key={i}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                whileHover={{ y: -10, scale: 1.03 }}
+                whileHover={{ y: -8, scale: 1.02 }}
                 viewport={{ once: true, margin: "-50px" }}
-                transition={{ type: "spring", stiffness: 400, damping: 25, delay: i * 0.1 }}
-                className="group p-8 rounded-[2rem] bg-white/70 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-emerald-500/60 hover:shadow-[0_0_40px_rgba(52,211,153,0.25)] hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 transition-all duration-300 flex items-start gap-5 relative overflow-hidden cursor-pointer"
+                transition={{ type: "spring", stiffness: 600, damping: 20, delay: i * 0.05 }}
+                className="group p-6 sm:p-8 rounded-2xl bg-emerald-50/30 dark:bg-emerald-950/10 border border-emerald-100 dark:border-emerald-900/30 hover:border-emerald-400 hover:bg-emerald-100/50 dark:hover:bg-emerald-900/30 transition-all duration-300 flex items-start gap-4 relative overflow-hidden cursor-pointer shadow-sm hover:shadow-xl"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 scale-150 group-hover:scale-100 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 scale-150 group-hover:scale-100 pointer-events-none" />
                 
-                <div className="w-12 h-12 rounded-2xl bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center border border-zinc-100 dark:border-zinc-800 group-hover:border-emerald-500/50 shrink-0 group-hover:bg-emerald-500/10 transition-colors z-10">
-                  <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+                <div className="w-10 h-10 rounded-lg bg-white dark:bg-zinc-900 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-500 shrink-0 group-hover:bg-emerald-500 group-hover:text-white group-hover:border-emerald-500 transition-all z-10 shadow-sm">
+                  <CheckCircle2 className="w-5 h-5" />
                 </div>
-                <div className="flex flex-col justify-center pt-2 z-10">
-                  <p className="text-zinc-700 dark:text-zinc-200 font-medium text-md leading-snug group-hover:text-emerald-600 dark:group-hover:text-emerald-50 transition-colors">
+                <div className="flex flex-col justify-center pt-1.5 z-10">
+                  <p className="text-zinc-700 dark:text-zinc-300 text-sm font-medium leading-relaxed group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors">
                     {solution}
                   </p>
                 </div>
@@ -146,14 +145,14 @@ export default function ProblemSolution() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               href="/programs" 
-              className="inline-flex items-center gap-3 px-10 py-5 rounded-full bg-gradient-to-r from-orange-500 via-orange-400 to-sky-500 text-white font-black uppercase tracking-widest text-sm hover:shadow-[0_20px_40px_-10px_rgba(249,115,22,0.4)] transition-all cursor-pointer group"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-semibold tracking-wide text-sm hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
             >
               Explore Our Programs 
               <motion.div
                 animate={{ x: [0, 5, 0] }}
                 transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
               >
-                <MoveRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <MoveRight className="w-4 h-4 ml-1" />
               </motion.div>
             </motion.a>
           </motion.div>

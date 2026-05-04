@@ -83,30 +83,14 @@ export default function HiringPartners() {
         </div>
       </div>
 
-      {/* Stats Section - Matching the image's clean white look */}
-      <div className="mt-24 grid gap-6 sm:grid-cols-3 max-w-6xl mx-auto px-4">
-        {[
-          { label: "Partner Companies", val: 200, suffix: "+", color: "text-[#0B4234] dark:text-emerald-400" },
-          { label: "Placement Rate", val: 90, suffix: "%", color: "text-[#0B4234] dark:text-emerald-400" },
-          { label: "Professionals Placed", val: 1500, suffix: "+", color: "text-[#0B4234] dark:text-emerald-400" },
-        ].map((stat, i) => (
-          <div key={i} className="bg-emerald-50/10 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-3xl p-10 text-center shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2">
-            <h3 className={cn("text-4xl sm:text-5xl font-bold mb-4", stat.color)}>
-              <Counter to={stat.val} />{stat.suffix}
-            </h3>
-            <p className="text-zinc-500 dark:text-zinc-400 font-medium text-sm">
-              {stat.label}
-            </p>
-          </div>
-        ))}
-      </div>
+
 
       {/* WhatsApp Floating Button */}
       <a
         href="https://wa.me/919840234475"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-8 right-2 z-[200] group animate-bounce"
+        className="fixed bottom-28 right-3 z-[200] group animate-bounce"
       >
         <div className="absolute -inset-4 bg-emerald-500/20 rounded-full blur-xl group-hover:bg-emerald-500/40 transition-all" />
         <div className="relative h-16 w-16 bg-[#25D366] rounded-full flex items-center justify-center text-white shadow-2xl transition-transform hover:scale-110 active:scale-95">
