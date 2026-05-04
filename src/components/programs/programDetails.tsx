@@ -3,26 +3,34 @@
 import React, { useState, useEffect, useMemo, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Code2, LayoutGrid, ArrowRight, CheckCircle2, Video, Mic2,
-  ArrowUpRight, Sparkles, Quote, Star, ArrowLeft, X, Download,
-  Lock, UserCheck, Briefcase,
+  Code2, LayoutGrid, ArrowRight, CheckCircle2, Video, Mic2, ArrowUpRight,
+  Sparkles, Quote, Star, ArrowLeft, X, Download, Lock, UserCheck, Briefcase, Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { programData, type Duration, type TechStack } from "@/lib/program-data";
 import { useRouter } from "next/navigation";
 import ProgramCard from "./ProgramCard";
 import { BRAND_DATA, getIconClass } from "../../lib/Tech-utils";
+import theComSession from "../../../public/TheComSession.png";
 
-// --- Memoized Atoms ---
+const DURATION_ORDER = ["1 Week", "2 Weeks", "1 Month", "3 Months"];
+
+const TRACK_IMAGES: Record<string, string> = {
+  python:        "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=1200",
+  mern:          "https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&q=80&w=1200",
+  java:          "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=1200",
+  dataanalytics: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&q=80&w=1200",
+};
+
+const CAREER_FEATURES = [
+  { title: "Industry Expert Sessions", description: "Weekly deep-dives with Senior SDEs from FAANG. Get your code reviewed and architecture critiqued by the best in the industry.", icon: <Video className="w-5 h-5" />, color: "bg-blue-600", tag: "Mentorship", image: "https://images.unsplash.com/photo-1591115765373-520b7a217294?auto=format&fit=crop&q=80" },
+  { title: "Daily Agile Tasks", description: "Receive daily tickets on our private dashboard. Submit PRs, handle merge conflicts, and master the professional git workflow.", icon: <Briefcase className="w-5 h-5" />, color: "bg-orange-600", tag: "Daily Sprints", image: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80" },
+  { title: "Mock Interview Series", description: "Simulated 1-on-1 interviews with real-time feedback scores. We cover DSA, System Design, and behavioral preparation.", icon: <UserCheck className="w-5 h-5" />, color: "bg-purple-600", tag: "Placement", image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&q=80" },
+  { title: "Communication Lab", description: "Technical storytelling. Learn to explain your logic clearly to recruiters and stakeholders—the bridge between code and career.", icon: <Mic2 className="w-5 h-5" />, color: "bg-emerald-600", tag: "Soft Skills", image: theComSession.src },
+];
 
 const TechLogo = memo(({ name }: { name: string }) => {
   const key = name.toLowerCase();
-  return (
-    <i
-      className={cn(getIconClass(key), "text-2xl transition-transform hover:scale-110")}
-      style={{ color: BRAND_DATA[key]?.color || "#64748b" }}
-    />
-  );
+  return <i className={cn(getIconClass(key), "text-2xl transition-transform hover:scale-110")} style={{ color: BRAND_DATA[key]?.color || "#64748b" }} />;
 });
 TechLogo.displayName = "TechLogo";
 
@@ -30,14 +38,12 @@ const ReviewCard = memo(({ rev }: { rev: any }) => (
   <div className="w-[320px] shrink-0 p-6 rounded-[2rem] bg-zinc-50 border border-zinc-100 relative group hover:bg-white hover:shadow-xl hover:border-emerald-100 transition-all duration-500 will-change-transform">
     <Quote className="absolute top-6 right-8 w-6 h-6 text-zinc-200 group-hover:text-emerald-100 transition-colors" />
     <div className="flex gap-0.5 mb-3">
-      {[...Array(5)].map((_, i) => (
-        <Star key={i} className={cn("w-2.5 h-2.5", i < rev.rating ? "fill-yellow-400 text-yellow-400" : "text-zinc-200")} />
-      ))}
+      {[...Array(5)].map((_, i) => <Star key={i} className={cn("w-2.5 h-2.5", i < rev.rating ? "fill-yellow-400 text-yellow-400" : "text-zinc-200")} />)}
     </div>
-    <p className="text-[12px] leading-relaxed text-zinc-600 mb-6 italic line-clamp-3">"{rev.comment}"</p>
+    <p className="text-[12px] leading-relaxed text-zinc-600 mb-6 italic line-clamp-3">"{rev.text || rev.comment}"</p>
     <div className="flex items-center gap-3">
       <div className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 font-bold text-[10px] flex items-center justify-center border-2 border-white shadow-sm">
-        {rev.name.charAt(0)}
+        {rev.name?.charAt(0) || "?"}
       </div>
       <div>
         <h5 className="text-[12px] font-bold text-zinc-900 leading-tight">{rev.name}</h5>
@@ -48,117 +54,101 @@ const ReviewCard = memo(({ rev }: { rev: any }) => (
 ));
 ReviewCard.displayName = "ReviewCard";
 
-// --- Static Data (moved outside component to avoid re-creation on render) ---
+const Spinner = ({ label }: { label: string }) => (
+  <div className="py-32 flex flex-col items-center justify-center gap-3 text-zinc-400">
+    <Loader2 className="w-6 h-6 animate-spin text-emerald-500" />
+    <span className="text-xs font-bold uppercase tracking-widest">{label}</span>
+  </div>
+);
 
-const CAREER_FEATURES = [
-  {
-    title: "Industry Expert Sessions",
-    description: "Weekly deep-dives with Senior SDEs from FAANG. Get your code reviewed and architecture critiqued by the best in the industry.",
-    icon: <Video className="w-5 h-5" />, color: "bg-blue-600", tag: "Mentorship",
-    image: "https://images.unsplash.com/photo-1591115765373-520b7a217294?auto=format&fit=crop&q=80",
-  },
-  {
-    title: "Daily Agile Tasks",
-    description: "Receive daily tickets on our private dashboard. Submit PRs, handle merge conflicts, and master the professional git workflow.",
-    icon: <Briefcase className="w-5 h-5" />, color: "bg-orange-600", tag: "Daily Sprints",
-    image: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80",
-  },
-  {
-    title: "Mock Interview Series",
-    description: "Simulated 1-on-1 interviews with real-time feedback scores. We cover DSA, System Design, and behavioral preparation.",
-    icon: <UserCheck className="w-5 h-5" />, color: "bg-purple-600", tag: "Placement",
-    image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&q=80",
-  },
-  {
-    title: "Communication Lab",
-    description: "Technical storytelling. Learn to explain your logic clearly to recruiters and stakeholders—the bridge between code and career.",
-    icon: <Mic2 className="w-5 h-5" />, color: "bg-emerald-600", tag: "Soft Skills",
-    image: "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&q=80",
-  },
-];
-
-const DURATIONS: Duration[] = ["1 Week", "2 Weeks", "1 Month", "3 Months"];
-
-// --- Main Component ---
-
-const InternshipPrograms = ({
-  initialStack = "Python",
-  onBack,
-}: {
-  initialStack?: TechStack;
-  onBack?: () => void;
-}) => {
+const InternshipPrograms = ({ initialStack = "mern", onBack }: { initialStack?: string; onBack?: () => void }) => {
   const router = useRouter();
-  const [activeStack, setActiveStack] = useState<TechStack>(initialStack);
-  const [activeDuration, setActiveDuration] = useState<Duration>("1 Week");
+  const [activeStack] = useState(initialStack);
+  const [activeDuration, setActiveDuration] = useState<string | null>(null);
+  const [availableDurations, setAvailableDurations] = useState<string[]>([]);
+  const [durationsLoading, setDurationsLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [hasUnlocked, setHasUnlocked] = useState(false);
-  const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [leadForm, setLeadForm] = useState({ name: "", phone: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [current, setCurrent] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    fetch("/api/auth/me").then((res) => setIsLoggedIn(res.ok)).catch(() => setIsLoggedIn(false));
+    fetch("/api/auth/me").then((r) => setIsLoggedIn(r.ok)).catch(() => setIsLoggedIn(false));
+    if (localStorage.getItem("unlocked") === "true") setHasUnlocked(true);
+  }, []);
 
-    const fetchSyllabus = async () => {
-      setLoading(true);
-      try {
-        const slug = `${activeStack}-${activeDuration.toLowerCase().replace(/\s+/g, "-")}`;
-        const res = await fetch(`/api/programs/${slug}`);
-        const data = await res.json();
-        setCurrent(res.ok && data.syllabus ? data : programData[activeStack]?.[activeDuration]);
-      } catch {
-        setCurrent(programData[activeStack]?.[activeDuration]);
-      } finally {
-        setLoading(false);
-      }
-    };
+  useEffect(() => {
+    setDurationsLoading(true);
+    fetch("/api/programs")
+      .then((r) => r.json())
+      .then((all: any[]) => {
+        const durations = all
+          .filter((p) => p.slug?.toLowerCase().startsWith(activeStack.toLowerCase() + "-"))
+          .map((p) => p.duration).filter(Boolean)
+          .sort((a: string, b: string) => {
+            const ai = DURATION_ORDER.findIndex((d) => d.toLowerCase() === a.toLowerCase());
+            const bi = DURATION_ORDER.findIndex((d) => d.toLowerCase() === b.toLowerCase());
+            return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+          });
+        const unique = Array.from(new Set(durations));
+        setAvailableDurations(unique);
+        if (unique.length > 0) setActiveDuration(unique[0]);
+      })
+      .catch(() => setAvailableDurations([]))
+      .finally(() => setDurationsLoading(false));
+  }, [activeStack]);
 
-    fetchSyllabus();
-    if (localStorage.getItem(`unlocked_${activeStack}`) === "true") setHasUnlocked(true);
+  useEffect(() => {
+    if (!activeDuration) return;
+    setLoading(true); setNotFound(false); setCurrent(null);
+    const slug = `${activeStack.toLowerCase()}-${activeDuration.toLowerCase().replace(/\s+/g, "-")}`;
+    fetch(`/api/programs/${slug}`)
+      .then(async (r) => { if (!r.ok) { setNotFound(true); return; } setCurrent(await r.json()); })
+      .catch(() => setNotFound(true))
+      .finally(() => setLoading(false));
   }, [activeStack, activeDuration]);
 
   const isSyllabusLocked = useMemo(() => !isLoggedIn && !hasUnlocked, [isLoggedIn, hasUnlocked]);
+  const savings = current?.originalPrice ? Math.round(((current.originalPrice - current.price) / current.originalPrice) * 100) : 0;
+  const validReviews = useMemo(() => (current?.reviews || []).filter((r: any) => r.name), [current]);
 
   const handleApply = () => {
-    const params = new URLSearchParams({
-      track: activeStack,
-      duration: activeDuration,
-      price: current.price.toString(),
-      courseTitle: current.title,
-      originalPrice: current.originalPrice,
-    });
-    const applyUrl = `/apply?${params.toString()}`;
-    isLoggedIn ? router.push(applyUrl) : router.push(`/login?callback=${encodeURIComponent(applyUrl)}`);
+    const params = new URLSearchParams({ track: activeStack, duration: activeDuration || "", price: current.price.toString(), courseTitle: current.title, originalPrice: current.originalPrice?.toString() || "" });
+    const url = `/apply?${params}`;
+    router.push(isLoggedIn ? url : `/login?callback=${encodeURIComponent(url)}`);
   };
 
   const handleLeadSubmit = async () => {
     if (!leadForm.name || !leadForm.phone) return alert("Please enter both Name and Phone");
     setIsSubmitting(true);
     try {
-      const res = await fetch("/api/send-lead", { method: "POST", body: JSON.stringify({ ...leadForm, stack: activeStack }) });
-      if (res.ok) {
-        setShowDownloadModal(false);
-        setHasUnlocked(true);
-        localStorage.setItem(`unlocked_${activeStack}`, "true");
-        alert("Syllabus Unlocked!");
-      }
-    } catch {
-      alert("Error sending details.");
-    } finally {
-      setIsSubmitting(false);
-    }
+      const r = await fetch("/api/send-lead", { method: "POST", body: JSON.stringify({ ...leadForm, stack: activeStack }) });
+      if (r.ok) { setShowModal(false); setHasUnlocked(true); localStorage.setItem("unlocked", "true"); alert("Syllabus Unlocked!"); }
+    } catch { alert("Error sending details."); }
+    finally { setIsSubmitting(false); }
   };
 
-  if (loading) return <div className="p-20 text-center text-zinc-400">Syncing track...</div>;
-  if (!current) return <div className="p-20 text-center text-zinc-400 font-bold uppercase tracking-widest">Track Not Found</div>;
+  const handleDownload = () => {
+    if (isSyllabusLocked) { setShowModal(true); return; }
+    if (!current?.pdfFileName) { alert("No PDF available yet."); return; }
+    Object.assign(document.createElement("a"), { href: `/api/download-pdf?file=${encodeURIComponent(current.pdfFileName)}`, download: current.pdfFileName }).click();
+  };
+
+  if (durationsLoading) return <Spinner label="Loading track..." />;
+  if (!availableDurations.length) return (
+    <div className="p-20 text-center space-y-3">
+      <p className="text-zinc-400 font-bold uppercase tracking-widest text-sm">No Tracks Available</p>
+      <p className="text-zinc-300 text-xs">No durations found for <strong>{activeStack}</strong>. Upload via the admin panel.</p>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-white text-zinc-900 font-sans relative antialiased">
+    <div className="min-h-screen bg-white text-zinc-900 font-sans antialiased">
 
-      {/* NAVIGATION */}
       <div className="max-w-7xl mx-auto px-6 pt-8">
         <button onClick={onBack || (() => router.back())} className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-zinc-400 hover:text-emerald-600 transition-colors">
           <ArrowLeft className="w-4 h-4" /> Back to Catalogue
@@ -167,258 +157,199 @@ const InternshipPrograms = ({
 
       {/* HERO */}
       <section className="relative w-full py-20 overflow-hidden border-b border-zinc-100 bg-white">
-  {/* Subtle Background Decoration */}
-  <div className="absolute top-0 right-0 w-1/3 h-full bg-zinc-50/50 -skew-x-12 translate-x-20 z-0" />
-
-  <div className="relative z-10 max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-    
-    {/* LEFT SIDE: Text & Controls (6 Cols) */}
-    <div className="lg:col-span-7 text-left">
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <h1 className="text-4xl md:text-7xl font-semibold tracking-tight text-zinc-900 mb-8 leading-[1.1]">
-          {current.title} <br />
-          <span className="text-emerald-600">Track</span>
-        </h1>
-
-        <div className="inline-flex gap-1 p-1 bg-white rounded-xl border border-zinc-200 shadow-2xl">
-          {DURATIONS.map((d) => (
-            <button 
-              key={d} 
-              onClick={() => setActiveDuration(d)}
-              className={cn(
-                "relative px-8 py-3 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all z-10",
-                activeDuration === d ? "text-white" : "text-zinc-400 hover:text-zinc-600"
-              )}
-            >
-              {activeDuration === d && (
-                <motion.div 
-                  layoutId="durTab" 
-                  className="absolute inset-0 bg-zinc-900 rounded-lg -z-10" 
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} 
-                />
-              )}
-              {d}
-            </button>
-          ))}
-        </div>
-      </motion.div>
-    </div>
-
-    {/* RIGHT SIDE: Landscape Image (5 Cols) */}
-    <div className="lg:col-span-5 relative">
-      {/* Decorative "Glass" Frame Background */}
-      <div className="absolute -inset-4 bg-emerald-50/50 rounded-[2rem] blur-2xl z-0" />
-      
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="relative z-10 overflow-hidden rounded-2xl border border-zinc-200 shadow-2xl bg-zinc-100"
-      >
-        {/* Landscape Image Container */}
-        <div className="aspect-[16/10] w-full">
-          <img 
-            src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2072&auto=format&fit=crop" 
-            alt="Professional Workspace"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        
-        {/* Subtle Overlay for a Professional Look */}
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/20 to-transparent pointer-events-none" />
-      </motion.div>
-    </div>
-
-  </div>
-</section>
-
-      <main className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-        <div className="lg:col-span-8 space-y-12">
-
-          {/* TECHNICAL ROADMAP */}
-          <section className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <LayoutGrid className="w-5 h-5 text-emerald-500" /> Technical Roadmap
-              </h2>
-              <div className="flex gap-2">
-                {isSyllabusLocked && (
-                  <span className="text-[9px] font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-100 flex items-center gap-1 uppercase tracking-tighter">
-                    <Lock size={10} /> Limited Preview
-                  </span>
-                )}
-                <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-400 bg-zinc-100 px-2.5 py-1 rounded-full">
-                  {current.syllabus?.length || 0} Modules
-                </span>
-              </div>
-            </div>
-
-            <div className="relative border border-zinc-200 rounded-[2rem] bg-white shadow-lg shadow-zinc-200/20 overflow-hidden">
-              <div className="p-6 md:p-10 space-y-0 relative">
-                <div className="absolute left-[34px] md:left-[65px] top-[50px] w-[1.5px] bg-gradient-to-b from-emerald-500 via-emerald-200 to-transparent h-[calc(100%-100px)] z-0" />
-                {current.syllabus?.map((item: any, idx: number) => (
-                  <motion.div key={idx} initial={{ opacity: 0, x: -10 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="relative flex gap-6 pb-10 last:pb-0">
-                    <div className="min-w-[50px] h-10 rounded-xl border-2 border-white shadow-sm flex items-center justify-center text-[9px] font-bold text-zinc-400 z-10 bg-white shrink-0">
-                      {item.label}
-                    </div>
-                    <div className="flex-1 pt-0.5">
-                      <h4 className="text-md font-bold text-zinc-800">{item.title}</h4>
-                      <div className="flex gap-2.5 mt-2 mb-3">
-                        {item.tools?.map((t: string) => <TechLogo key={t} name={t} />)}
-                      </div>
-                      <div className="relative grid grid-cols-1 md:grid-cols-2 gap-2 bg-white/50 p-5 rounded-2xl border border-zinc-100 overflow-hidden">
-                        {(isSyllabusLocked ? item.topics?.slice(0, 3) : item.topics)?.map((topic: string, i: number) => (
-                          <div key={i} className="flex items-center gap-2 text-xs text-zinc-600">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" /> {topic}
-                          </div>
-                        ))}
-                        {isSyllabusLocked && item.topics?.length > 3 && (
-                          <div className="col-span-full mt-3 p-3 bg-zinc-50 rounded-xl border border-zinc-100 border-dashed flex items-center justify-between">
-                            <p className="text-[10px] text-zinc-400 font-medium italic">+ {item.topics.length - 3} advanced topics hidden</p>
-                            <button onClick={() => setShowDownloadModal(true)} className="text-[9px] font-bold text-emerald-600 uppercase flex items-center gap-1 hover:underline underline-offset-4">
-                              Unlock Full Module <ArrowRight size={10} />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </motion.div>
+        <div className="absolute top-0 right-0 w-1/3 h-full bg-zinc-50/50 -skew-x-12 translate-x-20 z-0" />
+        <div className="relative z-10 max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-7">
+            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
+              <h1 className="text-4xl md:text-7xl font-semibold tracking-tight text-zinc-900 mb-8 leading-[1.1]">
+                {current?.title || activeStack}<br /><span className="text-emerald-600">Track</span>
+              </h1>
+              <div className="inline-flex gap-1 p-1 bg-white rounded-xl border border-zinc-200 shadow-2xl flex-wrap">
+                {availableDurations.map((d) => (
+                  <button key={d} onClick={() => setActiveDuration(d)}
+                    className={cn("relative px-6 py-3 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all z-10", activeDuration === d ? "text-white" : "text-zinc-400 hover:text-zinc-600")}
+                  >
+                    {activeDuration === d && <motion.div layoutId="durTab" className="absolute inset-0 bg-zinc-900 rounded-lg -z-10" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />}
+                    {d}
+                  </button>
                 ))}
               </div>
-              <div className="p-6 bg-zinc-50 border-t border-zinc-100 flex flex-col md:flex-row items-center justify-between gap-4">
-                <p className="text-xs font-bold text-zinc-500 uppercase flex items-center gap-2">
-                  {isSyllabusLocked ? "Enter contact details to unlock full syllabus" : <><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Syllabus Access Granted</>}
-                </p>
-                <button
-                  onClick={() => isSyllabusLocked ? setShowDownloadModal(true) : alert("Download starting...")}
-                  className={cn("flex items-center gap-2 px-6 py-2.5 rounded-xl text-[10px] font-bold uppercase transition-all shadow-md",
-                    isSyllabusLocked ? "bg-emerald-600 text-white animate-pulse" : "bg-zinc-900 text-white"
-                  )}
-                >
-                  {isSyllabusLocked ? "Unlock Full Roadmap" : "Download PDF"} <Download className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          </section>
+            </motion.div>
+          </div>
 
-          {/* CAREER MASTERY */}
-          <section className="relative py-24 bg-blue-900 px-6 rounded-[3rem]">
-            <div className="max-w-5xl mx-auto mb-16 text-center md:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-[10px] font-bold uppercase tracking-widest mb-4">
-                <Sparkles size={12} /> Career Acceleration
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
-                Everything to get you <span className="text-green-500">Job Ready</span>
-              </h2>
-            </div>
-            <div className="relative max-w-5xl mx-auto">
-              {CAREER_FEATURES.map((feature, idx) => (
-                <div key={idx} className="sticky top-28 w-full mb-8 last:mb-0">
-                  <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ margin: "-5% 0px -5% 0px" }}
-                    className="relative w-full h-[320px] md:h-[280px] overflow-hidden rounded-[2rem] border border-zinc-200 bg-white flex flex-col md:flex-row shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-300"
-                  >
-                    <div className="w-full md:w-[40%] h-32 md:h-full relative overflow-hidden">
-                      <img src={feature.image} alt={feature.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                      <div className="absolute top-4 left-4 bg-white/95 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest text-zinc-900 shadow-sm border border-white/10 backdrop-blur-sm">
-                        {feature.tag}
-                      </div>
-                    </div>
-                    <div className="flex-1 p-6 md:p-10 flex flex-col justify-center relative">
-                      <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center text-white mb-4 shadow-lg", feature.color)}>
-                        {feature.icon}
-                      </div>
-                      <h3 className="text-xl md:text-2xl font-bold text-zinc-900 mb-2 flex items-center gap-2">
-                        {feature.title} <ArrowUpRight size={16} className="text-zinc-300" />
-                      </h3>
-                      <p className="text-zinc-500 text-sm md:text-base leading-relaxed font-medium max-w-md">{feature.description}</p>
-                      <div className="absolute bottom-6 right-8 select-none">
-                        <span className="text-4xl md:text-5xl font-black text-zinc-100 italic tracking-tighter">0{idx + 1}</span>
-                      </div>
-                    </div>
-                  </motion.div>
+          <div className="lg:col-span-5 relative">
+            <div className="absolute -inset-4 bg-emerald-50/50 rounded-[2rem] blur-2xl z-0" />
+            <AnimatePresence mode="wait">
+              <motion.div key={activeDuration} initial={{ opacity: 0, x: 20, scale: 0.95 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: -20, scale: 0.95 }} transition={{ duration: 0.4, ease: "easeOut" }}
+                className="relative z-10 overflow-hidden rounded-2xl border border-zinc-200 shadow-2xl bg-zinc-100"
+              >
+                <div className="aspect-[16/10] w-full relative">
+                  <img src={current?.heroImg || TRACK_IMAGES[activeStack.toLowerCase()] || TRACK_IMAGES.mern} alt={activeStack} className="w-full h-full object-cover" />
+                  <div className="absolute top-4 right-4 px-3 py-1 bg-white/90 backdrop-blur-md rounded-full border border-zinc-200 shadow-sm flex items-center gap-2">
+                    <TechLogo name={activeStack} />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-zinc-800">{activeStack} Track</span>
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/40 via-transparent to-transparent pointer-events-none" />
                 </div>
-              ))}
-            </div>
-          </section>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
+      </section>
 
-          {/* STUDENT BUILDS */}
-          <section className="space-y-6 pt-6 border-t border-zinc-100">
-            <h2 className="text-xl font-bold flex items-center gap-2"><Code2 className="w-5 h-5" /> Student Builds</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {(current.projects || []).map((proj: any) => (
-                <ProgramCard
-                  key={proj.title} title={proj.title} subtitle={proj.subtitleb}
-                  description={`Built using ${proj.tech?.join(", ")}.`}
-                  image={proj.img || "https://images.unsplash.com/photo-1517694712202-14dd9538aa97"}
-                  badgeText="Live Project" badgeIcon={Code2}
-                />
-              ))}
-            </div>
-          </section>
+      {loading ? <Spinner label="Syncing track..." /> : notFound || !current ? (
+        <div className="py-32 text-center space-y-2">
+          <p className="text-zinc-400 font-bold uppercase tracking-widest text-sm">Track Not Found</p>
+          <p className="text-zinc-300 text-xs">No data for <strong>{activeStack}</strong> — <strong>{activeDuration}</strong>. Upload via admin.</p>
+        </div>
+      ) : (
+        <main className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+          <div className="lg:col-span-8 space-y-12">
 
-          {/* MARQUEE REVIEWS */}
-          <section className="space-y-8 pt-10 border-t border-zinc-100 overflow-hidden">
-            <h2 className="text-xl font-bold px-2 flex items-center gap-2">
-              <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" /> Student Experience
-            </h2>
-            <div className="relative flex flex-col gap-6" style={{ maskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)", WebkitMaskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)" }}>
-              <div className="flex overflow-hidden">
-                <motion.div
-                  animate={{ x: ["0%", "-50%"] }}
-                  transition={{ duration: (current.reviews || []).length * 8, repeat: Infinity, ease: "linear" }}
-                  className="flex gap-6 shrink-0 will-change-transform"
-                >
-                  {(current.reviews || []).length > 0
-                    ? [...current.reviews, ...current.reviews].map((rev, i) => <ReviewCard key={i} rev={rev} />)
+            {/* ROADMAP */}
+            <section className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold flex items-center gap-2"><LayoutGrid className="w-5 h-5 text-emerald-500" /> Technical Roadmap</h2>
+                <div className="flex gap-2">
+                  {isSyllabusLocked && (
+                    <span className="text-[9px] font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-100 flex items-center gap-1 uppercase tracking-tighter">
+                      <Lock size={10} /> Limited Preview
+                    </span>
+                  )}
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-400 bg-zinc-100 px-2.5 py-1 rounded-full">{current.syllabus?.length || 0} Modules</span>
+                </div>
+              </div>
+              <div className="relative border border-zinc-200 rounded-[2rem] bg-white shadow-lg shadow-zinc-200/20 overflow-hidden">
+                <div className="p-6 md:p-10 relative">
+                  <div className="absolute left-[34px] md:left-[65px] top-[50px] w-[1.5px] bg-gradient-to-b from-emerald-500 via-emerald-200 to-transparent h-[calc(100%-100px)] z-0" />
+                  {current.syllabus?.map((item: any, idx: number) => (
+                    <motion.div key={idx} initial={{ opacity: 0, x: -10 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="relative flex gap-6 pb-10 last:pb-0">
+                      <div className="min-w-[50px] h-10 rounded-xl border-2 border-white shadow-sm flex items-center justify-center text-[9px] font-bold text-zinc-400 z-10 bg-white shrink-0">{item.label}</div>
+                      <div className="flex-1 pt-0.5">
+                        <h4 className="text-md font-bold text-zinc-800">{item.title}</h4>
+                        <div className="flex gap-2.5 mt-2 mb-3">{item.tools?.map((t: string) => <TechLogo key={t} name={t} />)}</div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 bg-white/50 p-5 rounded-2xl border border-zinc-100">
+                          {(isSyllabusLocked ? item.topics?.slice(0, 3) : item.topics)?.map((topic: string, i: number) => (
+                            <div key={i} className="flex items-center gap-2 text-xs text-zinc-600">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" /> {topic}
+                            </div>
+                          ))}
+                          {isSyllabusLocked && item.topics?.length > 3 && (
+                            <div className="col-span-full mt-3 p-3 bg-zinc-50 rounded-xl border border-dashed border-zinc-100 flex items-center justify-between">
+                              <p className="text-[10px] text-zinc-400 italic">+ {item.topics.length - 3} advanced topics hidden</p>
+                              <button onClick={() => setShowModal(true)} className="text-[9px] font-bold text-emerald-600 uppercase flex items-center gap-1 hover:underline">
+                                Unlock Full Module <ArrowRight size={10} />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+                <div className="p-6 bg-zinc-50 border-t border-zinc-100 flex flex-col md:flex-row items-center justify-between gap-4">
+                  <p className="text-xs font-bold text-zinc-500 uppercase flex items-center gap-2">
+                    {isSyllabusLocked ? "Enter contact details to unlock full syllabus" : <><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Syllabus Access Granted</>}
+                  </p>
+                  <button onClick={handleDownload} className={cn("flex items-center gap-2 px-6 py-2.5 rounded-xl text-[10px] font-bold uppercase transition-all shadow-md", isSyllabusLocked ? "bg-emerald-600 text-white animate-pulse" : "bg-zinc-900 text-white")}>
+                    {isSyllabusLocked ? "Unlock Full Roadmap" : "Download PDF"} <Download className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            {/* CAREER */}
+            <section className="relative py-24 bg-blue-900 px-6 rounded-[3rem]">
+              <div className="max-w-5xl mx-auto mb-16 text-center md:text-left">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-[10px] font-bold uppercase tracking-widest mb-4">
+                  <Sparkles size={12} /> Career Acceleration
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white">Everything to get you <span className="text-green-500">Job Ready</span></h2>
+              </div>
+              <div className="relative max-w-5xl mx-auto">
+                {CAREER_FEATURES.map((f, idx) => (
+                  <div key={idx} className="sticky top-28 w-full mb-8 last:mb-0">
+                    <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ margin: "-5% 0px -5% 0px" }}
+                      className="relative w-full h-[320px] md:h-[280px] overflow-hidden rounded-[2rem] border border-zinc-200 bg-white flex flex-col md:flex-row shadow-[0_20px_50px_rgba(0,0,0,0.1)]"
+                    >
+                      <div className="w-full md:w-[40%] h-32 md:h-full relative overflow-hidden">
+                        <img src={f.image} alt={f.title} className="w-full h-full object-cover" />
+                        <div className="absolute top-4 left-4 bg-white/95 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest text-zinc-900 shadow-sm backdrop-blur-sm">{f.tag}</div>
+                      </div>
+                      <div className="flex-1 p-6 md:p-10 flex flex-col justify-center relative">
+                        <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center text-white mb-4 shadow-lg", f.color)}>{f.icon}</div>
+                        <h3 className="text-xl md:text-2xl font-bold text-zinc-900 mb-2 flex items-center gap-2">{f.title} <ArrowUpRight size={16} className="text-zinc-300" /></h3>
+                        <p className="text-zinc-500 text-sm md:text-base leading-relaxed font-medium max-w-md">{f.description}</p>
+                        <span className="absolute bottom-6 right-8 text-4xl md:text-5xl font-black text-zinc-100 italic tracking-tighter select-none">0{idx + 1}</span>
+                      </div>
+                    </motion.div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* PROJECTS */}
+            {current.projects?.length > 0 && (
+              <section className="space-y-6 pt-6 border-t border-zinc-100">
+                <h2 className="text-xl font-bold flex items-center gap-2"><Code2 className="w-5 h-5" /> Student Builds</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {current.projects.map((proj: any) => (
+                    <ProgramCard key={proj.title} title={proj.title} subtitle={proj.subtitle}
+                      description={`Built using ${proj.tech?.join(", ")}.`}
+                      image={proj.img || "https://images.unsplash.com/photo-1517694712202-14dd9538aa97"}
+                      badgeText="Live Project" badgeIcon={Code2}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* REVIEWS */}
+            <section className="space-y-8 pt-10 border-t border-zinc-100 overflow-hidden">
+              <h2 className="text-xl font-bold px-2 flex items-center gap-2"><Star className="w-5 h-5 text-yellow-500 fill-yellow-500" /> Student Experience</h2>
+              <div className="flex overflow-hidden" style={{ maskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)", WebkitMaskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)" }}>
+                <motion.div animate={{ x: ["0%", "-50%"] }} transition={{ duration: Math.max(validReviews.length * 8, 20), repeat: Infinity, ease: "linear" }} className="flex gap-6 shrink-0 will-change-transform">
+                  {validReviews.length > 0
+                    ? [...validReviews, ...validReviews].map((rev: any, i: number) => <ReviewCard key={i} rev={rev} />)
                     : <p className="text-zinc-400 text-sm p-10">Joining the elite league soon...</p>
                   }
                 </motion.div>
               </div>
-            </div>
-          </section>
-        </div>
-
-        {/* PRICING SIDEBAR */}
-        <aside className="lg:col-span-4 sticky top-24 self-start">
-          <div className="bg-white rounded-[2rem] p-8 border border-blue-100 shadow-xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-blue-400/5 rounded-full blur-2xl group-hover:scale-150 transition-transform" />
-            <div className="relative z-10 text-center">
-              <Sparkles className="w-8 h-8 text-blue-600 mx-auto mb-4 animate-pulse" />
-              <h3 className="text-xl font-bold mb-1">Start Learning <span className="text-blue-600">Today</span></h3>
-              <div className="my-6">
-                <div className="flex items-center justify-center gap-2">
-                  <span className="text-3xl font-black">₹{current.price}</span>
-                  {current.originalPrice && <span className="text-sm text-zinc-300 line-through">₹{current.originalPrice}</span>}
-                </div>
-                {current.originalPrice && (
-                  <p className="text-[10px] text-emerald-600 font-bold uppercase mt-1 tracking-widest">
-                    Save {Math.round(((current.originalPrice - current.price) / current.originalPrice) * 100)}% Today
-                  </p>
-                )}
-              </div>
-              <button onClick={handleApply} disabled={isLoggedIn === null}
-                className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg flex items-center justify-center gap-2"
-              >
-                {isLoggedIn === null ? "Checking..." : <> Enroll in {activeStack} Track <ArrowRight className="w-3.5 h-3.5" /></>}
-              </button>
-            </div>
+            </section>
           </div>
-        </aside>
-      </main>
+
+          {/* SIDEBAR */}
+          <aside className="lg:col-span-4 sticky top-24 self-start">
+            <div className="bg-white rounded-[2rem] p-8 border border-blue-100 shadow-xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-blue-400/5 rounded-full blur-2xl group-hover:scale-150 transition-transform" />
+              <div className="relative z-10 text-center">
+                <Sparkles className="w-8 h-8 text-blue-600 mx-auto mb-4 animate-pulse" />
+                <h3 className="text-xl font-bold mb-1">Start Learning <span className="text-blue-600">Today</span></h3>
+                <div className="my-6">
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-3xl font-black">₹{current.price}</span>
+                    {current.originalPrice && <span className="text-sm text-zinc-300 line-through">₹{current.originalPrice}</span>}
+                  </div>
+                  {savings > 0 && <p className="text-[10px] text-emerald-600 font-bold uppercase mt-1 tracking-widest">Save {savings}% Today</p>}
+                </div>
+                <button onClick={handleApply} disabled={isLoggedIn === null}
+                  className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-60"
+                >
+                  {isLoggedIn === null ? "Checking..." : <>Enroll in {activeStack} Track <ArrowRight className="w-3.5 h-3.5" /></>}
+                </button>
+              </div>
+            </div>
+          </aside>
+        </main>
+      )}
 
       {/* UNLOCK MODAL */}
       <AnimatePresence>
-        {showDownloadModal && (
+        {showModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowDownloadModal(false)} className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm" />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowModal(false)} className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm" />
             <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative w-full max-w-md bg-zinc-900 rounded-[2.5rem] p-8 text-white shadow-2xl">
-              <button onClick={() => setShowDownloadModal(false)} className="absolute top-6 right-6 text-zinc-500 hover:text-white">
-                <X className="w-5 h-5" />
-              </button>
+              <button onClick={() => setShowModal(false)} className="absolute top-6 right-6 text-zinc-500 hover:text-white"><X className="w-5 h-5" /></button>
               <div className="text-center">
                 <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
                   <Lock className="w-5 h-5 text-emerald-500" />
@@ -426,12 +357,12 @@ const InternshipPrograms = ({
                 <h3 className="text-2xl font-bold mb-2">Unlock Roadmap</h3>
                 <p className="text-zinc-400 text-sm mb-8">Register your interest to view the complete curriculum and project list.</p>
                 <div className="space-y-4">
-                  <input type="text" placeholder="Full Name" value={leadForm.name} onChange={(e) => setLeadForm({ ...leadForm, name: e.target.value })}
-                    className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-sm focus:border-emerald-500 outline-none transition-colors"
-                  />
-                  <input type="tel" placeholder="WhatsApp Number" value={leadForm.phone} onChange={(e) => setLeadForm({ ...leadForm, phone: e.target.value })}
-                    className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-sm focus:border-emerald-500 outline-none transition-colors"
-                  />
+                  {([{ placeholder: "Full Name", type: "text", key: "name" }, { placeholder: "WhatsApp Number", type: "tel", key: "phone" }] as const).map(({ placeholder, type, key }) => (
+                    <input key={key} type={type} placeholder={placeholder} value={leadForm[key]}
+                      onChange={(e) => setLeadForm((f) => ({ ...f, [key]: e.target.value }))}
+                      className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-sm focus:border-emerald-500 outline-none transition-colors"
+                    />
+                  ))}
                   <button onClick={handleLeadSubmit} className="w-full py-4 bg-emerald-500 text-white rounded-2xl font-black text-[10px] uppercase mt-4 shadow-xl shadow-emerald-500/10 hover:bg-emerald-400 transition-colors">
                     {isSubmitting ? "Generating Access..." : "Unlock Full Syllabus"}
                   </button>

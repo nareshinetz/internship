@@ -1,5 +1,4 @@
-import { TechStack } from "./program-data";
-
+export type TechStack = "MERN" | "Java" | "Python" | "DataScience" | "DataAnalytics" | "Embedded";
 interface BrandInfo {
   color: string;
 }
@@ -55,8 +54,8 @@ export const STACK_MAPPING: Record<string, string[]> = {
   "python": ["python", "django", "postgresql", "docker", "aws"],
   "mern": ["react", "nodejs", "mongodb", "javascript", "git"],
   "java": ["java", "spring", "postgresql", "docker", "git"],
-  "dataScience": ["python", "tensorflow", "pandas", "numpy", "git"],
-  "dataAnalytics": ["excel", "postgresql", "python", "powerbi"],
+  "datascience": ["python", "tensorflow", "pandas", "numpy", "git"],
+  "dataanalytics": ["excel", "postgresql", "python", "powerbi"],
   "Embedded": ["c", "cpp", "python", "git"],
   "default": ["html5", "css3", "javascript", "react"],
 };
@@ -65,8 +64,8 @@ export const MARKET_INSIGHTS: Record<string, { demand: string; trend: string }> 
   "python": { demand: "Critical", trend: "AI & Automation" },
   "mern": { demand: "High", trend: "SaaS & Scalability" },
   "java": { demand: "Stable", trend: "Enterprise FinTech" },
-  "dataScience": { demand: "High", trend: "Machine Learning" },
-  "dataAnalytics": { demand: "Rising", trend: "Business Intelligence" },
+  "datascience": { demand: "High", trend: "Machine Learning" },
+  "dataanalytics": { demand: "Rising", trend: "Business Intelligence" },
   "Embedded": { demand: "Niche", trend: "IoT & Robotics" },
   "default": { demand: "Rising", trend: "Modern Web" },
 };

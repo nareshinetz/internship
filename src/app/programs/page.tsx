@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { TechStack } from "@/lib/program-data";
 import CourseCard from "@/components/programs/courseCard";
 import InternshipPrograms from "@/components/programs/programDetails";
 import { STACK_MAPPING, BRAND_DATA, getIconClass } from "@/lib/Tech-utils";
@@ -14,15 +13,12 @@ const ALL_SKILLS = Array.from(new Set(Object.values(STACK_MAPPING).flat()));
 const TICKER_SKILLS = [...ALL_SKILLS, ...ALL_SKILLS];
 
 const ProgramsMainPage = () => {
-  const [selectedStack, setSelectedStack] = useState<TechStack | null>(null);
+  const [selectedStack, setSelectedStack] = useState<string | null>(null);
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   // ─── Stable callbacks ──────────────────────────────────────────────────────
-  const handleSelect = useCallback(
-    (stack: string) => setSelectedStack(stack as TechStack),
-    []
-  );
+  const handleSelect = useCallback((stack: string) => setSelectedStack(stack), []);
 
   const handleBack = useCallback(() => setSelectedStack(null), []);
 
