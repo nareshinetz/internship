@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -239,6 +239,7 @@ export default function IndustrySectors() {
     }
   };
 
+export default function IndustryPage() {
   return (
     <section className="bg-zinc-50 dark:bg-zinc-950 py-24 overflow-hidden relative">
       <div className="max-w-[1400px] mx-auto px-6">
