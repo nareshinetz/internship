@@ -157,37 +157,29 @@ export default function SuccessStories() {
             className="min-w-[85%] sm:min-w-[45%] lg:min-w-[calc(33.333%-1rem)] snap-start group"
           >
             <Card className={cn(
-              "p-0 border bg-white dark:bg-zinc-900/50 rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_25px_70px_rgba(0,0,0,0.1)] transition-all duration-500",
+              "p-0 border bg-white dark:bg-zinc-950 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500",
               item.border
             )}>
               {/* Image Area */}
-              <div className="relative h-[280px] m-4 overflow-hidden rounded-[1.5rem] bg-zinc-200">
+              <div className="relative h-[240px] m-4 overflow-hidden rounded-xl bg-zinc-200">
                 <img
                   src={item.image}
-                  alt={item.name}
-                  className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
+                  alt={`Success story of ${item.name}`}
+                  className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all duration-500"
                 />
                 
-                {/* Review Overlay */}
-                <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-20">
-                  <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md p-5 rounded-2xl shadow-2xl border border-white/10">
-                    <p className="text-xs font-bold text-zinc-800 dark:text-zinc-100 leading-relaxed italic">
-                      "{item.text}"
-                    </p>
-                  </div>
-                </div>
-
-                {/* Gradient fallback */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                {/* Visual Accent */}
+                <div className="absolute inset-0 border-[8px] border-white/10 group-hover:border-transparent transition-all duration-500" />
               </div>
 
-              {/* Info Area */}
-              <div className="px-8 pb-8 pt-2 text-center">
-                <h4 className="text-xl font-black text-zinc-900 dark:text-zinc-100 mb-1 transition-colors group-hover:text-orange-500">
-                  {item.name}
+              {/* Info Area (Now Static Review focus) */}
+              <div className="px-8 pb-8 pt-2 text-center flex flex-col items-center">
+                <h4 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 mb-3 italic leading-relaxed line-clamp-3 min-h-[4.5rem]">
+                  "{item.text}"
                 </h4>
-                <p className="text-xs font-bold text-orange-500 uppercase tracking-widest">
-                  {item.role} @ {item.company}
+                <div className="w-10 h-px bg-zinc-200 dark:bg-zinc-800 mb-4" />
+                <p className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">
+                  {item.role} @ <span className="text-emerald-500">{item.company}</span>
                 </p>
               </div>
             </Card>

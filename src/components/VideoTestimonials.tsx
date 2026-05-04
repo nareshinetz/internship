@@ -18,6 +18,7 @@ type VideoTestimonial = {
 };
 
 const videoTestimonials: VideoTestimonial[] = [
+
   {
     id: "v1",
     name: "Aravind Kumar",
@@ -26,7 +27,37 @@ const videoTestimonials: VideoTestimonial[] = [
     thumbnail: "/thumbImg.jpeg",
     videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4", // Placeholder
     previewText: "The mentorship at Inetz is industry-grade. I learned how to build production-scale apps from scratch.",
-    year: "Batch of 2024"
+    year: "Batch of 2022"
+  },
+  {
+    id: "v1",
+    name: "Aravind Kumar",
+    role: "Full Stack Developer",
+    company: "TCS",
+    thumbnail: "/thumbImg.jpeg",
+    videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4", // Placeholder
+    previewText: "The mentorship at Inetz is industry-grade. I learned how to build production-scale apps from scratch.",
+    year: "Batch of 2022"
+  },
+  {
+    id: "v1",
+    name: "Aravind Kumar",
+    role: "Full Stack Developer",
+    company: "TCS",
+    thumbnail: "/thumbImg.jpeg",
+    videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4", // Placeholder
+    previewText: "The mentorship at Inetz is industry-grade. I learned how to build production-scale apps from scratch.",
+    year: "Batch of 2022"
+  },
+  {
+    id: "v1",
+    name: "Aravind Kumar",
+    role: "Full Stack Developer",
+    company: "TCS",
+    thumbnail: "/thumbImg.jpeg",
+    videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4", // Placeholder
+    previewText: "The mentorship at Inetz is industry-grade. I learned how to build production-scale apps from scratch.",
+    year: "Batch of 2026"
   },
   {
     id: "v2",
@@ -68,75 +99,73 @@ export default function VideoTestimonials() {
           >
             Voices of Impact
           </motion.div>
-          
+
           <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-zinc-900 dark:text-zinc-100 mb-4">
             Hear it from <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-400 to-sky-500">Our Students</span>
           </h2>
           <p className="text-zinc-600 dark:text-zinc-400 text-lg font-medium max-w-2xl mx-auto">
-             Real-world career transformations narrated by the students who lived them.
+            Real-world career transformations narrated by the students who lived them.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {videoTestimonials.map((testimonial, idx) => (
             <motion.div
               key={testimonial.id}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.1 }}
               className="group"
             >
-              <div 
+              <div
                 onClick={() => setActiveVideo(testimonial)}
-                className="relative aspect-[4/5] rounded-[3rem] overflow-hidden cursor-pointer bg-zinc-200 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 transition-all duration-500 group-hover:shadow-[0_40px_80px_-15px_rgba(16,185,129,0.2)] group-hover:-translate-y-2"
+                className="relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 transition-all duration-300 hover:shadow-2xl hover:border-emerald-500/50"
               >
-                {/* Thumbnail */}
-                <img 
-                  src={testimonial.thumbnail} 
-                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
+                {/* Fixed Cinematic Thumbnail */}
+                <img
+                  src={testimonial.thumbnail}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   alt={testimonial.name}
                 />
 
-                {/* Glass Overlays */}
-                <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/80 via-black/20 to-transparent">
-                  <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-[2rem] text-white">
-                    <p className="text-xs font-bold mb-4 line-clamp-2 italic opacity-90 leading-relaxed">
-                      "{testimonial.previewText}"
-                    </p>
-                    <div className="flex items-center justify-between">
-                       <div>
-                         <h4 className="text-lg font-black tracking-tight">{testimonial.name}</h4>
-                         <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400">
-                           {testimonial.role}
-                         </p>
-                       </div>
-                       <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg group-hover:scale-125 transition-transform">
-                         <Play className="w-4 h-4 fill-white" />
-                       </div>
+                {/* Constant Narrative Overlay (No Hover Toggle) */}
+                <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <h4 className="text-white text-sm sm:text-base font-medium italic leading-relaxed line-clamp-2">
+                        "{testimonial.previewText}"
+                      </h4>
+                      <div className="flex items-center gap-2 mt-3">
+                        <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">{testimonial.role}</span>
+                        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">@ {testimonial.company}</span>
+                      </div>
+                    </div>
+                    <div className="w-10 h-10 shrink-0 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                      <Play className="w-4 h-4 fill-white text-white" />
                     </div>
                   </div>
                 </div>
 
-                {/* Top Badge */}
-                <div className="absolute top-6 right-6">
-                   <div className="px-3 py-1.5 rounded-full bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border border-white/20 text-zinc-900 dark:text-white text-[9px] font-black uppercase tracking-widest shadow-xl">
-                      {testimonial.year}
-                   </div>
+                {/* Year Badge */}
+                <div className="absolute top-4 right-4">
+                  <div className="px-2 py-1 rounded bg-black/40 backdrop-blur-md border border-white/10 text-[9px] font-bold text-zinc-300 uppercase tracking-widest">
+                    {testimonial.year}
+                  </div>
                 </div>
               </div>
             </motion.div>
           ))}
         </div>
 
-        <motion.div 
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          className="mt-20 flex justify-center"
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          className="mt-16 flex justify-center"
         >
-          <button className="group flex items-center gap-4 px-10 py-5 rounded-full bg-emerald-600 text-white font-black uppercase tracking-widest text-xs hover:bg-emerald-700 hover:scale-105 transition-all shadow-xl shadow-emerald-500/20">
-             View More Success Stories 
-             <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
+          <button className="group relative px-8 py-4 rounded-xl bg-emerald-600 text-white font-bold uppercase tracking-widest text-[10px] hover:bg-emerald-500 transition-all shadow-xl shadow-emerald-500/20 flex items-center gap-4 active:scale-95">
+            Unlock all success stories
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
           </button>
         </motion.div>
       </div>
@@ -152,41 +181,41 @@ export default function VideoTestimonials() {
             onClick={() => setActiveVideo(null)}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
+              initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
+              exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-5xl aspect-video rounded-[3rem] overflow-hidden bg-black shadow-2xl"
+              className="relative w-full max-w-5xl aspect-video rounded-2xl overflow-hidden bg-black shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10"
             >
-              <button 
+              <button
                 onClick={() => setActiveVideo(null)}
-                className="absolute top-8 right-8 w-12 h-12 rounded-full bg-white/10 border border-white/10 text-white flex items-center justify-center hover:bg-white hover:text-black transition-all z-20"
+                className="absolute top-6 right-6 w-10 h-10 rounded-full bg-black/60 border border-white/10 text-white flex items-center justify-center hover:bg-white hover:text-black transition-all z-20"
               >
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5" />
               </button>
 
-              <video 
-                src={activeVideo.videoUrl} 
-                controls 
-                autoPlay 
+              <video
+                src={activeVideo.videoUrl}
+                controls
+                autoPlay
                 className="w-full h-full object-contain"
               />
 
-              <div className="absolute bottom-10 left-10 p-8 rounded-[2.5rem] bg-black/40 backdrop-blur-md border border-white/10 max-w-md hidden md:block">
-                 <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-500 flex items-center justify-center">
-                       <User className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                       <h4 className="text-xl font-black text-white">{activeVideo.name}</h4>
-                       <div className="flex items-center gap-2 text-[10px] font-black text-emerald-400 uppercase tracking-widest">
-                          <Briefcase className="w-3 h-3" /> {activeVideo.role} @ {activeVideo.company}
-                       </div>
-                    </div>
-                 </div>
-                 <p className="text-zinc-400 text-sm font-medium leading-relaxed italic">
-                   "{activeVideo.previewText}"
-                 </p>
+              <div className="absolute bottom-6 left-6 p-6 rounded-2xl bg-zinc-900/80 backdrop-blur-md border border-white/10 max-w-sm hidden md:block">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                    <User className="w-5 h-5 text-emerald-500" />
+                  </div>
+                  <div>
+                    <h4 className="text-base font-bold text-white leading-none mb-1">{activeVideo.name}</h4>
+                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest line-clamp-1">
+                      {activeVideo.role} @ {activeVideo.company}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-zinc-300 text-xs font-medium leading-relaxed italic opacity-80">
+                  "{activeVideo.previewText}"
+                </p>
               </div>
             </motion.div>
           </motion.div>

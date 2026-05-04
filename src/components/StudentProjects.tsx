@@ -71,7 +71,7 @@ const studentProjects: Project[] = [
     cardTech: ["React & Node.js Core", "MongoDB & Express", "Tailwind CSS Design"],
     accentColor: "text-orange-500",
     borderColor: "group-hover:border-orange-500/50",
-    image: "https://images.unsplash.com/photo-1592210633461-80dcc6875249?auto=format&fit=crop&q=80&w=1200",
+    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1200",
     modalContent: {
       overview: "Comprehensive masterclass on building full-stack applications with MongoDB, Express, React, and Node.js.",
       challenge: "Managing shared state across complex UI components while keeping the server response time under 100ms.",
@@ -448,15 +448,15 @@ export default function StudentProjects() {
                   {/* New Key Innovations Section in Modal */}
                   <div className="space-y-4">
                     <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-                        <Rocket className="w-3.5 h-3.5" /> Key Innovations
+                      <Rocket className="w-3.5 h-3.5" /> Key Innovations
                     </h4>
                     <div className="grid grid-cols-2 gap-3">
-                        {selectedProject.modalContent.features.map((feature, i) => (
-                          <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                            <span className="text-[11px] font-bold text-zinc-800 dark:text-zinc-200">{feature}</span>
-                          </div>
-                        ))}
+                      {selectedProject.modalContent.features.map((feature, i) => (
+                        <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                          <span className="text-[11px] font-bold text-zinc-800 dark:text-zinc-200">{feature}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
