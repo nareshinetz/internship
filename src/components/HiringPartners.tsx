@@ -6,7 +6,6 @@ import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
 
 import { Counter } from "@/components/ui/Counter";
-import { FaWhatsapp } from "react-icons/fa";
 
 export default function HiringPartners() {
   const partners = [
@@ -82,21 +81,6 @@ export default function HiringPartners() {
           ))}
         </div>
       </div>
-
-
-
-      {/* WhatsApp Floating Button */}
-      <a
-        href="https://wa.me/919840234475"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-28 right-3 z-[200] group animate-bounce"
-      >
-        <div className="absolute -inset-4 bg-emerald-500/20 rounded-full blur-xl group-hover:bg-emerald-500/40 transition-all" />
-        <div className="relative h-16 w-16 bg-[#25D366] rounded-full flex items-center justify-center text-white shadow-2xl transition-transform hover:scale-110 active:scale-95">
-          <FaWhatsapp className="h-9 w-9" />
-        </div>
-      </a>
 
       <style jsx global>{`
         @keyframes logo-scroll {

@@ -256,7 +256,7 @@ export function HeroInternship() {
         </div>
 
         {/* 6 Grid Stat Boxes - Matching Uploaded Image Style Overlapping 2 Sections */}
-        <div className="absolute -bottom-[90px] left-0 right-0 z-[100] w-full pointer-events-none">
+        <div className="absolute -bottom-[90px] left-0 right-0 z-40 w-full pointer-events-none">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 overflow-x-auto hide-scrollbar pointer-events-auto pb-6 pt-4">
             <div className="flex justify-start lg:justify-center items-center gap-4 sm:gap-6 min-w-max">
               {[

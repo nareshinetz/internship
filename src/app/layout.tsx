@@ -4,8 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Navbar } from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { ScrollToTop } from "@/components/ScrollToTop";
-
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
@@ -81,7 +80,7 @@ export default function RootLayout({
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />
-          <ScrollToTop />
+          <WhatsAppButton />
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{

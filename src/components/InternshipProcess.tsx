@@ -134,7 +134,7 @@ export default function InternshipProcess() {
               <Card
                 variant="glass"
                 hover="lift"
-                className="group relative flex flex-col items-center text-center h-full border-zinc-200/50 dark:border-zinc-800/50 p-6 sm:p-8 overflow-hidden"
+                className="group relative flex flex-col items-center text-center h-full border-zinc-200/50 dark:border-zinc-800/50 p-5 sm:p-6 overflow-hidden"
               >
                 {/* Step Number */}
                 <div className="absolute top-4 right-6 text-2xl font-black text-zinc-100 dark:text-zinc-900 transition-colors group-hover:text-orange-500/10">
@@ -143,13 +143,13 @@ export default function InternshipProcess() {
 
                 {/* Icon Container - Smaller */}
                 <div className={cn(
-                  "relative w-14 h-14 flex items-center justify-center rounded-2xl transition-transform duration-500 group-hover:rotate-12",
+                  "relative w-12 h-12 flex items-center justify-center rounded-2xl transition-transform duration-500 group-hover:rotate-12",
                   step.color,
                   "text-white mb-6",
                   step.shadow,
                   "shadow-lg"
                 )}>
-                  <Icon className="h-7 w-7" />
+                  <Icon className="h-6 w-6" />
                 </div>
 
                 <h3 className={cn(
