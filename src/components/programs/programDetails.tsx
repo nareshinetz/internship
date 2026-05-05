@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, memo } from "react";
+import React, { useState, useEffect, useMemo, useCallback, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Code2, LayoutGrid, ArrowRight, CheckCircle2, Video, Mic2, ArrowUpRight,
@@ -28,9 +28,31 @@ const CAREER_FEATURES = [
   { title: "Communication Lab", description: "Technical storytelling. Learn to explain your logic clearly to recruiters and stakeholders—the bridge between code and career.", icon: <Mic2 className="w-5 h-5" />, color: "bg-emerald-600", tag: "Soft Skills", image: theComSession.src },
 ];
 
+// Moved outside component — was recreated as a new array literal on every render
+const UNLOCK_FORM_FIELDS = [
+  { placeholder: "Full Name",        type: "text", key: "name"  },
+  { placeholder: "WhatsApp Number",  type: "tel",  key: "phone" },
+] as const;
+
+// Mask style is a static object — defined once instead of being an inline literal
+const MARQUEE_MASK_STYLE: React.CSSProperties = {
+  maskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)",
+  WebkitMaskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)",
+};
+
 const TechLogo = memo(({ name }: { name: string }) => {
   const key = name.toLowerCase();
-  return <i className={cn(getIconClass(key), "text-2xl transition-transform hover:scale-110")} style={{ color: BRAND_DATA[key]?.color || "#64748b" }} />;
+  // useMemo so the style object reference is stable between renders
+  const style = useMemo(
+    () => ({ color: BRAND_DATA[key]?.color || "#64748b" }),
+    [key],
+  );
+  return (
+    <i
+      className={cn(getIconClass(key), "text-2xl transition-transform hover:scale-110")}
+      style={style}
+    />
+  );
 });
 TechLogo.displayName = "TechLogo";
 
@@ -86,8 +108,9 @@ const InternshipPrograms = ({ initialStack = "mern", onBack }: { initialStack?: 
     fetch("/api/programs")
       .then((r) => r.json())
       .then((all: any[]) => {
+        const prefix = activeStack.toLowerCase() + "-";
         const durations = all
-          .filter((p) => p.slug?.toLowerCase().startsWith(activeStack.toLowerCase() + "-"))
+          .filter((p) => p.slug?.toLowerCase().startsWith(prefix))
           .map((p) => p.duration).filter(Boolean)
           .sort((a: string, b: string) => {
             const ai = DURATION_ORDER.findIndex((d) => d.toLowerCase() === a.toLowerCase());
@@ -113,30 +136,68 @@ const InternshipPrograms = ({ initialStack = "mern", onBack }: { initialStack?: 
   }, [activeStack, activeDuration]);
 
   const isSyllabusLocked = useMemo(() => !isLoggedIn && !hasUnlocked, [isLoggedIn, hasUnlocked]);
-  const savings = current?.originalPrice ? Math.round(((current.originalPrice - current.price) / current.originalPrice) * 100) : 0;
+
+  // Was computed inline every render — now stable via useMemo
+  const savings = useMemo(
+    () => current?.originalPrice
+      ? Math.round(((current.originalPrice - current.price) / current.originalPrice) * 100)
+      : 0,
+    [current?.originalPrice, current?.price],
+  );
+
   const validReviews = useMemo(() => (current?.reviews || []).filter((r: any) => r.name), [current]);
 
-  const handleApply = () => {
-    const params = new URLSearchParams({ track: activeStack, duration: activeDuration || "", price: current.price.toString(), courseTitle: current.title, originalPrice: current.originalPrice?.toString() || "" });
+  // Marquee duration depends on validReviews — memoised so the value is stable
+  const animDuration = useMemo(() => Math.max(validReviews.length * 8, 20), [validReviews.length]);
+
+  // useCallback so these don't cause unnecessary re-renders in children
+  const handleApply = useCallback(() => {
+    const params = new URLSearchParams({
+      track: activeStack,
+      duration: activeDuration || "",
+      price: current.price.toString(),
+      courseTitle: current.title,
+      originalPrice: current.originalPrice?.toString() || "",
+    });
     const url = `/apply?${params}`;
     router.push(isLoggedIn ? url : `/login?callback=${encodeURIComponent(url)}`);
-  };
+  }, [activeStack, activeDuration, current, isLoggedIn, router]);
 
-  const handleLeadSubmit = async () => {
+  const handleLeadSubmit = useCallback(async () => {
     if (!leadForm.name || !leadForm.phone) return alert("Please enter both Name and Phone");
     setIsSubmitting(true);
     try {
-      const r = await fetch("/api/send-lead", { method: "POST", body: JSON.stringify({ ...leadForm, stack: activeStack }) });
-      if (r.ok) { setShowModal(false); setHasUnlocked(true); localStorage.setItem("unlocked", "true"); alert("Syllabus Unlocked!"); }
-    } catch { alert("Error sending details."); }
-    finally { setIsSubmitting(false); }
-  };
+      const r = await fetch("/api/send-lead", {
+        method: "POST",
+        body: JSON.stringify({ ...leadForm, stack: activeStack }),
+      });
+      if (r.ok) {
+        setShowModal(false);
+        setHasUnlocked(true);
+        localStorage.setItem("unlocked", "true");
+        alert("Syllabus Unlocked!");
+      }
+    } catch {
+      alert("Error sending details.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [leadForm, activeStack]);
 
-  const handleDownload = () => {
+  const handleDownload = useCallback(() => {
     if (isSyllabusLocked) { setShowModal(true); return; }
     if (!current?.pdfFileName) { alert("No PDF available yet."); return; }
-    Object.assign(document.createElement("a"), { href: `/api/download-pdf?file=${encodeURIComponent(current.pdfFileName)}`, download: current.pdfFileName }).click();
-  };
+    // Append → click → remove is more reliable across browsers than the detached element pattern
+    const a = document.createElement("a");
+    a.href = `/api/download-pdf?file=${encodeURIComponent(current.pdfFileName)}`;
+    a.download = current.pdfFileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }, [isSyllabusLocked, current?.pdfFileName]);
+
+  const handleCloseModal = useCallback(() => setShowModal(false), []);
+  const handleOpenModal  = useCallback(() => setShowModal(true),  []);
 
   if (durationsLoading) return <Spinner label="Loading track..." />;
   if (!availableDurations.length) return (
@@ -237,7 +298,7 @@ const InternshipPrograms = ({ initialStack = "mern", onBack }: { initialStack?: 
                           {isSyllabusLocked && item.topics?.length > 3 && (
                             <div className="col-span-full mt-3 p-3 bg-zinc-50 rounded-xl border border-dashed border-zinc-100 flex items-center justify-between">
                               <p className="text-[10px] text-zinc-400 italic">+ {item.topics.length - 3} advanced topics hidden</p>
-                              <button onClick={() => setShowModal(true)} className="text-[9px] font-bold text-emerald-600 uppercase flex items-center gap-1 hover:underline">
+                              <button onClick={handleOpenModal} className="text-[9px] font-bold text-emerald-600 uppercase flex items-center gap-1 hover:underline">
                                 Unlock Full Module <ArrowRight size={10} />
                               </button>
                             </div>
@@ -307,8 +368,8 @@ const InternshipPrograms = ({ initialStack = "mern", onBack }: { initialStack?: 
             {/* REVIEWS */}
             <section className="space-y-8 pt-10 border-t border-zinc-100 overflow-hidden">
               <h2 className="text-xl font-bold px-2 flex items-center gap-2"><Star className="w-5 h-5 text-yellow-500 fill-yellow-500" /> Student Experience</h2>
-              <div className="flex overflow-hidden" style={{ maskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)", WebkitMaskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)" }}>
-                <motion.div animate={{ x: ["0%", "-50%"] }} transition={{ duration: Math.max(validReviews.length * 8, 20), repeat: Infinity, ease: "linear" }} className="flex gap-6 shrink-0 will-change-transform">
+              <div className="flex overflow-hidden" style={MARQUEE_MASK_STYLE}>
+                <motion.div animate={{ x: ["0%", "-50%"] }} transition={{ duration: animDuration, repeat: Infinity, ease: "linear" }} className="flex gap-6 shrink-0 will-change-transform">
                   {validReviews.length > 0
                     ? [...validReviews, ...validReviews].map((rev: any, i: number) => <ReviewCard key={i} rev={rev} />)
                     : <p className="text-zinc-400 text-sm p-10">Joining the elite league soon...</p>
@@ -347,9 +408,9 @@ const InternshipPrograms = ({ initialStack = "mern", onBack }: { initialStack?: 
       <AnimatePresence>
         {showModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowModal(false)} className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm" />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={handleCloseModal} className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm" />
             <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative w-full max-w-md bg-zinc-900 rounded-[2.5rem] p-8 text-white shadow-2xl">
-              <button onClick={() => setShowModal(false)} className="absolute top-6 right-6 text-zinc-500 hover:text-white"><X className="w-5 h-5" /></button>
+              <button onClick={handleCloseModal} className="absolute top-6 right-6 text-zinc-500 hover:text-white"><X className="w-5 h-5" /></button>
               <div className="text-center">
                 <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
                   <Lock className="w-5 h-5 text-emerald-500" />
@@ -357,7 +418,7 @@ const InternshipPrograms = ({ initialStack = "mern", onBack }: { initialStack?: 
                 <h3 className="text-2xl font-bold mb-2">Unlock Roadmap</h3>
                 <p className="text-zinc-400 text-sm mb-8">Register your interest to view the complete curriculum and project list.</p>
                 <div className="space-y-4">
-                  {([{ placeholder: "Full Name", type: "text", key: "name" }, { placeholder: "WhatsApp Number", type: "tel", key: "phone" }] as const).map(({ placeholder, type, key }) => (
+                  {UNLOCK_FORM_FIELDS.map(({ placeholder, type, key }) => (
                     <input key={key} type={type} placeholder={placeholder} value={leadForm[key]}
                       onChange={(e) => setLeadForm((f) => ({ ...f, [key]: e.target.value }))}
                       className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-sm focus:border-emerald-500 outline-none transition-colors"

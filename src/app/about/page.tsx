@@ -22,6 +22,8 @@ import {
 import { Section } from "@/components/ui/Section";
 import { Counter } from "@/components/ui/Counter";
 
+import image from "../../../public/senthilkumar.jpg"
+
 export default function AboutPage() {
   const features = [
     {
@@ -388,13 +390,18 @@ export default function AboutPage() {
 
           <div className="grid md:grid-cols-3 gap-12">
             {[
-              { name: "Aravind", role: "Founder & Lead Architect", exp: "10+ Years", img: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=800" },
-              { name: "Senthil Kumar", role: "Principal Backend Developer", exp: "12+ Years", img: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=800" },
-              { name: "Lakshmi Narayanan", role: "Fullstack Engineering Lead", exp: "8+ Years", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=800" }
+              { name: "Senthil Kumar", role: "Founder & CEO", exp: "10+ Years", img: "/senthilkumar.jpg"},
+              { name: "Vigneshwaran", role: "Industry Expert", exp: "5+ Years", img: "/vigneshwaran.jpg" },
+              { name: "Amal", role: "Java Full Stack Trainer", exp: "3+ Years", img: "/amal.png" },
+              { name: "Preethi", role: "Front End Trainer", exp: "5+ Years", img: "/preethi.png" },
+              { name: "Aravindh", role: "Mern Stack Trainer", exp: "3+ Years", img: "/aravindh.png" },
+              { name: "Boomika", role: "Java Full Stack Trainer", exp: "3+ Years", img: "/boomika.png" },
+              { name: "Sri Dhanalakshmi", role: "Data Analytics Trainer", exp: "3+ Years", img: "/sridhanalakshmi.png" },
+              { name: "Anbu", role: "Project Developer", exp: "3+ Years", img: "/anbu.png" }
             ].map((member, i) => (
               <motion.div key={i} className="group relative">
                 <div className="aspect-[4/5] rounded-[2.5rem] overflow-hidden bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl relative">
-                  <img src={member.img} alt={member.name} className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-110" />
+                  <img src={member.img} alt={member.name} className="w-full h-full object-cover transition-all duration-700 " />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80" />
                   <div className="absolute bottom-8 left-8 right-8">
                     <div className="text-orange-400 font-bold text-[10px] tracking-widest mb-2 px-2 py-1 rounded bg-orange-500/10 border border-orange-500/20 w-fit">{member.exp} EXP</div>
