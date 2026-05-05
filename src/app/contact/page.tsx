@@ -110,7 +110,7 @@ export default function ContactPage() {
           {/* ───── LEFT IMAGE ───── */}
           <div className="relative h-full min-h-[350px]">
             <img
-              src="/office.jpg"
+              src="../office.png"
               alt="Our Office"
               className="absolute inset-0 w-full h-full object-cover rounded-3xl shadow-xl"
             />
@@ -362,11 +362,7 @@ export default function ContactPage() {
               </form>
             </div>
           </motion.div>
-          
         </div>
-
-       
-
       </div>
     </div>
   );
