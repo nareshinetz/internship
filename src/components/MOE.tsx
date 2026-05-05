@@ -13,23 +13,6 @@ import {
 import { Section } from "@/components/ui/Section";
 import { cn } from "@/lib/utils";
 
-const moeAdvantages = [
-  {
-    title: "Applied Skill Labs",
-    desc: "We co-establish high-tech centers of excellence directly within campus premises.",
-    icon: "/moe_lab.png"
-  },
-  {
-    title: "The Skill Delta",
-    desc: "Curriculum structurally redesigned to bridge the gap between academia and industry.",
-    icon: "/moe_target.png"
-  },
-  {
-    title: "Placement Bridge",
-    desc: "Direct recruitment pipelines integrating with our 500+ global hiring partners.",
-    icon: "/moe_cap.png"
-  }
-];
 
 const institutionalPartners = [
   "Indian Institute of Technology",
@@ -50,19 +33,19 @@ export function MOESection() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const sliderImages = [
     {
-      url: "ex1.jpeg",
-      title: "Infrastructure of Excellence",
-      desc: "We invest directly into college ecosystems, building the physical and digital labs necessary for elite engineering."
+      url: "clg-moe.png",
+      title: "On-Campus Masterclasses",
+      desc: "Conducting hands-on training sessions and expert-led classes within college premises."
     },
     {
-      url: "ex2.jpeg",
-      title: "Collaborative Learning Hubs",
-      desc: "Dedicated workspace designed for peer interaction and hands-on project development."
+      url: "clg-moe1.png",
+      title: "Strategic MOU Signings",
+      desc: "Formalizing partnerships with top colleges to bring industry-standard tech education directly to campus."
     },
     {
       url: "office.jpg",
-      title: "Corporate Simulation Centers",
-      desc: "Bringing the corporate environment to campus to familiarize students with industry workflows."
+      title: "Industry-Academia Bridge",
+      desc: "Bridging the gap by integrating our advanced technology curriculum into college ecosystems."
     }
   ];
 
@@ -175,33 +158,7 @@ export function MOESection() {
               </div>
             </motion.div>
 
-            {/* 3 Advantage Cards Grid */}
-            <div className="grid sm:grid-cols-3 gap-6 lg:gap-8">
-              {moeAdvantages.map((item, i) => (
-                <motion.div
-                  initial={{ opacity: 0, y: 15 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                  key={i}
-                  className="group relative flex flex-col p-6 rounded-3xl border border-zinc-200/60 bg-white/50 backdrop-blur-sm dark:border-zinc-800/60 dark:bg-zinc-900/50 hover:bg-white dark:hover:bg-zinc-900 transition-all duration-300 shadow-[0_4px_20px_rgb(0,0,0,0.02)] hover:shadow-xl hover:shadow-zinc-200/20 dark:hover:shadow-black/20 overflow-hidden"
-                >
-                  <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-orange-500/0 via-orange-500/10 to-orange-500/0 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="w-12 h-12 mb-6 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm border border-zinc-100 dark:border-zinc-700/50 group-hover:scale-110 transition-transform duration-500 p-2">
-                    <img src={item.icon} alt={item.title} className="w-full h-full object-contain" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold tracking-tight text-zinc-900 dark:text-white mb-2 flex items-center gap-2">
-                      {item.title}
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/40 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </h4>
-                    <p className="text-xs leading-relaxed text-zinc-500 dark:text-zinc-400 font-medium">
-                      {item.desc}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+
           </div>
 
           {/* Right Column (5 cols): Sleek Vertical List & Gap Content */}
@@ -226,8 +183,8 @@ export function MOESection() {
 
               {/* Out of flow scrolling container ensuring 1:1 perfect height */}
               <div className="absolute top-[76px] bottom-0 left-0 right-0 overflow-hidden">
-                <div className="w-full h-full overflow-hidden relative group/scroller pt-4 pb-20">
-                  <div className="flex flex-col animate-scroll-vertical group-hover/scroller:[animation-play-state:paused]">
+                <div className="w-full h-full overflow-hidden relative scroller-container pt-4 pb-20">
+                  <div className="flex flex-col animate-scroll-vertical">
                     {/* Tripled list for infinite seamless scroll */}
                     {[...institutionalPartners, ...institutionalPartners, ...institutionalPartners].map((name, i) => (
                       <div key={i} className="flex items-center gap-4 px-6 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors group/item cursor-pointer">
@@ -242,34 +199,6 @@ export function MOESection() {
               </div>
             </div>
 
-            {/* Gap Filler Content: Professional Impact Metric Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="group relative flex-1 rounded-3xl border border-zinc-200/60 bg-white/50 backdrop-blur-sm dark:border-zinc-800/60 dark:bg-zinc-900/80 p-8 shadow-sm hover:shadow-2xl hover:shadow-emerald-500/5 transition-all duration-500 flex flex-col justify-between overflow-hidden min-h-[180px]"
-            >
-              {/* Cinematic Background Mesh */}
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.08),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-              <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-orange-500/5 blur-3xl rounded-full" />
-              
-              <div className="relative z-10 flex flex-col h-full justify-between">
-                <div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/5 border border-emerald-500/10 text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400 mb-6">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    Global Reach
-                  </div>
-                  <div className="text-6xl font-black tracking-tighter text-zinc-900 dark:text-white mb-2 selection:bg-orange-500 selection:text-white">
-                    10k<span className="text-orange-500 font-light">+</span>
-                  </div>
-                </div>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-widest leading-relaxed max-w-[200px] opacity-80">
-                  Engineers integrated into global workflows.
-                </p>
-              </div>
-            </motion.div>
-
           </div>
 
         </div>
@@ -281,7 +210,10 @@ export function MOESection() {
           100% { transform: translateY(-33.33%); }
         }
         .animate-scroll-vertical {
-          animation: scroll-vertical 40s linear infinite;
+          animation: scroll-vertical 20s linear infinite;
+        }
+        .scroller-container:hover .animate-scroll-vertical {
+          animation-play-state: paused;
         }
       `}</style>
     </Section>

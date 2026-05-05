@@ -112,7 +112,7 @@ export default function InternshipProcess() {
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.1 }}
-        className="text-lg text-zinc-600 dark:text-zinc-400 w-full mb-16 max-w-2xl mx-auto text-center"
+        className="text-lg text-zinc-600 dark:text-zinc-400 w-full mb-12 max-w-2xl mx-auto text-center"
       >
         The content makes students feel that they are joining a structured career-focused system, not just another ordinary class.
       </motion.p>
@@ -180,9 +180,7 @@ export default function InternshipProcess() {
         whileInView={{ opacity: 1, y: 0 }}
         className="mt-10 text-center"
       >
-        {/* <p className="text-zinc-500 dark:text-zinc-500 font-medium italic">
-          Join over 5,000+ students who have completed this journey.
-        </p> */}
+    
       </motion.div>
     </Section>
   );
