@@ -8,22 +8,22 @@ import { cn } from "@/lib/utils";
 
 const SLIDER_SLIDES = [
   {
-    url: "ex1.jpeg",
-    title: "Infrastructure of Excellence",
-    desc: "We invest directly into college ecosystems, building the physical and digital labs necessary for elite engineering.",
-    tag: "Labs & Facilities",
+    url: "clg-moe1.png",
+    title: "Strategic MOU Signings",
+    desc: "Formalizing partnerships with top colleges to bring industry-standard tech education directly to campus.",
+    tag: "Partnerships",
   },
   {
-    url: "ex2.jpeg",
-    title: "Collaborative Learning Hubs",
-    desc: "Dedicated workspace designed for peer interaction and hands-on project development.",
-    tag: "Campus Design",
+    url: "clg-moe.png",
+    title: "On-Campus Masterclasses",
+    desc: "Conducting hands-on training sessions and expert-led classes within college premises.",
+    tag: "Training",
   },
   {
     url: "office.jpg",
-    title: "Corporate Simulation Centers",
-    desc: "Bringing the corporate environment to campus, familiarizing students with real industry workflows.",
-    tag: "Industry Integration",
+    title: "Industry-Academia Bridge",
+    desc: "Bridging the gap by integrating our advanced technology curriculum into college ecosystems.",
+    tag: "Integration",
   },
 ] as const;
 
@@ -41,8 +41,6 @@ const PARTNERS = [
   "SASTRA University",
   "SSN College of Engineering",
 ];
-
-const PARTNER_LIST = [...PARTNERS, ...PARTNERS, ...PARTNERS];
 
 // UPDATED THEME: White Cards with Dark Text
 const SECTION_STYLE: React.CSSProperties = { background: "#130746" }; // Section stays Navy
@@ -170,7 +168,6 @@ export function MOESection() {
                       alt={SLIDER_SLIDES[slide].title}
                       className="w-full h-full object-cover"
                     />
-                    {/* Darker scrim is used here specifically to ensure White Text is readable over images */}
                     <div className="absolute inset-0 pointer-events-none" style={SLIDE_SCRIM} />
                   </motion.div>
                 </AnimatePresence>
@@ -201,31 +198,14 @@ export function MOESection() {
                 </div>
 
                 <div className="absolute bottom-6 left-6 right-6 z-20">
-                  <motion.h3
-                    key={slide + "h"}
-                    className="text-lg font-bold text-white mb-1.5 tracking-tight"
-                  >
-                    {SLIDER_SLIDES[slide].title}
-                  </motion.h3>
-                  <motion.p
-                    key={slide + "p"}
-                    className="text-sm leading-relaxed max-w-sm font-medium"
-                    style={{ color: "#e2e8f0" }}
-                  >
-                    {SLIDER_SLIDES[slide].desc}
-                  </motion.p>
+                    <h3 className="text-xl font-bold text-white mb-2">{SLIDER_SLIDES[slide].title}</h3>
+                    <p className="text-xs text-zinc-300 leading-relaxed">{SLIDER_SLIDES[slide].desc}</p>
                 </div>
 
-                <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 z-30 flex justify-between opacity-0 group-hover:opacity-100 transition-opacity">
-                  {[prev, next].map((fn, i) => (
-                    <button
-                      key={i}
-                      onClick={fn}
-                      className="w-10 h-10 rounded-full flex items-center justify-center text-slate-900 text-xl font-bold bg-white/90 backdrop-blur-md shadow-lg transition-transform active:scale-90"
-                    >
-                      {i === 0 ? "‹" : "›"}
-                    </button>
-                  ))}
+                {/* Navigation */}
+                <div className="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between z-30 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={prev} className="p-2 rounded-full bg-black/20 backdrop-blur-sm text-white hover:bg-black/40"><ChevronLeft className="w-5 h-5"/></button>
+                    <button onClick={next} className="p-2 rounded-full bg-black/20 backdrop-blur-sm text-white hover:bg-black/40"><ChevronRight className="w-5 h-5"/></button>
                 </div>
               </CardShell>
             </motion.div>
@@ -235,7 +215,7 @@ export function MOESection() {
           <div className="flex flex-col gap-4">
             <motion.div
               initial={{ opacity: 0, x: 14 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.48 }}
             >
@@ -255,24 +235,22 @@ export function MOESection() {
                   </div>
                 </div>
 
-                {/* Fade masks now use White to match the Card background */}
                 <div className="absolute z-10 left-0 right-0 pointer-events-none" style={PARTNER_SCRIM_TOP} />
                 <div className="absolute bottom-0 left-0 right-0 z-10 pointer-events-none" style={PARTNER_SCRIM_BOT} />
 
-                <div className="absolute inset-x-0 bottom-0 overflow-hidden group/scroller" style={{ top: "54px" }}>
-                  <div className="pt-2 pb-20 animate-[scrollV_34s_linear_infinite] group-hover/scroller:[animation-play-state:paused]">
-                    {PARTNER_LIST.map((name, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center gap-4 px-6 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors"
-                      >
-                        <Building2 className="w-4 h-4 shrink-0 text-[#10b981]" />
-                        <span className="text-sm font-semibold" style={{ color: TEXT_DARK }}>
-                          {name}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+                <div className="absolute top-[76px] bottom-0 left-0 right-0 overflow-hidden">
+                    <div className="w-full h-full overflow-hidden relative scroller-container pt-4 pb-20">
+                        <div className="flex flex-col animate-scroll-vertical">
+                            {[...PARTNERS, ...PARTNERS, ...PARTNERS].map((name, i) => (
+                                <div key={i} className="flex items-center gap-4 px-6 py-3 hover:bg-zinc-50 transition-colors cursor-pointer group/item">
+                                    <Building2 className="w-4 h-4 text-zinc-400 shrink-0" />
+                                    <span className="text-sm font-medium text-zinc-600 group-hover/item:text-zinc-900 transition-colors">
+                                        {name}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
               </CardShell>
             </motion.div>
@@ -284,6 +262,12 @@ export function MOESection() {
         @keyframes scrollV {
           0%   { transform: translateY(0); }
           100% { transform: translateY(-33.33%); }
+        }
+        .animate-scroll-vertical {
+          animation: scrollV 25s linear infinite;
+        }
+        .scroller-container:hover .animate-scroll-vertical {
+          animation-play-state: paused;
         }
       `}</style>
     </Section>

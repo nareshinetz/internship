@@ -9,6 +9,10 @@ import { Counter } from "@/components/ui/Counter";
 
 export default function HiringPartners() {
   const partners = [
+    { name: "Cognizant", image: "/companies/cognizant.png" },
+    { name: "TCS", image: "/companies/tcs.png" },
+    { name: "Kaaylabs", image: "/companies/kaaylabs.png" },
+    { name: "Keyan", image: "/companies/keyan.png" },
     { name: "eNoah", color: "text-[#ED7F10]" },
     { name: "Enormous", color: "text-[#2B2D42] dark:text-zinc-300" },
     { name: "FedEx", color: "text-[#4D148C] dark:text-violet-400" },
@@ -26,8 +30,8 @@ export default function HiringPartners() {
     { name: "Nev", color: "text-zinc-900 dark:text-zinc-100" }
   ];
 
-  const firstRow = partners.slice(0, 8);
-  const secondRow = partners.slice(8);
+  const firstRow = partners.slice(0, 10);
+  const secondRow = partners.slice(10);
 
   return (
     <Section className="bg-[#FFF9F2] dark:bg-[#18110B] overflow-hidden py-24 relative border-y border-[#F0D5BA] dark:border-[#38281A]">
@@ -61,7 +65,11 @@ export default function HiringPartners() {
                 partner.color
               )}
             >
-              {partner.name}
+              {partner.image ? (
+                <img src={partner.image} alt={partner.name} className="h-8 sm:h-12 w-auto object-contain grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-300" />
+              ) : (
+                partner.name
+              )}
             </div>
           ))}
         </div>
@@ -76,7 +84,11 @@ export default function HiringPartners() {
                 partner.color
               )}
             >
-              {partner.name}
+              {partner.image ? (
+                <img src={partner.image} alt={partner.name} className="h-8 sm:h-12 w-auto object-contain grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-300" />
+              ) : (
+                partner.name
+              )}
             </div>
           ))}
         </div>
