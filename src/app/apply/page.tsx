@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense } from "react";
 import Script from "next/script";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ChevronDown, Loader2, ArrowLeft, IndianRupee, Lock, ShoppingCap, User, Mail, Phone, Building2, GraduationCap } from "lucide-react";
+import { ChevronDown, Loader2, ArrowLeft, IndianRupee, Lock, User, Mail, Phone, Building2, GraduationCap } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /** 

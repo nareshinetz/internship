@@ -3,9 +3,9 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight, BookOpen, Zap, Globe2, TrendingUp } from "lucide-react";
-import { type TechStack } from "@/lib/program-data";
+
 import { cn } from "@/lib/utils";
-import { BRAND_DATA, getStackLogos, getIconClass, MARKET_INSIGHTS } from "../../lib/Tech-utils";
+import { BRAND_DATA, getStackLogos, getIconClass, MARKET_INSIGHTS, TechStack } from "../../lib/Tech-utils";
 
 interface CourseCardProps {
   stack: TechStack;
