@@ -71,7 +71,7 @@ const studentProjects: Project[] = [
     cardTech: ["React & Node.js Core", "MongoDB & Express", "Tailwind CSS Design"],
     accentColor: "text-orange-500",
     borderColor: "group-hover:border-orange-500/50",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1200",
+    image: "/weatherapp.png",
     modalContent: {
       overview: "Comprehensive masterclass on building full-stack applications with MongoDB, Express, React, and Node.js.",
       challenge: "Managing shared state across complex UI components while keeping the server response time under 100ms.",
@@ -262,12 +262,12 @@ export default function StudentProjects() {
                 <div className="absolute inset-0 bg-zinc-900">
                   <motion.img
                     src={studentProjects[currentIndex].image}
-                    className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-1000"
+                    className="w-full h-full object-contain opacity-80 group-hover:scale-105 transition-transform duration-1000"
                     alt={studentProjects[currentIndex].title}
                   />
                 </div>
                 {/* Image Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent" />
+           
 
                 {/* Floating Title - Unique & Modern */}
                 <div className="absolute bottom-12 left-12 right-12 z-20">

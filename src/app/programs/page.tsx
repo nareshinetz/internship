@@ -119,7 +119,7 @@ const ProgramsMainPage = () => {
 
             {/* 2. HERO SECTION */}
             <header className="grid grid-cols-1 lg:grid-cols-12 gap-12 pt-10 pb-14 items-center">
-              <div className="lg:col-span-7 space-y-5">
+              <div className="lg:col-span-6 space-y-5">
                 {/* Main Header */}
                 <div className="space-y-1">
                   <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-zinc-900 leading-none">
@@ -159,7 +159,7 @@ const ProgramsMainPage = () => {
               </div>
 
               {/* HERO IMAGE COLUMN */}
-              <div className="lg:col-span-5">
+              <div className="lg:col-span-6">
                 <div className="relative p-2 rounded-[2rem] bg-gradient-to-br from-emerald-100 to-blue-50 border border-white shadow-xl">
                   <div className="aspect-[16/11] rounded-[1.5rem] overflow-hidden bg-white relative group">
                     <img

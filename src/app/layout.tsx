@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { Navbar } from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
+import { Toaster } from "sonner";
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
@@ -81,6 +82,7 @@ export default function RootLayout({
           <main className="flex-1">{children}</main>
           <Footer />
           <WhatsAppButton />
+          <Toaster position="top-center" richColors />
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{

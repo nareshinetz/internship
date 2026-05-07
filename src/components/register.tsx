@@ -32,13 +32,13 @@ const enrollmentSteps = [
   },
   {
     step: "3",
-    title: "Make Payment",
+    title: "Register",
     icon: <CreditCard className="w-4 h-4 text-emerald-600" />,
     bg: "bg-emerald-100/50",
   },
   {
     step: "4",
-    title: "Book Your Seats",
+    title: "Start your classes",
     icon: <UserCheck className="w-4 h-4 text-blue-600" />,
     bg: "bg-blue-100/50",
   },

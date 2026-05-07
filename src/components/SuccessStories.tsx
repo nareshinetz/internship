@@ -40,7 +40,7 @@ const testimonials = [
     role: "UI/UX Designer",
     company: "Freshworks",
     text: "The design immersive program at Inetz changed my perspective on user-centric design. Got placed with an amazing package!",
-    image: "/student.jpeg",
+    image: "/student1.jpeg",
     border: "border-rose-500/40",
     roleColor: "text-rose-600",
   },
@@ -49,7 +49,7 @@ const testimonials = [
     role: "Data Scientist",
     company: "Amazon",
     text: "Comprehensive curriculum and hands-on ML projects. The mock interviews were incredibly close to the actual process.",
-    image: "/student.jpeg",
+    image: "/student2.jpeg",
     border: "border-sky-500/40",
     roleColor: "text-sky-600",
   },
@@ -58,7 +58,7 @@ const testimonials = [
     role: "DevOps Engineer",
     company: "Accenture",
     text: "Mastered Docker, K8s and CI/CD pipelines here. The instructors are industry veterans who know exactly what's needed.",
-    image: "  https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400",
+    image: "/student1.jpeg",
     border: "border-violet-500/40",
     roleColor: "text-violet-600",
   },
@@ -67,7 +67,7 @@ const testimonials = [
     role: "Cloud Architect",
     company: "Google Cloud",
     text: "High-quality infrastructure and specialized labs. Passing my AWS certification was a breeze after the training.",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400",
+    image: "/student2.jpeg",
     border: "border-blue-500/40",
     roleColor: "text-blue-600",
   },
@@ -76,7 +76,7 @@ const testimonials = [
     role: "MERN Developer",
     company: "Cognizant",
     text: "Focused mentorship help me build a strong portfolio. I received multiple offers within a month of completion.",
-    image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400",
+    image: "/student.jpeg",
     border: "border-teal-500/40",
     roleColor: "text-teal-600",
   },
@@ -85,7 +85,7 @@ const testimonials = [
     role: "Python Specialist",
     company: "HCL",
     text: "The Python track is very well structured. Building a complete automation suite for my final project was the highlight.",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400",
+    image: "/student2.jpeg",
     border: "border-orange-500/40",
     roleColor: "text-orange-600",
   },
@@ -165,7 +165,7 @@ export default function SuccessStories() {
                 <img
                   src={item.image}
                   alt={`Success story of ${item.name}`}
-                  className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all duration-500"
+                  className="w-full h-full object-cover object-top grayscale-[0.2] group-hover:grayscale-0 transition-all duration-500"
                 />
                 
                 {/* Visual Accent */}
