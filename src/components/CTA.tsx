@@ -1,18 +1,24 @@
 "use client";
+import { motion } from "framer-motion";
 
 export default function CTASection() {
   return (
     <section className="relative w-full overflow-hidden bg-gradient-to-r from-emerald-900 via-emerald-800 to-emerald-700 py-12 sm:py-20">
-      
+
       {/* Glow effect */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.08),transparent_60%)]" />
 
       <div className="relative mx-auto max-w-4xl px-4 text-center">
-        
+
         {/* Heading */}
-        <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-white mb-6">
-          Ready to Start Your Journey?
-        </h2>
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-white mb-6"
+        >
+          Ready to Start <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-400 to-sky-500">Your Journey?</span>
+        </motion.h2>
 
         {/* Subtitle */}
         <p className="mt-4 text-lg text-emerald-100/80 leading-relaxed font-medium">
@@ -21,7 +27,7 @@ export default function CTASection() {
 
         {/* 🔥 BUTTONS */}
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-          
+
           {/* Register Button */}
           <a
             href="/register"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronLeft,
@@ -229,6 +229,14 @@ export default function IndustrySectors() {
   const [active, setActive] = useState<number | null>(null);
   const [selectedIndustry, setSelectedIndustry] = useState<Sector | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -247,9 +255,14 @@ export default function IndustrySectors() {
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-4">
               Where Our Students Work
             </div>
-            <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-zinc-900 dark:text-zinc-100 mb-4">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-zinc-900 dark:text-zinc-100 mb-4"
+            >
               Industry Specialized <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-400 to-sky-500">Global Sectors</span>
-            </h2>
+            </motion.h2>
           </div>
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -284,10 +297,13 @@ export default function IndustrySectors() {
                 key={i}
                 layout
                 onClick={() => setActive(isActive ? null : i)}
-                animate={{ width: isActive ? 520 : 270, minWidth: isActive ? 520 : 270 }}
+                animate={{ 
+                  width: isActive ? (isMobile ? "90vw" : 520) : (isMobile ? "70vw" : 270), 
+                  minWidth: isActive ? (isMobile ? "90vw" : 520) : (isMobile ? "70vw" : 270) 
+                }}
                 transition={{ type: "spring", stiffness: 280, damping: 30 }}
                 className="relative rounded-3xl overflow-hidden cursor-pointer snap-start shrink-0 select-none group"
-                style={{ height: 380 }}
+                style={{ height: isMobile ? 320 : 380 }}
               >
                 <img
                   src={sector.image}
@@ -383,13 +399,13 @@ export default function IndustrySectors() {
             >
               {/* Left Side - Visual Hero (Mobile Hidden or Top) */}
               <div className="relative w-full md:w-2/5 h-48 md:h-auto shrink-0 overflow-hidden">
-                <img 
-                  src={selectedIndustry.image} 
-                  className="w-full h-full object-cover" 
+                <img
+                  src={selectedIndustry.image}
+                  className="w-full h-full object-cover"
                   alt={selectedIndustry.title}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-zinc-900 via-zinc-900/40 to-transparent" />
-                
+
                 <div className="absolute inset-0 p-8 flex flex-col justify-end md:justify-start gap-2">
                   <div className="inline-flex w-fit px-3 py-1 rounded-full bg-emerald-500/20 backdrop-blur-md text-emerald-400 text-[10px] font-black uppercase tracking-[0.2em] border border-emerald-500/30">
                     {selectedIndustry.label}
@@ -399,22 +415,22 @@ export default function IndustrySectors() {
                       <span key={i} className="block">{word}</span>
                     ))}
                   </h3>
-                  
+
                   <div className="mt-8 hidden md:block space-y-6">
                     <div className="space-y-1">
                       <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Market Growth</p>
                       <div className="flex items-center gap-2">
                         <div className="h-2 w-32 bg-zinc-800 rounded-full overflow-hidden">
-                          <motion.div 
+                          <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: "85%" }}
-                            className="h-full bg-emerald-500" 
+                            className="h-full bg-emerald-500"
                           />
                         </div>
                         <span className="text-xl font-black text-emerald-500">{selectedIndustry.modalContent.growth}</span>
                       </div>
                     </div>
-                    
+
                     <div className="pt-6 border-t border-white/10">
                       <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-3">Core Opportunities</p>
                       <div className="flex flex-wrap gap-2">

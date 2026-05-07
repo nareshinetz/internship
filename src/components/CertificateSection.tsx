@@ -70,10 +70,15 @@ export default function CertificateSection() {
                         transition={{ duration: 0.6 }}
                         viewport={{ once: true }}
                     >
-                        <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-white mb-6">
+                        <motion.h2
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6 }}
+                            className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-white mb-6"
+                        >
                             Get Industry Recognized <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-300 to-sky-400">Certification</span>
-                        </h2>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-400 to-sky-500">Certification</span>
+                        </motion.h2>
 
                         <p className="text-gray-300 mt-6 max-w-lg">
                             Boost your profile with our globally recognized training certificate.

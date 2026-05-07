@@ -21,13 +21,13 @@ const SLIDER_SLIDES = [
   },
   {
     url: "colleges/clg-moe1.png",
-    title: "Panimalar Engineering College",
+    title: "St. Joseph's College of Engineering",
     desc: "Embedding our specialized curriculum into the academic framework for student success.",
     tag: "MOU Signing",
   },
   {
     url: "colleges/clg-moe.png",
-    title: "Vels University",
+    title: "SDNB Vaishnav College for Women",
     desc: "Co-creating a future-ready workforce through on-campus expert-led training sessions.",
     tag: "Training",
   },
@@ -77,8 +77,7 @@ function PulseDot() {
 function EmBadge({ icon: Icon, label }: { icon?: React.ElementType; label: string }) {
   return (
     <div
-      className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-emerald-400 text-[11px] font-bold uppercase tracking-widest"
-      style={{ background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.3)" }}
+      className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest"
     >
       {Icon && <Icon className="w-3.5 h-3.5" />}
       {label}
@@ -175,10 +174,14 @@ export function MOESection() {
         >
           <EmBadge icon={Network} label="Institutional Network" />
 
-          <h2 className="mt-4 mb-3 text-[28px] sm:text-4xl font-bold tracking-tight text-white leading-tight">
-            Strategic MOE &{" "}
-            <span style={EMERALD_ACCENT}>Academic Partners</span>
-          </h2>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-white mt-4 mb-3"
+          >
+            Strategic MOE & <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-400 to-sky-500">Academic Partners</span>
+          </motion.h2>
 
           <p style={{ color: "#94a3b8" }} className="max-w-[480px] mx-auto text-sm leading-relaxed font-medium">
             Our Memorandum of Engagement embeds industry-standard curriculum
@@ -198,7 +201,7 @@ export function MOESection() {
               viewport={{ once: true }}
               transition={{ duration: 0.48 }}
             >
-              <CardShell 
+              <CardShell
                 className="group relative h-[300px] sm:h-[340px]"
                 onMouseEnter={() => setIsPaused(true)}
                 onMouseLeave={() => setIsPaused(false)}

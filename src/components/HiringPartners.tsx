@@ -37,12 +37,21 @@ export default function HiringPartners() {
     <Section className="bg-[#FFF9F2] dark:bg-[#18110B] overflow-hidden py-24 relative border-y border-[#F0D5BA] dark:border-[#38281A]">
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-500/5 blur-[120px] rounded-full hidden dark:block" />
       <div className="text-center mb-6">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-4"
+        >
           Placement Network
-        </div>
-        <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-zinc-900 dark:text-zinc-100 mb-4">
+        </motion.div>
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-zinc-900 dark:text-zinc-100 mb-4"
+        >
           Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-400 to-sky-500">Hiring Partners</span>
-        </h2>
+        </motion.h2>
       </div>
       <p className="text-zinc-600 dark:text-zinc-400 max-w-3xl mx-auto text-sm sm:text-base leading-relaxed text-center mb-16">
         We place candidates with trusted companies across diverse industries.
@@ -51,12 +60,12 @@ export default function HiringPartners() {
 
       {/* Scroller Container */}
       <div className="relative mt-20 flex flex-col gap-10">
-        {/* Faded edges - updated to match the unique highlight background color */}
-        <div className="absolute inset-y-0 left-0 w-12 sm:w-20 bg-gradient-to-r from-[#FFF9F2] dark:from-[#18110B] to-transparent z-20" />
-        <div className="absolute inset-y-0 right-0 w-12 sm:w-20 bg-gradient-to-l from-[#FFF9F2] dark:from-[#18110B] to-transparent z-20" />
+        {/* Faded edges */}
+        <div className="absolute inset-y-0 left-0 w-8 sm:w-20 bg-gradient-to-r from-[#FFF9F2] dark:from-[#18110B] to-transparent z-20" />
+        <div className="absolute inset-y-0 right-0 w-8 sm:w-20 bg-gradient-to-l from-[#FFF9F2] dark:from-[#18110B] to-transparent z-20" />
 
         {/* Row 1 */}
-        <div className="flex gap-24 animate-logo-scroll whitespace-nowrap py-4 cursor-pointer hover-pause">
+        <div className="flex gap-12 sm:gap-24 animate-logo-scroll whitespace-nowrap py-4 cursor-pointer hover-pause">
           {[...firstRow, ...firstRow, ...firstRow].map((partner, index) => (
             <div
               key={index}
@@ -75,7 +84,7 @@ export default function HiringPartners() {
         </div>
 
         {/* Row 2 */}
-        <div className="flex gap-24 animate-logo-scroll-reverse whitespace-nowrap py-4 cursor-pointer hover-pause">
+        <div className="flex gap-12 sm:gap-24 animate-logo-scroll-reverse whitespace-nowrap py-4 cursor-pointer hover-pause">
           {[...secondRow, ...secondRow, ...secondRow].map((partner, index) => (
             <div
               key={index}
@@ -104,10 +113,18 @@ export default function HiringPartners() {
           100% { transform: translateX(0); }
         }
         .animate-logo-scroll {
-          animation: logo-scroll 15s linear infinite;
+          animation: logo-scroll 25s linear infinite;
         }
         .animate-logo-scroll-reverse {
-          animation: logo-scroll-reverse 15s linear infinite;
+          animation: logo-scroll-reverse 25s linear infinite;
+        }
+        @media (min-width: 640px) {
+          .animate-logo-scroll {
+            animation-duration: 20s;
+          }
+          .animate-logo-scroll-reverse {
+            animation-duration: 20s;
+          }
         }
         .hover-pause:hover {
           animation-play-state: paused !important;

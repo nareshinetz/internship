@@ -59,13 +59,22 @@ export default function PremiumCoursesSection() {
 
       {/* Header */}
       <div className="flex flex-col gap-4 mb-12 relative z-10 px-4 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-900 border border-blue-800 text-blue-300 text-[10px] font-bold uppercase tracking-widest mb-2 mx-auto">
-          <Sparkles className="h-3.5 w-3.5 text-blue-400" />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-4 mx-auto"
+        >
+          <Sparkles className="h-3.5 w-3.5 text-emerald-500" />
           Empower your future
-        </div>
-        <h2 className="text-balance text-2xl font-bold tracking-tight sm:text-4xl text-white mb-2">
-          Industry Specialized <span className="text-blue-400">Learning Programs</span>
-        </h2>
+        </motion.div>
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-white mb-2"
+        >
+          Industry Specialized <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-400 to-sky-500">Learning Programs</span>
+        </motion.h2>
         <p className="text-sm md:text-base text-blue-200/80 max-w-xl mx-auto leading-relaxed">
           Get from basics to professional level with industry-designed tracks and real-time projects.
         </p>
@@ -149,7 +158,7 @@ export default function PremiumCoursesSection() {
               >
                 <X className="w-4 h-4" />
               </button>
-              
+
               <div className="w-full h-48 overflow-hidden">
                 <img src={selected.image} className="w-full h-full object-cover" alt={selected.title} />
               </div>
@@ -157,7 +166,7 @@ export default function PremiumCoursesSection() {
               <div className="p-6 text-left">
                 <h3 className="text-xl font-bold text-blue-950 mb-2">{selected.title}</h3>
                 <p className="text-slate-500 text-sm mb-6 leading-relaxed">{selected.details}</p>
-                
+
                 <div className="flex items-center gap-6 mb-6">
                   <div className="flex flex-col">
                     <span className="text-[9px] uppercase font-bold text-slate-400">Duration</span>

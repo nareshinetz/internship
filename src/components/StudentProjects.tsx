@@ -220,7 +220,7 @@ const studentProjects: Project[] = [
       ]
     }
   },
-];export default function StudentProjects() {
+]; export default function StudentProjects() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const containerVars = {
@@ -243,27 +243,29 @@ const studentProjects: Project[] = [
       </div>
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
-        {/* Refined Header Section */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-20">
-          <div className="space-y-4">
+        {/* Header - Centered Style */}
+        <div className="flex flex-col items-center text-center mb-16">
+          <div className="flex flex-col items-center gap-6">
             <motion.div
-              initial={{ opacity: 0, x: -10 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-[0.2em]"
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-4"
             >
-              <Terminal className="h-3 w-3" />
+              {/* <Terminal className="h-3.5 w-3.5" /> */}
               Build Showcase
             </motion.div>
-            <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 leading-[0.95]">
-              Industrial <br />
-              <span className="bg-gradient-to-r from-zinc-500 via-zinc-400 to-zinc-600 bg-clip-text text-transparent italic">
-                Benchmarks.
-              </span>
-            </h2>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-zinc-900 dark:text-zinc-100 leading-[1.1]"
+            >
+              Industrial <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-400 to-sky-500">Benchmarks.</span>
+            </motion.h2>
           </div>
-          <div className="max-w-xs border-l-2 border-emerald-500/30 pl-6">
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium">
-              Explore production-ready systems engineered with modern 
+          <div className="max-w-2xl mt-6">
+            <p className="text-sm md:text-base text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium">
+              Explore production-ready systems engineered with modern
               microservices and cloud-native patterns.
             </p>
           </div>
@@ -286,7 +288,7 @@ const studentProjects: Project[] = [
               onClick={() => setSelectedProject(project)}
             >
               <Card className="h-full border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 rounded-2xl overflow-hidden p-0 transition-all duration-300 hover:border-emerald-500/50 hover:shadow-2xl hover:shadow-emerald-500/5">
-                
+
                 {/* Visual Area */}
                 <div className="relative h-48 overflow-hidden">
                   <img
@@ -295,7 +297,7 @@ const studentProjects: Project[] = [
                     alt=""
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
-                  
+
                   {/* Floating Icons */}
                   <div className="absolute top-4 left-4 flex gap-1.5">
                     {project.techIcons.map((Icon, i) => (
@@ -314,7 +316,7 @@ const studentProjects: Project[] = [
                     </span>
                     <Layers size={14} className="text-zinc-300" />
                   </div>
-                  
+
                   <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight mb-2 group-hover:text-emerald-500 transition-colors">
                     {project.title}
                   </h3>
@@ -325,8 +327,8 @@ const studentProjects: Project[] = [
 
                   <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
                     <div className="flex gap-2">
-                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 mt-1.5" />
-                       <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-tighter">Production Ready</span>
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 mt-1.5" />
+                      <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-tighter">Production Ready</span>
                     </div>
                     <ArrowUpRight size={16} className="text-zinc-300 group-hover:text-emerald-500 transition-all" />
                   </div>
@@ -358,14 +360,14 @@ const studentProjects: Project[] = [
                 <img src={selectedProject.image} className="w-full h-full object-cover" alt="" />
                 <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 to-transparent" />
                 <div className="absolute bottom-8 left-8 right-8">
-                    <div className="grid grid-cols-2 gap-4">
-                        {selectedProject.modalContent.stats.map((s, i) => (
-                            <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                                <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-1">{s.label}</p>
-                                <p className="text-xl font-bold text-white">{s.value}</p>
-                            </div>
-                        ))}
-                    </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    {selectedProject.modalContent.stats.map((s, i) => (
+                      <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                        <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-1">{s.label}</p>
+                        <p className="text-xl font-bold text-white">{s.value}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -385,11 +387,11 @@ const studentProjects: Project[] = [
                 <div className="space-y-10">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                     <div className="space-y-3">
-                      <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2"><Shield size={14}/> Challenge</h4>
+                      <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2"><Shield size={14} /> Challenge</h4>
                       <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{selectedProject.modalContent.challenge}</p>
                     </div>
                     <div className="space-y-3">
-                      <h4 className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] flex items-center gap-2"><Zap size={14}/> Solution</h4>
+                      <h4 className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] flex items-center gap-2"><Zap size={14} /> Solution</h4>
                       <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{selectedProject.modalContent.solution}</p>
                     </div>
                   </div>
