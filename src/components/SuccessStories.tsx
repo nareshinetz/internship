@@ -9,47 +9,47 @@ import { cn } from "@/lib/utils";
 
 const testimonials = [
   {
-    name: "Arjun Sharma",
-    role: "Software Engineer",
-    company: "Zoho",
-    text: "The real-time project experience at Inetz helped me clear my technical rounds at Zoho effortlessly. Highly recommended!",
-    image: "/thumbImg2.jpeg",
+    name: "Amjith Khan",
+    role: "Junior Software Engineer",
+    company: "Zoho Premium Partners",
+    // text: "The real-time project experience at Inetz helped me clear my technical rounds at Zoho effortlessly. Highly recommended!",
+    image: "placement-students/amjith.png",
     border: "border-amber-500/40",
     roleColor: "text-amber-600",
   },
   {
-    name: "Priya Verma",
-    role: "Full Stack Architect",
-    company: "Infosys",
-    text: "Excellent mentors who explain concepts with real-world scenarios. The placement support is genuine and active.",
-    image: "/thunbImg3.jpeg",
+    name: "Mohammed Anas",
+    role: "React Developer",
+    company: "Brightstack solutions",
+    // text: "Excellent mentors who explain concepts with real-world scenarios. The placement support is genuine and active.",
+    image: "placement-students/anas.png",
     border: "border-indigo-500/40",
     roleColor: "text-indigo-600",
   },
   {
-    name: "Rahul Das",
-    role: "Java Tech Lead",
-    company: "TCS",
-    text: "Flexible timings allowed me to manage college while gaining professional skills. Truly the best in Chennai!",
-    image: "/student.jpeg",
+    name: "Ariyangau",
+    role: "Junior Software Developer",
+    company: "Dofy infosys",
+    // text: "Flexible timings allowed me to manage college while gaining professional skills. Truly the best in Chennai!",
+    image: "placement-students/ariyangau.png",
     border: "border-emerald-500/40",
     roleColor: "text-emerald-600",
   },
   {
-    name: "Sowmya Reddy",
-    role: "UI/UX Designer",
-    company: "Freshworks",
-    text: "The design immersive program at Inetz changed my perspective on user-centric design. Got placed with an amazing package!",
-    image: "/student1.jpeg",
+    name: "Sivaraman",
+    role: "Frontend Developer",
+    company: "IntechHub",
+    // text: "The design immersive program at Inetz changed my perspective on user-centric design. Got placed with an amazing package!",
+    image: "placement-students/sivaraman.png",
     border: "border-rose-500/40",
     roleColor: "text-rose-600",
   },
   {
-    name: "Karthik Raja",
+    name: "Vimal",
     role: "Data Scientist",
-    company: "Amazon",
-    text: "Comprehensive curriculum and hands-on ML projects. The mock interviews were incredibly close to the actual process.",
-    image: "/student2.jpeg",
+    company: "Dofy infosys",
+    // text: "Comprehensive curriculum and hands-on ML projects. The mock interviews were incredibly close to the actual process.",
+    image: "placement-students/vimal.png",
     border: "border-sky-500/40",
     roleColor: "text-sky-600",
   },
@@ -57,8 +57,8 @@ const testimonials = [
     name: "Anitha Krish",
     role: "DevOps Engineer",
     company: "Accenture",
-    text: "Mastered Docker, K8s and CI/CD pipelines here. The instructors are industry veterans who know exactly what's needed.",
-    image: "/student1.jpeg",
+    // text: "Mastered Docker, K8s and CI/CD pipelines here. The instructors are industry veterans who know exactly what's needed.",
+    image: "placement-students/anas.png",
     border: "border-violet-500/40",
     roleColor: "text-violet-600",
   },
@@ -66,8 +66,8 @@ const testimonials = [
     name: "Vignesh Kumar",
     role: "Cloud Architect",
     company: "Google Cloud",
-    text: "High-quality infrastructure and specialized labs. Passing my AWS certification was a breeze after the training.",
-    image: "/student2.jpeg",
+    // text: "High-quality infrastructure and specialized labs. Passing my AWS certification was a breeze after the training.",
+    image: "placement-students/anas.png",
     border: "border-blue-500/40",
     roleColor: "text-blue-600",
   },
@@ -75,8 +75,8 @@ const testimonials = [
     name: "Deepa Mani",
     role: "MERN Developer",
     company: "Cognizant",
-    text: "Focused mentorship help me build a strong portfolio. I received multiple offers within a month of completion.",
-    image: "/student.jpeg",
+    // text: "Focused mentorship help me build a strong portfolio. I received multiple offers within a month of completion.",
+    image: "placement-students/anas.png",
     border: "border-teal-500/40",
     roleColor: "text-teal-600",
   },
@@ -84,8 +84,8 @@ const testimonials = [
     name: "Siddharth Nair",
     role: "Python Specialist",
     company: "HCL",
-    text: "The Python track is very well structured. Building a complete automation suite for my final project was the highlight.",
-    image: "/student2.jpeg",
+    // text: "The Python track is very well structured. Building a complete automation suite for my final project was the highlight.",
+    image: "placement-students/anas.png",
     border: "border-orange-500/40",
     roleColor: "text-orange-600",
   },
@@ -142,7 +142,7 @@ export default function SuccessStories() {
         </div>
       </div>
 
-      <div 
+      <div
         ref={scrollRef}
         className="flex gap-6 overflow-x-auto no-scrollbar pb-12 px-6 max-w-[1400px] mx-auto snap-x snap-mandatory"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -154,33 +154,35 @@ export default function SuccessStories() {
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: index * 0.05 }}
             viewport={{ once: true }}
-            className="min-w-[85%] sm:min-w-[45%] lg:min-w-[calc(33.333%-1rem)] snap-start group"
+            className="min-w-[85%] sm:min-w-[45%] lg:min-w-[calc(33.333%-1rem)] snap-start group h-full"
           >
             <Card className={cn(
-              "p-0 border bg-white dark:bg-zinc-950 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500",
+              "p-0 border bg-white dark:bg-zinc-950 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 h-full flex flex-col min-h-[460px]",
               item.border
             )}>
-              {/* Image Area */}
-              <div className="relative h-[240px] m-4 overflow-hidden rounded-xl bg-zinc-200">
+              {/* Image Area (Full Width Coverage) */}
+              <div className="relative h-[280px] m-3 overflow-hidden rounded-xl bg-zinc-50 shrink-0">
                 <img
                   src={item.image}
                   alt={`Success story of ${item.name}`}
                   className="w-full h-full object-cover object-top grayscale-[0.2] group-hover:grayscale-0 transition-all duration-500"
                 />
-                
+
                 {/* Visual Accent */}
                 <div className="absolute inset-0 border-[8px] border-white/10 group-hover:border-transparent transition-all duration-500" />
               </div>
 
-              {/* Info Area (Now Static Review focus) */}
-              <div className="px-8 pb-8 pt-2 text-center flex flex-col items-center">
-                <h4 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 mb-3 italic leading-relaxed line-clamp-3 min-h-[4.5rem]">
-                  "{item.text}"
-                </h4>
-                <div className="w-10 h-px bg-zinc-200 dark:bg-zinc-800 mb-4" />
-                <p className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">
-                  {item.role} @ <span className="text-emerald-500">{item.company}</span>
-                </p>
+              {/* Info Area */}
+              <div className="px-6 pb-8 pt-2 text-center flex flex-col items-center justify-center flex-1">
+                <h3 className={cn("text-lg font-extrabold mb-1 tracking-tight", item.roleColor)}>
+                  {item.name}
+                </h3>
+                <div className="w-10 h-px bg-zinc-200 dark:bg-zinc-800 mb-4 mt-2" />
+                <div className="min-h-[2.5rem] flex items-center justify-center">
+                  <p className="text-[10px] font-black text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.1em] leading-relaxed max-w-[200px]">
+                    {item.role} @ <span className="text-emerald-500">{item.company}</span>
+                  </p>
+                </div>
               </div>
             </Card>
           </motion.div>

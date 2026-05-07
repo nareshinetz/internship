@@ -1,18 +1,10 @@
 @import url('https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css');
 @import "tailwindcss";
 
-@variant dark (&:where(.dark, .dark *));
-
 :root {
   --background: #ffffff;
   --foreground: #09090b;
   /* zinc-950 equivalent */
-}
-
-.dark {
-  --background: #09090b;
-  --foreground: #fafafa;
-  /* zinc-50 equivalent */
 }
 
 @theme inline {
@@ -33,9 +25,4 @@ body {
 .timeline-path {
   stroke-dasharray: 6 6;
   opacity: 0.3;
-}
-@media (prefers-color-scheme: dark) {
-  .timeline-path {
-    opacity: 0.1;
-  }
 }
