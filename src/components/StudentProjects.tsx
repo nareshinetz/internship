@@ -229,12 +229,12 @@ const studentProjects: Project[] = [
       opacity: 1,
       transition: { staggerChildren: 0.1, delayChildren: 0.2 },
     },
-  };
+  } as const;
 
   const itemVars = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
-  };
+  } as const;
 
   return (
     <Section className="bg-zinc-50 dark:bg-zinc-950 py-24 transition-colors overflow-hidden relative">
