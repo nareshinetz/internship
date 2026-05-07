@@ -267,7 +267,7 @@ export default function StudentProjects() {
                   />
                 </div>
                 {/* Image Overlay */}
-           
+
 
                 {/* Floating Title - Unique & Modern */}
                 <div className="absolute bottom-12 left-12 right-12 z-20">

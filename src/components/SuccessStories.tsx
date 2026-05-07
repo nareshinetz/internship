@@ -106,35 +106,35 @@ export default function SuccessStories() {
   };
 
   return (
-    <Section className="bg-white dark:bg-zinc-950 py-24 overflow-hidden relative">
-      {/* Premium dark mode glow */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-500/5 blur-[150px] rounded-full hidden dark:block" />
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-500/5 blur-[120px] rounded-full hidden dark:block" />
+    <Section className="bg-white py-24 overflow-hidden relative">
+      {/* Subtle light mode glow */}
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-500/5 blur-[150px] rounded-full" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-500/5 blur-[120px] rounded-full" />
 
-      <div className="flex flex-col gap-6 mb-16 px-6 max-w-[1400px] mx-auto relative z-10">
+      <div className="flex flex-col gap-8 mb-16 px-6 max-w-[1400px] mx-auto relative z-10">
         <div className="text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-4">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-bold uppercase tracking-widest mb-4">
             Success Stories
           </div>
-          <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-zinc-900 dark:text-zinc-100 mb-4">
+          <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-zinc-900 mb-4">
             Our Students <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-400 to-sky-500">Success Stories</span>
           </h2>
         </div>
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <p className="text-zinc-600 dark:text-zinc-400 text-lg font-medium max-w-2xl">
+          <p className="text-zinc-600 text-lg font-medium max-w-2xl">
             Join 5000+ professionals who transformed their careers with Inetz Technologies. Explore their journeys and envision your future.
           </p>
           <div className="flex gap-4 shrink-0">
             <button
               onClick={() => scroll("left")}
-              className="h-12 w-12 rounded-xl border border-zinc-200 dark:border-zinc-800 flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:border-emerald-500 transition-all text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 shadow-sm"
+              className="h-12 w-12 rounded-xl border border-zinc-200 flex items-center justify-center hover:bg-zinc-50 hover:border-emerald-500 transition-all text-zinc-600 hover:text-emerald-600 shadow-sm"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
             <button
               onClick={() => scroll("right")}
-              className="h-12 w-12 rounded-xl border border-zinc-200 dark:border-zinc-800 flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:border-emerald-500 transition-all text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 shadow-sm"
+              className="h-12 w-12 rounded-xl border border-zinc-200 flex items-center justify-center hover:bg-zinc-50 hover:border-emerald-500 transition-all text-zinc-600 hover:text-emerald-600 shadow-sm"
             >
               <ChevronRight className="h-5 w-5" />
             </button>
@@ -157,18 +157,16 @@ export default function SuccessStories() {
             className="min-w-[85%] sm:min-w-[45%] lg:min-w-[calc(33.333%-1rem)] snap-start group h-full"
           >
             <Card className={cn(
-              "p-0 border bg-white dark:bg-zinc-950 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 h-full flex flex-col min-h-[460px]",
+              "p-0 border border-zinc-100 bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 h-full flex flex-col min-h-[460px]",
               item.border
             )}>
-              {/* Image Area (Full Width Coverage) */}
+              {/* Image Area */}
               <div className="relative h-[280px] m-3 overflow-hidden rounded-xl bg-zinc-50 shrink-0">
                 <img
                   src={item.image}
                   alt={`Success story of ${item.name}`}
                   className="w-full h-full object-cover object-top grayscale-[0.2] group-hover:grayscale-0 transition-all duration-500"
                 />
-
-                {/* Visual Accent */}
                 <div className="absolute inset-0 border-[8px] border-white/10 group-hover:border-transparent transition-all duration-500" />
               </div>
 
@@ -177,9 +175,9 @@ export default function SuccessStories() {
                 <h3 className={cn("text-lg font-extrabold mb-1 tracking-tight", item.roleColor)}>
                   {item.name}
                 </h3>
-                <div className="w-10 h-px bg-zinc-200 dark:bg-zinc-800 mb-4 mt-2" />
+                <div className="w-10 h-px bg-zinc-200 mb-4 mt-2" />
                 <div className="min-h-[2.5rem] flex items-center justify-center">
-                  <p className="text-[10px] font-black text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.1em] leading-relaxed max-w-[200px]">
+                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.1em] leading-relaxed max-w-[200px]">
                     {item.role} @ <span className="text-emerald-500">{item.company}</span>
                   </p>
                 </div>
