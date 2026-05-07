@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Building2, Network, ChevronLeft, ChevronRight } from "lucide-react";
 import { Section } from "@/components/ui/Section";
@@ -8,22 +8,28 @@ import { cn } from "@/lib/utils";
 
 const SLIDER_SLIDES = [
   {
-    url: "clg-moe1.png",
-    title: "Strategic MOU Signings",
-    desc: "Formalizing partnerships with top colleges to bring industry-standard tech education directly to campus.",
-    tag: "Partnerships",
+    url: "colleges/peri-college.png",
+    title: "PERI Institute of Technology",
+    desc: "Formalizing our partnership to deliver high-end technical training and placement support.",
+    tag: "MOE Signing",
   },
   {
-    url: "clg-moe.png",
-    title: "On-Campus Masterclasses",
-    desc: "Conducting hands-on training sessions and expert-led classes within college premises.",
+    url: "colleges/fx-college.png",
+    title: "Francis Xavier Engineering College",
+    desc: "Strategic collaboration for advanced skill development and industry-ready internships.",
+    tag: "Partnership",
+  },
+  {
+    url: "colleges/clg-moe1.png",
+    title: "Panimalar Engineering College",
+    desc: "Embedding our specialized curriculum into the academic framework for student success.",
+    tag: "MOU Signing",
+  },
+  {
+    url: "colleges/clg-moe.png",
+    title: "Vels University",
+    desc: "Co-creating a future-ready workforce through on-campus expert-led training sessions.",
     tag: "Training",
-  },
-  {
-    url: "office.jpg",
-    title: "Industry-Academia Bridge",
-    desc: "Bridging the gap by integrating our advanced technology curriculum into college ecosystems.",
-    tag: "Integration",
   },
 ] as const;
 
@@ -57,9 +63,9 @@ const PARTNER_SCRIM_BOT: React.CSSProperties = {
   height: "52px",
   background: `linear-gradient(to top, ${CARD_BG}, transparent)`,
 };
-// Increased overlay darkness slightly to ensure white text is readable over white cards/images
+// Balanced overlay for better text contrast without being too dark
 const SLIDE_SCRIM: React.CSSProperties = {
-  background: "linear-gradient(to top, rgba(15,23,42,0.9) 0%, rgba(15,23,42,0.4) 60%, transparent 100%)",
+  background: "linear-gradient(to top, rgba(15,23,42,0.7) 0%, rgba(15,23,42,0.3) 50%, transparent 100%)",
 };
 
 // ─── Shared primitives ──────────────────────────────────────────────────────────
@@ -84,15 +90,18 @@ function CardShell({
   className,
   style,
   children,
+  ...props
 }: {
   className?: string;
   style?: React.CSSProperties;
   children: React.ReactNode;
+  [key: string]: any;
 }) {
   return (
     <div
       className={cn("rounded-2xl overflow-hidden shadow-2xl", className)}
       style={{ background: CARD_BG, border: "1px solid rgba(0,0,0,0.05)", ...style }}
+      {...props}
     >
       {children}
     </div>
@@ -102,10 +111,46 @@ function CardShell({
 // ─── Main component ─────────────────────────────────────────────────────────────
 
 export function MOESection() {
-  const [slide, setSlide] = useState(0);
+  const [[slide, direction], setSlideDirection] = useState([0, 0]);
+  const [isPaused, setIsPaused] = useState(false);
   const total = SLIDER_SLIDES.length;
-  const prev = useCallback(() => setSlide((s) => (s - 1 + total) % total), [total]);
-  const next = useCallback(() => setSlide((s) => (s + 1) % total), [total]);
+
+  const setSlide = useCallback((newSlide: number, newDirection: number) => {
+    setSlideDirection([newSlide, newDirection]);
+  }, []);
+
+  const next = useCallback(() => {
+    const nextSlide = (slide + 1) % total;
+    setSlide(nextSlide, 1);
+  }, [slide, total, setSlide]);
+
+  const prev = useCallback(() => {
+    const prevSlide = (slide - 1 + total) % total;
+    setSlide(prevSlide, -1);
+  }, [slide, total, setSlide]);
+
+  useEffect(() => {
+    if (isPaused) return;
+    const interval = setInterval(next, 3000);
+    return () => clearInterval(interval);
+  }, [next, isPaused]);
+
+  const slideVariants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? "100%" : "-100%",
+      opacity: 0,
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1,
+    },
+    exit: (direction: number) => ({
+      zIndex: 0,
+      x: direction < 0 ? "100%" : "-100%",
+      opacity: 0,
+    }),
+  };
 
   return (
     <Section className="relative py-20 overflow-hidden" style={SECTION_STYLE} maxWidth="xl">
@@ -153,20 +198,29 @@ export function MOESection() {
               viewport={{ once: true }}
               transition={{ duration: 0.48 }}
             >
-              <CardShell className="group relative h-[300px] sm:h-[340px]">
-                <AnimatePresence mode="wait">
+              <CardShell 
+                className="group relative h-[300px] sm:h-[340px]"
+                onMouseEnter={() => setIsPaused(true)}
+                onMouseLeave={() => setIsPaused(false)}
+              >
+                <AnimatePresence initial={false} custom={direction}>
                   <motion.div
                     key={slide}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.42 }}
+                    custom={direction}
+                    variants={slideVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{
+                      x: { type: "spring", stiffness: 300, damping: 30 },
+                      opacity: { duration: 0.3 }
+                    }}
                     className="absolute inset-0"
                   >
                     <img
                       src={SLIDER_SLIDES[slide].url}
                       alt={SLIDER_SLIDES[slide].title}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover brightness-105 contrast-[1.02] transition-all duration-700"
                     />
                     <div className="absolute inset-0 pointer-events-none" style={SLIDE_SCRIM} />
                   </motion.div>
@@ -188,7 +242,7 @@ export function MOESection() {
                   {SLIDER_SLIDES.map((_, i) => (
                     <button
                       key={i}
-                      onClick={() => setSlide(i)}
+                      onClick={() => setSlide(i, i > slide ? 1 : -1)}
                       className={cn(
                         "h-[3px] rounded-full transition-all duration-300",
                         i === slide ? "w-6 bg-emerald-400" : "w-[6px] bg-white/40"
@@ -198,14 +252,14 @@ export function MOESection() {
                 </div>
 
                 <div className="absolute bottom-6 left-6 right-6 z-20">
-                    <h3 className="text-xl font-bold text-white mb-2">{SLIDER_SLIDES[slide].title}</h3>
-                    <p className="text-xs text-zinc-300 leading-relaxed">{SLIDER_SLIDES[slide].desc}</p>
+                  <h3 className="text-xl font-bold text-white mb-2">{SLIDER_SLIDES[slide].title}</h3>
+                  <p className="text-xs text-zinc-300 leading-relaxed">{SLIDER_SLIDES[slide].desc}</p>
                 </div>
 
                 {/* Navigation */}
                 <div className="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between z-30 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={prev} className="p-2 rounded-full bg-black/20 backdrop-blur-sm text-white hover:bg-black/40"><ChevronLeft className="w-5 h-5"/></button>
-                    <button onClick={next} className="p-2 rounded-full bg-black/20 backdrop-blur-sm text-white hover:bg-black/40"><ChevronRight className="w-5 h-5"/></button>
+                  <button onClick={prev} className="p-2 rounded-full bg-black/20 backdrop-blur-sm text-white hover:bg-black/40"><ChevronLeft className="w-5 h-5" /></button>
+                  <button onClick={next} className="p-2 rounded-full bg-black/20 backdrop-blur-sm text-white hover:bg-black/40"><ChevronRight className="w-5 h-5" /></button>
                 </div>
               </CardShell>
             </motion.div>
@@ -224,7 +278,7 @@ export function MOESection() {
                   className="flex items-center justify-between px-6 py-4 relative z-20"
                   style={{ borderBottom: "1px solid rgba(0,0,0,0.05)", background: CARD_BG }}
                 >
-                  <span className="text-xs font-bold uppercase tracking-widest" style={{ color: TEXT_DARK }}>
+                  <span className="text-xs font-black uppercase tracking-[0.2em] bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-emerald-400">
                     Active MOU Partners
                   </span>
                   <div
@@ -239,18 +293,18 @@ export function MOESection() {
                 <div className="absolute bottom-0 left-0 right-0 z-10 pointer-events-none" style={PARTNER_SCRIM_BOT} />
 
                 <div className="absolute top-[76px] bottom-0 left-0 right-0 overflow-hidden">
-                    <div className="w-full h-full overflow-hidden relative scroller-container pt-4 pb-20">
-                        <div className="flex flex-col animate-scroll-vertical">
-                            {[...PARTNERS, ...PARTNERS, ...PARTNERS].map((name, i) => (
-                                <div key={i} className="flex items-center gap-4 px-6 py-3 hover:bg-zinc-50 transition-colors cursor-pointer group/item">
-                                    <Building2 className="w-4 h-4 text-zinc-400 shrink-0" />
-                                    <span className="text-sm font-medium text-zinc-600 group-hover/item:text-zinc-900 transition-colors">
-                                        {name}
-                                    </span>
-                                </div>
-                            ))}
+                  <div className="w-full h-full overflow-hidden relative scroller-container pt-4 pb-20">
+                    <div className="flex flex-col animate-scroll-vertical">
+                      {[...PARTNERS, ...PARTNERS, ...PARTNERS].map((name, i) => (
+                        <div key={i} className="flex items-center gap-4 px-6 py-3 hover:bg-zinc-50 transition-colors cursor-pointer group/item">
+                          <Building2 className="w-4 h-4 text-zinc-400 shrink-0" />
+                          <span className="text-sm font-medium text-zinc-600 group-hover/item:text-zinc-900 transition-colors">
+                            {name}
+                          </span>
                         </div>
+                      ))}
                     </div>
+                  </div>
                 </div>
               </CardShell>
             </motion.div>

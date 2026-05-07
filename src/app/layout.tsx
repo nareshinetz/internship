@@ -76,8 +76,8 @@ export default function RootLayout({
       className={`${inter.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 font-sans">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <body className="min-h-full flex flex-col bg-white text-zinc-900 font-sans">
+        <ThemeProvider forcedTheme="light">
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />

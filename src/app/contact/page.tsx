@@ -1,8 +1,20 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, Send, MessageSquare, Layers, Clock, Building2 } from "lucide-react";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Send,
+  MessageSquare,
+  Layers,
+  Clock,
+  Building2,
+  CheckCircle2,
+} from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner"; // Ensure sonner is installed
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -16,348 +28,263 @@ export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    
-    // Simulate network request
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      setIsSubmitting(true);
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) throw new Error("Something went wrong");
+
+      toast.success("Message sent successfully");
       setIsSubmitted(true);
       setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
-      
-      // Reset success state after 5 seconds
       setTimeout(() => setIsSubmitted(false), 5000);
-    }, 1500);
+    } catch (error) {
+      toast.error("Failed to send message");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactMethods = [
     {
-      icon: <Phone className="h-6 w-6" />,
+      icon: <Phone size={20} />,
       title: "Call Us",
-      details: "+91 98402 34475 / +91 98844 68682",
-      description: "Mon-Sat from 9am to 6pm.",
-      action: "tel:+919840234475"
+      details: "+91 98402 34475",
+      description: "Mon - Sat, 9AM to 6PM",
+      action: "tel:+919840234475",
     },
     {
-      icon: <Mail className="h-6 w-6" />,
+      icon: <Mail size={20} />,
       title: "Email Us",
-      details: "info@inetztech.com",
-      description: "Our friendly team is here to help.",
-      action: "mailto:info@inetztech.com"
+      details: "inetztechnologies@gmail.com",
+      description: "Support team ready to help",
+      action: "mailto:info@inetztech.com",
     },
     {
-      icon: <MapPin className="h-6 w-6" />,
+      icon: <MapPin size={20} />,
       title: "Visit Us",
-      details: "Vadapalani, Chennai",
-      description: "Come say hello at our headquarters.",
-      action: "https://maps.google.com/?q=KP+Towers+Vadapalani+Chennai"
-    }
+      details: "KP Towers, Vadapalani",
+      description: "Professional environment",
+      action: "https://maps.google.com",
+    },
   ];
 
   return (
-    <div className="relative min-h-screen bg-zinc-50 dark:bg-zinc-950 overflow-hidden pt-24 pb-20">
-      {/* Background Gradients */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-500/10 blur-[150px] rounded-full hidden dark:block" />
-      <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-sky-500/10 blur-[120px] rounded-full hidden dark:block" />
-      
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-        
-        {/* Header Section */}
-        <div className="text-center max-w-3xl mx-auto mb-20">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+    <div className="relative min-h-screen bg-zinc-50 py-12 dark:bg-zinc-950 md:py-20">
+      {/* Background Decor */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -right-10 top-0 h-[300px] w-[300px] rounded-full bg-emerald-500/5 blur-[100px]" />
+        <div className="absolute -left-10 bottom-0 h-[300px] w-[300px] rounded-full bg-sky-500/5 blur-[100px]" />
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-6xl px-6">
+        {/* Header */}
+        <div className="mx-auto mb-16 max-w-2xl text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-6"
+            className="mb-4 inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900"
           >
-            <MessageSquare className="h-4 w-4" />
-            Get in touch
+            <MessageSquare className="h-3.5 w-3.5 text-emerald-500" />
+            Connect With Us
           </motion.div>
-          
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
+
+          <motion.h1
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-5xl md:text-6xl font-bold text-zinc-900 dark:text-zinc-100 mb-6 tracking-tight"
+            className="mb-4 text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 md:text-5xl"
           >
-            Let&apos;s Build Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-emerald-500">Future Together</span>
+            Let's Build Your <span className="text-emerald-600 italic">Future.</span>
           </motion.h1>
-          
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed"
-          >
-            Have a question about our programs? Want to enroll? 
-            Fill out the form below and our admissions team will get back to you within 24 hours.
-          </motion.p>
+          <p className="text-base text-zinc-600 dark:text-zinc-400">
+            Contact Inetz Technologies for internship training, placements, and real-time project guidance.
+          </p>
         </div>
 
-         {/* Location Section */}
-        <motion.div 
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
-          className="mt-28 grid gap-10 md:grid-cols-2 lg:gap-16 items-stretch"
-        >
-          {/* ───── LEFT IMAGE ───── */}
-          <div className="relative h-full min-h-[350px]">
-            <img
-              src="../office.png"
-              alt="Our Office"
-              className="absolute inset-0 w-full h-full object-cover rounded-3xl shadow-xl"
+        {/* Office Section */}
+        <div className="mb-20 grid gap-8 lg:grid-cols-2">
+          <div className="relative min-h-[350px] overflow-hidden rounded-2xl shadow-lg">
+            <Image
+              src="/office.png"
+              alt="Office"
+              fill
+              className="object-cover transition-transform duration-700 hover:scale-105"
             />
-            {/* Dark gradient overlay for text readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent rounded-3xl" />
-
-            {/* Label */}
-            <div className="absolute bottom-5 left-5 right-5 sm:right-auto bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md rounded-xl px-4 py-2 shadow-lg flex items-center gap-2 border border-zinc-200/50 dark:border-zinc-800/50">
-              <MapPin className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">
-                Vadapalani, Chennai
-              </span>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+            <div className="absolute bottom-4 left-4 text-white">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">Headquarters</p>
+              <h3 className="font-bold text-sm">KP Towers, Vadapalani, Chennai</h3>
             </div>
           </div>
 
-          {/* ───── RIGHT CONTENT ───── */}
-          <div className="space-y-4">
-            {/* Top Card */}
-            <div className="flex flex-col sm:flex-row gap-4 rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl p-5 shadow-sm">
-              <div className="flex shrink-0 h-12 w-12 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-inner">
-                <MapPin className="h-6 w-6" />
-              </div>
-
-              <div>
-                <h3 className="font-bold text-lg text-zinc-900 dark:text-zinc-100 mb-0.5">
-                  📍 KP Towers, Vadapalani, Chennai
-                </h3>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  Located opposite Nexus Vijaya Mall, our center provides a <span className="font-bold text-emerald-600 dark:text-emerald-400">professional ecosystem</span> for your career growth.
-                </p>
+          <div className="flex flex-col justify-center space-y-4">
+            <div className="rounded-2xl border border-zinc-200 bg-white/50 p-5 shadow-sm backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-900/50">
+              <div className="flex gap-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-white">
+                  <MapPin size={20} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">📍 KP Towers, Vadapalani</h3>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-400">Located opposite Nexus Vijaya Mall with premium infrastructure.</p>
+                </div>
               </div>
             </div>
 
-            {/* Feature Grid */}
             <div className="grid gap-3 sm:grid-cols-2">
-              {/* Card 1 */}
-              <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl p-4 shadow-sm hover:shadow-md transition-shadow">
-                <Layers className="h-5 w-5 text-emerald-600 dark:text-emerald-400 mb-2" />
-                <h4 className="font-bold text-sm text-zinc-900 dark:text-zinc-100 mb-0.5">
-                  Professional Environment
-                </h4>
-                <p className="text-xs text-zinc-600 dark:text-zinc-400">
-                  Experience working in a premium office space
-                </p>
-              </div>
-
-              {/* Card 2 */}
-              <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl p-4 shadow-sm hover:shadow-md transition-shadow">
-                <Clock className="h-5 w-5 text-emerald-600 dark:text-emerald-400 mb-2" />
-                <h4 className="font-bold text-sm text-zinc-900 dark:text-zinc-100 mb-0.5">
-                  Fulltime Guidance
-                </h4>
-                <p className="text-xs text-zinc-600 dark:text-zinc-400">
-                  Direct interaction with industry experts
-                </p>
-              </div>
-
-              {/* Card 3 */}
-              <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl p-4 shadow-sm hover:shadow-md transition-shadow">
-                <MapPin className="h-5 w-5 text-emerald-600 dark:text-emerald-400 mb-2" />
-                <h4 className="font-bold text-sm text-zinc-900 dark:text-zinc-100 mb-0.5">
-                  Prime Location
-                </h4>
-                <p className="text-xs text-zinc-600 dark:text-zinc-400">
-                  Accessible via Vadapalani Metro Station
-                </p>
-              </div>
-
-              {/* Card 4 */}
-              <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl p-4 shadow-sm hover:shadow-md transition-shadow">
-                <Building2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400 mb-2" />
-                <h4 className="font-bold text-sm text-zinc-900 dark:text-zinc-100 mb-0.5">
-                  Premium Infrastructure
-                </h4>
-                <p className="text-xs text-zinc-600 dark:text-zinc-400">
-                  State-of-the-art labs and meeting rooms
-                </p>
-              </div>
+              {[
+                { icon: <Layers size={16} />, title: "Pro Environment", desc: "Premium workspace" },
+                { icon: <Clock size={16} />, title: "Fulltime Guidance", desc: "Expert support" },
+                { icon: <MapPin size={16} />, title: "Prime Location", desc: "Near Metro Station" },
+                { icon: <Building2 size={16} />, title: "Infrastructure", desc: "Advanced labs" },
+              ].map((f, i) => (
+                <div key={i} className="rounded-xl border border-zinc-200 bg-white/50 p-4 dark:border-zinc-800 dark:bg-zinc-900/50">
+                  <span className="mb-2 block text-emerald-500">{f.icon}</span>
+                  <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100">{f.title}</h4>
+                  <p className="text-[11px] text-zinc-500">{f.desc}</p>
+                </div>
+              ))}
             </div>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Main Content Grid */}
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 mt-20">
-          
-          {/* Left Column - Contact Info */}
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-            className="space-y-10"
-          >
+        {/* Contact & Form Grid */}
+        <div className="grid gap-12 lg:grid-cols-2">
+          {/* Left: Contact Methods */}
+          <div className="mt-6 space-y-8">
             {contactMethods.map((method, idx) => (
-              <div key={idx} className="group flex gap-6">
-                <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm group-hover:scale-110 group-hover:bg-emerald-50 dark:group-hover:bg-emerald-900/20 transition-all duration-300">
+              <div key={idx} className="group flex gap-5">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-zinc-200 bg-white text-emerald-600 shadow-sm transition-transform group-hover:scale-110 dark:border-zinc-800 dark:bg-zinc-900">
                   {method.icon}
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-2">{method.title}</h3>
-                  <p className="text-zinc-600 dark:text-zinc-400 mb-2">{method.description}</p>
-                  <a 
-                    href={method.action} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-emerald-600 dark:text-emerald-400 font-medium hover:underline transition-all"
-                  >
+                  <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">{method.title}</h3>
+                  <p className="text-xs text-zinc-500 mb-1">{method.description}</p>
+                  <a href={method.action} className="text-sm font-semibold text-emerald-600 hover:underline dark:text-emerald-400">
                     {method.details}
                   </a>
                 </div>
               </div>
             ))}
 
-            {/* Support Box */}
-            <div className="mt-8 p-6 rounded-3xl bg-gradient-to-br from-zinc-100 to-zinc-50 dark:from-zinc-900 dark:to-zinc-950 border border-zinc-200 dark:border-zinc-800">
-              <h4 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-2">Looking for Enterprise Training?</h4>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4 leading-relaxed">
-                We also provide customized corporate training solutions for businesses looking to upskill their teams.
-              </p>
-              <a href="mailto:info@inetztech.com" className="inline-flex items-center text-sm font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300">
-                Contact Corporate Team &rarr;
-              </a>
+            <div className="rounded-2xl border border-zinc-200 bg-gradient-to-br from-zinc-100 to-zinc-50 p-6 dark:border-zinc-800 dark:from-zinc-900/50">
+              <h4 className="mb-2 text-lg font-bold text-zinc-900 dark:text-zinc-100">Enterprise Solutions</h4>
+              <p className="mb-4 text-xs text-zinc-600 dark:text-zinc-400">Upskill your corporate teams with modern technologies.</p>
+              <a href="mailto:info@inetztech.com" className="text-xs font-bold text-emerald-600 hover:underline">Contact Corporate Team →</a>
             </div>
-          </motion.div>
+          </div>
 
-          {/* Right Column - Contact Form */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
-          >
-            <div className="bg-white dark:bg-zinc-900/50 backdrop-blur-xl border border-zinc-200 dark:border-zinc-800 rounded-3xl p-8 md:p-10 shadow-xl shadow-zinc-200/50 dark:shadow-none">
-              <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-6">Send us a message</h3>
-              
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
-                  {/* Name */}
-                  <div className="space-y-2">
-                    <label htmlFor="name" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                      Full Name
-                    </label>
+          {/* Right: Form */}
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+            <div className="rounded-2xl border border-zinc-200 bg-white p-7 shadow-xl dark:border-zinc-800 dark:bg-zinc-900/80">
+              <h3 className="mb-6 text-xl font-bold text-zinc-900 dark:text-white">Send us a message</h3>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <label className="ml-1 text-[10px] font-bold uppercase text-zinc-400">Full Name</label>
                     <input
                       type="text"
-                      id="name"
                       name="name"
                       required
                       value={formData.name}
                       onChange={handleChange}
-                      className="w-full h-14 px-5 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 text-zinc-900 dark:text-white transition-all"
-                      placeholder="John Doe"
+                      placeholder="Rahul S."
+                      className="h-11 w-full rounded-xl border border-zinc-100 bg-zinc-50 px-4 text-sm outline-none transition-all focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/10 dark:border-zinc-800 dark:bg-zinc-800/50 dark:text-white"
                     />
                   </div>
-
-                  {/* Email */}
-                  <div className="space-y-2">
-                    <label htmlFor="email" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                      Email Address
-                    </label>
+                  <div className="space-y-1.5">
+                    <label className="ml-1 text-[10px] font-bold uppercase text-zinc-400">Email Address</label>
                     <input
                       type="email"
-                      id="email"
                       name="email"
                       required
                       value={formData.email}
                       onChange={handleChange}
-                      className="w-full h-14 px-5 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 text-zinc-900 dark:text-white transition-all"
-                      placeholder="john@example.com"
+                      placeholder="rahul@example.com"
+                      className="h-11 w-full rounded-xl border border-zinc-100 bg-zinc-50 px-4 text-sm outline-none transition-all focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/10 dark:border-zinc-800 dark:bg-zinc-800/50 dark:text-white"
                     />
                   </div>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-6">
-                  {/* Phone */}
-                  <div className="space-y-2">
-                    <label htmlFor="phone" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                      Phone Number
-                    </label>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <label className="ml-1 text-[10px] font-bold uppercase text-zinc-400">Phone</label>
                     <input
                       type="tel"
-                      id="phone"
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
-                      className="w-full h-14 px-5 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 text-zinc-900 dark:text-white transition-all"
-                      placeholder="+91 98765 43210"
+                      placeholder="9876543210"
+                      className="h-11 w-full rounded-xl border border-zinc-100 bg-zinc-50 px-4 text-sm outline-none transition-all focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/10 dark:border-zinc-800 dark:bg-zinc-800/50 dark:text-white"
                     />
                   </div>
-
-                  {/* Subject */}
-                  <div className="space-y-2">
-                    <label htmlFor="subject" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                      Subject
-                    </label>
+                  <div className="space-y-1.5">
+                    <label className="ml-1 text-[10px] font-bold uppercase text-zinc-400">Subject</label>
                     <input
                       type="text"
-                      id="subject"
                       name="subject"
                       required
                       value={formData.subject}
                       onChange={handleChange}
-                      className="w-full h-14 px-5 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 text-zinc-900 dark:text-white transition-all"
                       placeholder="Course Inquiry"
+                      className="h-11 w-full rounded-xl border border-zinc-100 bg-zinc-50 px-4 text-sm outline-none transition-all focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/10 dark:border-zinc-800 dark:bg-zinc-800/50 dark:text-white"
                     />
                   </div>
                 </div>
 
-                {/* Message */}
-                <div className="space-y-2">
-                  <label htmlFor="message" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Your Message
-                  </label>
+                <div className="space-y-1.5">
+                  <label className="ml-1 text-[10px] font-bold uppercase text-zinc-400">Message</label>
                   <textarea
-                    id="message"
                     name="message"
                     required
-                    rows={5}
+                    rows={4}
                     value={formData.message}
                     onChange={handleChange}
-                    className="w-full p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 text-zinc-900 dark:text-white transition-all resize-none"
-                    placeholder="Tell us how we can help you..."
-                  ></textarea>
+                    placeholder="How can we help you?"
+                    className="w-full resize-none rounded-xl border border-zinc-100 bg-zinc-50 p-4 text-sm outline-none transition-all focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/10 dark:border-zinc-800 dark:bg-zinc-800/50 dark:text-white"
+                  />
                 </div>
 
-                {/* Submit Button */}
                 <button
                   type="submit"
                   disabled={isSubmitting || isSubmitted}
-                  className={`w-full h-14 flex items-center justify-center gap-2 rounded-2xl text-white font-semibold transition-all duration-300 ${
-                    isSubmitted 
-                      ? "bg-emerald-600 scale-[0.98]" 
-                      : "bg-emerald-600 hover:bg-emerald-700 hover:shadow-lg hover:shadow-emerald-600/20 active:scale-[0.98]"
+                  className={`relative flex h-11 w-full items-center justify-center gap-2 rounded-xl font-bold transition-all duration-300 ${
+                    isSubmitted
+                      ? "bg-emerald-600 text-white"
+                      : "bg-zinc-900 text-white hover:bg-black dark:bg-zinc-100 dark:text-zinc-900"
                   }`}
                 >
-                  {isSubmitting ? (
-                    <div className="flex items-center gap-2">
-                      <div className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                      Sending...
-                    </div>
-                  ) : isSubmitted ? (
-                    "Message Sent Successfully!"
-                  ) : (
-                    <>
-                      Send Message
-                      <Send className="h-4 w-4" />
-                    </>
-                  )}
+                  <AnimatePresence mode="wait">
+                    {isSubmitting ? (
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2">
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                        <span>Sending...</span>
+                      </motion.div>
+                    ) : isSubmitted ? (
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2">
+                        <CheckCircle2 size={18} />
+                        <span>Sent</span>
+                      </motion.div>
+                    ) : (
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2">
+                        <span>Send Message</span>
+                        <Send size={14} />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </button>
               </form>
             </div>

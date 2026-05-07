@@ -169,7 +169,7 @@ const InternshipPrograms = ({ initialStack = "mern", onBack }: { initialStack?: 
     try {
       const r = await fetch("/api/send-lead", {
         method: "POST",
-        body: JSON.stringify({ ...leadForm, stack: activeStack }),
+        body: JSON.stringify({ ...leadForm, stack: activeStack,type: "Syllabus Unlock" }),
       });
       if (r.ok) {
         setShowModal(false);
@@ -320,7 +320,7 @@ const InternshipPrograms = ({ initialStack = "mern", onBack }: { initialStack?: 
             </section>
 
             {/* CAREER */}
-            <section className="relative py-24 bg-blue-900 px-6 rounded-[3rem]">
+            <section className="relative py-24 bg-blue-800 px-6 rounded-[3rem]">
               <div className="max-w-5xl mx-auto mb-16 text-center md:text-left">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-[10px] font-bold uppercase tracking-widest mb-4">
                   <Sparkles size={12} /> Career Acceleration

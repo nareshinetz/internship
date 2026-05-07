@@ -16,7 +16,11 @@ import {
   Zap,
   Cpu,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  ArrowUpRight,
+  Layers,
+  Code2,
+  Terminal
 } from "lucide-react";
 import {
   SiReact,
@@ -33,6 +37,7 @@ import {
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { Card } from "./ui/Card";
 
 type Project = {
   id: string;
@@ -71,7 +76,7 @@ const studentProjects: Project[] = [
     cardTech: ["React & Node.js Core", "MongoDB & Express", "Tailwind CSS Design"],
     accentColor: "text-orange-500",
     borderColor: "group-hover:border-orange-500/50",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1200",
+    image: "projects/mern-project.png",
     modalContent: {
       overview: "Comprehensive masterclass on building full-stack applications with MongoDB, Express, React, and Node.js.",
       challenge: "Managing shared state across complex UI components while keeping the server response time under 100ms.",
@@ -215,269 +220,188 @@ const studentProjects: Project[] = [
       ]
     }
   },
-];
-
-export default function StudentProjects() {
+];export default function StudentProjects() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const containerVars = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1, delayChildren: 0.2 },
+    },
+  };
+
+  const itemVars = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+  };
 
   return (
-    <Section className="bg-white dark:bg-zinc-950 transition-colors overflow-hidden py-8 relative">
-      <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-emerald-500/5 blur-[120px] rounded-full hidden dark:block" />
-
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <div className="flex flex-col gap-4 mb-8">
-          <div className="text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-4">
-              <Rocket className="h-4 w-4" />
-              Industrial Benchmarks
-            </div>
-            <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-zinc-900 dark:text-zinc-100 mb-4">
-              Industrial Grade <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-400 to-sky-500">Student Projects</span>
-            </h2>
-          </div>
-
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl">
-              We build production-ready applications that solve real business problems, using the exact tech stacks used by top-tier engineering teams. Use trending technologies through real-time projects to master every challenge.
-            </p>
-            <Button variant="ghost" size="lg" className="rounded-2xl border-2 shrink-0 self-start md:self-center bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600 hover:border-emerald-700">
-              View more projects
-            </Button>
-          </div>
-        </div>
-
-        <div className="relative">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentIndex}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
-              className="flex flex-col lg:flex-row items-stretch bg-zinc-50/50 dark:bg-zinc-900/30 rounded-[2.5rem] overflow-hidden border border-zinc-200/60 dark:border-zinc-800/60 shadow-2xl min-h-[350px] backdrop-blur-sm"
-            >
-              {/* Left Column: Image & Hero Title */}
-              <div className="lg:w-1/2 relative overflow-hidden group">
-                <div className="absolute inset-0 bg-zinc-900">
-                  <motion.img
-                    src={studentProjects[currentIndex].image}
-                    className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-1000"
-                    alt={studentProjects[currentIndex].title}
-                  />
-                </div>
-                {/* Image Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent" />
-
-                {/* Floating Title - Unique & Modern */}
-                <div className="absolute bottom-12 left-12 right-12 z-20">
-                  <motion.div
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                  >
-                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-widest backdrop-blur-md border border-emerald-500/20 mb-4">
-                      Project {studentProjects[currentIndex].id}
-                    </span>
-                    <h3 className="text-4xl md:text-5xl lg:text-6xl font-black text-white uppercase tracking-tighter leading-[0.9]">
-                      {studentProjects[currentIndex].title.split(' ').map((word, i) => (
-                        <span key={i} className={i % 2 === 1 ? "text-emerald-500" : ""}>{word} </span>
-                      ))}
-                    </h3>
-                  </motion.div>
-                </div>
-
-                {/* Technical Icons Preview */}
-                <div className="absolute top-12 left-12 flex gap-3 z-20">
-                  {studentProjects[currentIndex].techIcons.map((Tech, i) => (
-                    <div key={i} className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center">
-                      <Tech className="w-5 h-5 text-white" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Right Column: Narrative & Navigation */}
-              <div className="lg:w-1/2 p-6 lg:p-10 flex flex-col justify-between relative bg-white dark:bg-zinc-900/40">
-                {/* Decorative background number */}
-                <div className="absolute top-0 right-0 p-8 text-[8rem] font-black text-zinc-100 dark:text-zinc-800/30 leading-none select-none -z-10">
-                  {studentProjects[currentIndex].id}
-                </div>
-
-                <div className="space-y-8">
-                  <div>
-                    <h4 className="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2">
-                      {studentProjects[currentIndex].label}
-                    </h4>
-                    <p className="text-lg text-zinc-600 dark:text-zinc-300 font-medium leading-relaxed">
-                      {studentProjects[currentIndex].desc}
-                    </p>
-                  </div>
-
-                  <div className="space-y-4">
-                    <h5 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Technologies Used</h5>
-                    <div className="grid grid-cols-1 gap-3">
-                      {studentProjects[currentIndex].cardTech.map((tech, i) => (
-                        <div key={i} className="flex items-center gap-3">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                          <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">{tech}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="pb-4 flex flex-wrap gap-4">
-                    <Button
-                      onClick={() => setSelectedProject(studentProjects[currentIndex])}
-                      variant="ghost"
-                      className="rounded-2xl border-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hover:bg-emerald-600 hover:text-white border-zinc-900 dark:border-white hover:border-emerald-600 px-6 h-12 font-bold uppercase text-[10px] tracking-widest"
-                    >
-                      Learn More...
-                    </Button>
-                    <div className="flex h-12 items-center gap-2 px-4 rounded-2xl bg-zinc-100 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800">
-                      <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Project:</span>
-                      <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase">
-                        {studentProjects[currentIndex].title}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Slider Navigation */}
-                <div className="mt-8 lg:mt-0 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl font-black text-zinc-900 dark:text-white leading-none">
-                      {studentProjects[currentIndex].id}
-                    </span>
-                    <span className="text-zinc-400 font-bold text-xs uppercase tracking-widest pt-1">
-                      / {studentProjects.length.toString().padStart(2, '0')}
-                    </span>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setCurrentIndex((prev) => (prev === 0 ? studentProjects.length - 1 : prev - 1))}
-                      className="w-12 h-12 rounded-2xl border border-zinc-200 dark:border-zinc-800 flex items-center justify-center hover:bg-emerald-500 hover:border-emerald-500 hover:text-white transition-all text-zinc-400 active:scale-95"
-                    >
-                      <ChevronLeft className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={() => setCurrentIndex((prev) => (prev === studentProjects.length - 1 ? 0 : prev + 1))}
-                      className="w-12 h-12 rounded-2xl border border-zinc-200 dark:border-zinc-800 flex items-center justify-center hover:bg-emerald-500 hover:border-emerald-500 hover:text-white transition-all text-zinc-400 active:scale-95"
-                    >
-                      <ChevronRight className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
+    <Section className="bg-zinc-50 dark:bg-zinc-950 py-24 transition-colors overflow-hidden relative">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-emerald-500/5 blur-[120px] rounded-full" />
       </div>
 
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        {/* Refined Header Section */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-20">
+          <div className="space-y-4">
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-[0.2em]"
+            >
+              <Terminal className="h-3 w-3" />
+              Build Showcase
+            </motion.div>
+            <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 leading-[0.95]">
+              Industrial <br />
+              <span className="bg-gradient-to-r from-zinc-500 via-zinc-400 to-zinc-600 bg-clip-text text-transparent italic">
+                Benchmarks.
+              </span>
+            </h2>
+          </div>
+          <div className="max-w-xs border-l-2 border-emerald-500/30 pl-6">
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium">
+              Explore production-ready systems engineered with modern 
+              microservices and cloud-native patterns.
+            </p>
+          </div>
+        </div>
+
+        {/* 3-Column Grid */}
+        <motion.div
+          variants={containerVars}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
+          {studentProjects.slice(0, 3).map((project) => (
+            <motion.div
+              key={project.id}
+              variants={itemVars}
+              whileHover={{ y: -5 }}
+              className="group cursor-pointer"
+              onClick={() => setSelectedProject(project)}
+            >
+              <Card className="h-full border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 rounded-2xl overflow-hidden p-0 transition-all duration-300 hover:border-emerald-500/50 hover:shadow-2xl hover:shadow-emerald-500/5">
+                
+                {/* Visual Area */}
+                <div className="relative h-48 overflow-hidden">
+                  <img
+                    src={project.image}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    alt=""
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
+                  
+                  {/* Floating Icons */}
+                  <div className="absolute top-4 left-4 flex gap-1.5">
+                    {project.techIcons.map((Icon, i) => (
+                      <div key={i} className="h-8 w-8 rounded-lg bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/80">
+                        <Icon size={14} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Content Area */}
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
+                      {project.domain.split(' ')[0]} / {project.id}
+                    </span>
+                    <Layers size={14} className="text-zinc-300" />
+                  </div>
+                  
+                  <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight mb-2 group-hover:text-emerald-500 transition-colors">
+                    {project.title}
+                  </h3>
+
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed line-clamp-2 font-medium mb-6">
+                    {project.desc}
+                  </p>
+
+                  <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
+                    <div className="flex gap-2">
+                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 mt-1.5" />
+                       <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-tighter">Production Ready</span>
+                    </div>
+                    <ArrowUpRight size={16} className="text-zinc-300 group-hover:text-emerald-500 transition-all" />
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+
+      {/* Case Study Modal */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-zinc-950/80 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-zinc-950/90 backdrop-blur-md"
             onClick={() => setSelectedProject(null)}
           >
             <motion.div
               initial={{ scale: 0.95, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 20 }}
+              className="relative w-full max-w-4xl max-h-[85vh] overflow-hidden rounded-3xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 flex flex-col md:flex-row shadow-2xl"
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-5xl max-h-[90vh] overflow-hidden rounded-[2.5rem] bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-2xl flex flex-col md:flex-row"
             >
-              {/* Modal Left: Rich Data Image & Stats */}
-              <div className="md:w-5/12 relative h-64 md:h-auto border-r border-zinc-100 dark:border-zinc-800">
-                <img src={selectedProject.image} className="absolute inset-0 w-full h-full object-cover" alt="" />
-                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent" />
-
+              <div className="md:w-5/12 relative hidden md:block bg-zinc-900">
+                <img src={selectedProject.image} className="w-full h-full object-cover" alt="" />
+                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 to-transparent" />
                 <div className="absolute bottom-8 left-8 right-8">
-                  <div className="grid grid-cols-2 gap-4">
-                    {selectedProject.modalContent.stats.map((stat, i) => (
-                      <div key={i} className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 text-white">
-                        <p className="text-[8px] font-bold uppercase tracking-widest text-zinc-300 mb-1">{stat.label}</p>
-                        <p className="text-xl font-black">{stat.value}</p>
-                      </div>
-                    ))}
-                  </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        {selectedProject.modalContent.stats.map((s, i) => (
+                            <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                                <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-1">{s.label}</p>
+                                <p className="text-xl font-bold text-white">{s.value}</p>
+                            </div>
+                        ))}
+                    </div>
                 </div>
               </div>
 
-              {/* Modal Right: Detailed Project Data */}
-              <div className="md:w-7/12 p-8 md:p-12 overflow-y-auto hide-scrollbar bg-zinc-50/50 dark:bg-zinc-900/10">
+              <div className="md:w-7/12 p-10 md:p-14 overflow-y-auto">
                 <div className="flex justify-between items-start mb-8">
-                  <div className="flex items-center gap-4">
-                    <div className={cn("p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl", selectedProject.accentColor)}>
-                      <selectedProject.icon className="w-8 h-8" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Case Study ID {selectedProject.id}</p>
-                      <h3 className="text-3xl font-black text-zinc-900 dark:text-white tracking-tight uppercase leading-none">{selectedProject.title}</h3>
-                    </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-[0.2em] mb-2">Technical Analysis</p>
+                    <h3 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white uppercase leading-none">
+                      {selectedProject.title}
+                    </h3>
                   </div>
-                  <button onClick={() => setSelectedProject(null)} className="p-2 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors">
-                    <X className="w-6 h-6" />
+                  <button onClick={() => setSelectedProject(null)} className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors">
+                    <X size={20} />
                   </button>
                 </div>
 
-                <div className="space-y-8">
-                  <div className="grid grid-cols-2 gap-8">
-                    <div className="space-y-4">
-                      <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-                        <Shield className="w-3 h-3" /> The Challenge
-                      </h4>
-                      <p className="text-sm font-bold text-zinc-600 dark:text-zinc-300 leading-relaxed">
-                        {selectedProject.modalContent.challenge}
-                      </p>
+                <div className="space-y-10">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                      <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2"><Shield size={14}/> Challenge</h4>
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{selectedProject.modalContent.challenge}</p>
                     </div>
-                    <div className="space-y-4">
-                      <h4 className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest flex items-center gap-2">
-                        <Zap className="w-3 h-3" /> The Solution
-                      </h4>
-                      <p className="text-sm font-bold text-zinc-600 dark:text-zinc-300 leading-relaxed">
-                        {selectedProject.modalContent.solution}
-                      </p>
+                    <div className="space-y-3">
+                      <h4 className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] flex items-center gap-2"><Zap size={14}/> Solution</h4>
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{selectedProject.modalContent.solution}</p>
                     </div>
                   </div>
 
-                  {/* New Key Innovations Section in Modal */}
                   <div className="space-y-4">
-                    <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-                      <Rocket className="w-3.5 h-3.5" /> Key Innovations
-                    </h4>
-                    <div className="grid grid-cols-2 gap-3">
-                      {selectedProject.modalContent.features.map((feature, i) => (
-                        <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                          <span className="text-[11px] font-bold text-zinc-800 dark:text-zinc-200">{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="p-6 rounded-[2rem] bg-zinc-100 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800">
-                    <h4 className="text-[10px] font-bold text-zinc-900 dark:text-white uppercase tracking-widest mb-4">Core Technology Output</h4>
+                    <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">Primary Stack</h4>
                     <div className="flex flex-wrap gap-2">
-                      {selectedProject.modalContent.techStack.map((tech, i) => (
-                        <div key={i} className="px-3 py-1.5 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 text-[10px] font-bold text-zinc-500">
-                          {tech}
-                        </div>
+                      {selectedProject.modalContent.techStack.map((t, i) => (
+                        <span key={i} className="px-3 py-1 rounded bg-zinc-100 dark:bg-zinc-800 text-[10px] font-bold text-zinc-500 uppercase tracking-widest border border-zinc-200/50 dark:border-zinc-700/50">
+                          {t}
+                        </span>
                       ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-4">Industrial Impact</h4>
-                    <div className="flex items-center gap-3 p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/10">
-                      <Rocket className="w-5 h-5 text-emerald-500" />
-                      <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400 leading-tight">
-                        {selectedProject.modalContent.result}
-                      </p>
                     </div>
                   </div>
                 </div>
@@ -486,16 +410,6 @@ export default function StudentProjects() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <style jsx global>{`
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
     </Section>
   );
 }
