@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
@@ -11,192 +11,163 @@ const testimonials = [
   {
     name: "Amjith Khan",
     role: "Junior Software Engineer",
-    company: "Zoho Premium Partners",
-    // text: "The real-time project experience at Inetz helped me clear my technical rounds at Zoho effortlessly. Highly recommended!",
+    company: "Zoho Partners",
     image: "placement-students/amjith.png",
-    border: "border-amber-500/40",
-    roleColor: "text-amber-600",
+    color: "from-amber-500",
   },
   {
     name: "Mohammed Anas",
     role: "React Developer",
-    company: "Brightstack solutions",
-    // text: "Excellent mentors who explain concepts with real-world scenarios. The placement support is genuine and active.",
+    company: "Brightstack",
     image: "placement-students/anas.png",
-    border: "border-indigo-500/40",
-    roleColor: "text-indigo-600",
+    color: "from-indigo-500",
   },
   {
     name: "Ariyangau",
-    role: "Junior Software Developer",
-    company: "Dofy infosys",
-    // text: "Flexible timings allowed me to manage college while gaining professional skills. Truly the best in Chennai!",
+    role: "Software Developer",
+    company: "Dofy Infosys",
     image: "placement-students/ariyangau.png",
-    border: "border-emerald-500/40",
-    roleColor: "text-emerald-600",
+    color: "from-emerald-500",
   },
   {
     name: "Sivaraman",
     role: "Frontend Developer",
     company: "IntechHub",
-    // text: "The design immersive program at Inetz changed my perspective on user-centric design. Got placed with an amazing package!",
     image: "placement-students/sivaraman.png",
-    border: "border-rose-500/40",
-    roleColor: "text-rose-600",
+    color: "from-rose-500",
   },
   {
     name: "Vimal",
     role: "Data Scientist",
-    company: "Dofy infosys",
-    // text: "Comprehensive curriculum and hands-on ML projects. The mock interviews were incredibly close to the actual process.",
+    company: "Dofy Infosys",
     image: "placement-students/vimal.png",
-    border: "border-sky-500/40",
-    roleColor: "text-sky-600",
-  },
-  {
-    name: "Anitha Krish",
-    role: "DevOps Engineer",
-    company: "Accenture",
-    // text: "Mastered Docker, K8s and CI/CD pipelines here. The instructors are industry veterans who know exactly what's needed.",
-    image: "placement-students/anas.png",
-    border: "border-violet-500/40",
-    roleColor: "text-violet-600",
-  },
-  {
-    name: "Vignesh Kumar",
-    role: "Cloud Architect",
-    company: "Google Cloud",
-    // text: "High-quality infrastructure and specialized labs. Passing my AWS certification was a breeze after the training.",
-    image: "placement-students/anas.png",
-    border: "border-blue-500/40",
-    roleColor: "text-blue-600",
-  },
-  {
-    name: "Deepa Mani",
-    role: "MERN Developer",
-    company: "Cognizant",
-    // text: "Focused mentorship help me build a strong portfolio. I received multiple offers within a month of completion.",
-    image: "placement-students/anas.png",
-    border: "border-teal-500/40",
-    roleColor: "text-teal-600",
-  },
-  {
-    name: "Siddharth Nair",
-    role: "Python Specialist",
-    company: "HCL",
-    // text: "The Python track is very well structured. Building a complete automation suite for my final project was the highlight.",
-    image: "placement-students/anas.png",
-    border: "border-orange-500/40",
-    roleColor: "text-orange-600",
+    color: "from-sky-500",
   },
 ];
 
 export default function SuccessStories() {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScroll = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
-      const { current } = scrollRef;
-      const scrollAmount = 450;
-      current.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
+      const amount = 340;
+      scrollRef.current.scrollBy({
+        left: direction === "left" ? -amount : amount,
         behavior: "smooth",
       });
     }
   };
 
   return (
-    <Section className="bg-white dark:bg-zinc-950 py-24 overflow-hidden relative">
-      {/* Premium dark mode glow */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-500/5 blur-[150px] rounded-full hidden dark:block" />
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-500/5 blur-[120px] rounded-full hidden dark:block" />
+    <Section className="bg-zinc-50 dark:bg-zinc-950 py-20 overflow-hidden relative border-t border-zinc-200 dark:border-zinc-900">
+      {/* Ambient background glow */}
+      <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none" />
 
-      <div className="flex flex-col gap-6 mb-16 px-6 max-w-[1400px] mx-auto relative z-10">
-        <div className="text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-4">
-            Success Stories
+      <div className="max-w-6xl mx-auto px-6 relative z-10">
+        {/* Header - Editorial Style */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+          <div className="max-w-xl">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 dark:bg-emerald-500/10 border border-zinc-800 dark:border-emerald-500/20 text-white dark:text-emerald-400 text-[9px] font-bold uppercase tracking-[0.2em] mb-4"
+            >
+              Placement Success
+            </motion.div>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+              Future Talent. <span className="text-zinc-400 dark:text-zinc-600">Proven Results.</span>
+            </h2>
           </div>
-          <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-zinc-900 dark:text-zinc-100 mb-4">
-            Our Students <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-400 to-sky-500">Success Stories</span>
-          </h2>
-        </div>
 
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <p className="text-zinc-600 dark:text-zinc-400 text-lg font-medium max-w-2xl">
-            Join 5000+ professionals who transformed their careers with Inetz Technologies. Explore their journeys and envision your future.
-          </p>
-          <div className="flex gap-4 shrink-0">
+          <div className="flex gap-3">
             <button
               onClick={() => scroll("left")}
-              className="h-12 w-12 rounded-xl border border-zinc-200 dark:border-zinc-800 flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:border-emerald-500 transition-all text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 shadow-sm"
+              disabled={!canScrollLeft}
+              className="h-10 w-10 rounded-full border border-zinc-200 dark:border-zinc-800 flex items-center justify-center hover:bg-white dark:hover:bg-zinc-900 disabled:opacity-20 transition-all shadow-sm"
             >
-              <ChevronLeft className="h-5 w-5" />
+              <ChevronLeft className="h-4 w-4" />
             </button>
             <button
               onClick={() => scroll("right")}
-              className="h-12 w-12 rounded-xl border border-zinc-200 dark:border-zinc-800 flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:border-emerald-500 transition-all text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 shadow-sm"
+              disabled={!canScrollRight}
+              className="h-10 w-10 rounded-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 flex items-center justify-center hover:bg-emerald-600 dark:hover:bg-emerald-500 disabled:opacity-20 transition-all shadow-md"
             >
-              <ChevronRight className="h-5 w-5" />
+              <ChevronRight className="h-4 w-4" />
             </button>
           </div>
         </div>
-      </div>
 
-      <div
-        ref={scrollRef}
-        className="flex gap-6 overflow-x-auto no-scrollbar pb-12 px-6 max-w-[1400px] mx-auto snap-x snap-mandatory"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
-        {testimonials.map((item, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: index * 0.05 }}
-            viewport={{ once: true }}
-            className="min-w-[85%] sm:min-w-[45%] lg:min-w-[calc(33.333%-1rem)] snap-start group h-full"
-          >
-            <Card className={cn(
-              "p-0 border bg-white dark:bg-zinc-950 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 h-full flex flex-col min-h-[460px]",
-              item.border
-            )}>
-              {/* Image Area (Full Width Coverage) */}
-              <div className="relative h-[280px] m-3 overflow-hidden rounded-xl bg-zinc-50 shrink-0">
-                <img
-                  src={item.image}
-                  alt={`Success story of ${item.name}`}
-                  className="w-full h-full object-cover object-top grayscale-[0.2] group-hover:grayscale-0 transition-all duration-500"
-                />
-
-                {/* Visual Accent */}
-                <div className="absolute inset-0 border-[8px] border-white/10 group-hover:border-transparent transition-all duration-500" />
-              </div>
-
-              {/* Info Area */}
-              <div className="px-6 pb-8 pt-2 text-center flex flex-col items-center justify-center flex-1">
-                <h3 className={cn("text-lg font-extrabold mb-1 tracking-tight", item.roleColor)}>
-                  {item.name}
-                </h3>
-                <div className="w-10 h-px bg-zinc-200 dark:bg-zinc-800 mb-4 mt-2" />
-                <div className="min-h-[2.5rem] flex items-center justify-center">
-                  <p className="text-[10px] font-black text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.1em] leading-relaxed max-w-[200px]">
-                    {item.role} @ <span className="text-emerald-500">{item.company}</span>
-                  </p>
+        {/* Scroll Track */}
+        <div
+          ref={scrollRef}
+          onScroll={checkScroll}
+          className="flex gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-4"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {testimonials.map((item, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+              viewport={{ once: true }}
+              className="min-w-[260px] md:min-w-[300px] snap-start group"
+            >
+              <Card className="relative h-full border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/40 backdrop-blur-sm overflow-hidden p-0 rounded-2xl transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-2">
+                
+                {/* Image Section */}
+                <div className="relative h-[280px] overflow-hidden group-hover:grayscale-0 transition-all duration-700">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full h-full object-cover object-top scale-105 group-hover:scale-100 transition-transform duration-700"
+                  />
+                  {/* Subtle Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
+                  
+                  {/* Company Badge - Glass Style */}
+                  <div className="absolute top-4 right-4 flex items-center gap-1.5 px-2.5 py-1 rounded-md backdrop-blur-md bg-blue-600 border border-white/20">
+                    <span className="text-[8px] font-black text-white uppercase tracking-wider">
+                      {item.company}
+                    </span>
+                    <ExternalLink size={10} className="text-white/60" />
+                  </div>
                 </div>
-              </div>
-            </Card>
-          </motion.div>
-        ))}
+
+                {/* Content Section */}
+                <div className="p-5 relative bg-white dark:bg-zinc-900/80">
+                  <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100 transition-colors group-hover:text-emerald-500">
+                    {item.name}
+                  </h3>
+                  <p className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mt-1">
+                    {item.role}
+                  </p>
+                  
+                  {/* Bottom Progress Accent */}
+                  <div className={cn(
+                    "absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full transition-all duration-500 bg-gradient-to-r",
+                    item.color, "to-transparent"
+                  )} />
+                </div>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
       </div>
 
       <style jsx global>{`
-        .no-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .no-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
     </Section>
   );
