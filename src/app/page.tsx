@@ -11,7 +11,7 @@ import ProblemSolution from "@/components/ProblemSolution";
 import StudentProjects from "@/components/StudentProjects";
 import VideoTestimonials from "@/components/VideoTestimonials";
 import Quotes from "@/components/Quotes";
-import { EnrollmentActionSection, EnrollmentBentoSection, EnrollmentImageSection, EnrollmentMapSection, EnrollmentPathSection } from "@/components/register";
+import { EnrollmentActionSection } from "@/components/register";
 
 export default function Home() {
   return (
