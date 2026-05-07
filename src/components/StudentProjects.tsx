@@ -71,7 +71,7 @@ const studentProjects: Project[] = [
     cardTech: ["React & Node.js Core", "MongoDB & Express", "Tailwind CSS Design"],
     accentColor: "text-orange-500",
     borderColor: "group-hover:border-orange-500/50",
-    image: "/weatherapp.png",
+    image: "projects/mern-project.png",
     modalContent: {
       overview: "Comprehensive masterclass on building full-stack applications with MongoDB, Express, React, and Node.js.",
       challenge: "Managing shared state across complex UI components while keeping the server response time under 100ms.",
