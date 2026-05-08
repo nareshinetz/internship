@@ -2,38 +2,64 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MoveUpRight, Code2, Rocket, Laptop, Database, Globe, BarChart, Settings, X, CheckCircle2, Cpu, Smartphone } from "lucide-react";
-import { 
-  SiReact, 
-  SiNextdotjs, 
-  SiTailwindcss, 
-  SiNodedotjs, 
-  SiMongodb, 
-  SiPython, 
+import {
+  MoveUpRight,
+  X,
+  CheckCircle2,
+  Rocket,
+  Globe,
+  Layout,
+  Search,
+  BarChart3,
+  ArrowRight,
+  Shield,
+  Zap,
+  Cpu,
+  ChevronLeft,
+  ChevronRight,
+  ArrowUpRight,
+  Layers,
+  Code2,
+  Terminal
+} from "lucide-react";
+import {
+  SiReact,
+  SiNextdotjs,
+  SiTailwindcss,
+  SiNodedotjs,
+  SiMongodb,
+  SiPython,
   SiPostgresql,
   SiTypescript,
   SiFramer,
   SiPrisma
 } from "react-icons/si";
 import { Section } from "@/components/ui/Section";
-import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { Card } from "./ui/Card";
 
 type Project = {
   id: string;
   title: string;
   label: string;
+  domain: string;
   desc: string;
   gradient: string;
   icon: any;
   techIcons: any[];
+  cardTech: string[];
   accentColor: string;
   borderColor: string;
+  image: string;
   modalContent: {
     overview: string;
+    challenge: string;
+    solution: string;
     features: string[];
     techStack: string[];
     result: string;
+    stats: { label: string; value: string }[];
   };
 };
 
@@ -41,320 +67,351 @@ const studentProjects: Project[] = [
   {
     id: "01",
     title: "Global Weather App",
-    label: "Frontend mastery",
-    desc: "A sleek real-time weather tracking application that fetches global data with dynamic visual changes based on conditions.",
-    gradient: "from-orange-500/10 to-transparent",
+    label: "Web Architecture",
+    domain: "MERN Stack Development",
+    desc: "Build highly scalable production-ready web applications using the popular MERN stack from the ground up.",
+    gradient: "from-orange-500/20 to-transparent",
     icon: SiReact,
-    techIcons: [SiReact, SiTailwindcss],
+    techIcons: [SiReact, SiTailwindcss, SiNodedotjs],
+    cardTech: ["React & Node.js Core", "MongoDB & Express", "Tailwind CSS Design"],
     accentColor: "text-orange-500",
-    borderColor: "group-hover:border-orange-500/30",
+    borderColor: "group-hover:border-orange-500/50",
+    image: "projects/mern-project.png",
     modalContent: {
-      overview: "Students build a highly responsive Weather Application that utilizes OpenWeather API to provide real-time updates for any city globally.",
-      features: ["Geolocation Integration", "Dynamic Weather Icons", "UV Index & Humidity Tracking", "5-Day Forecast View"],
-      techStack: ["React.js", "OpenWeather API", "Tailwind CSS", "Axios"],
-      result: "Mastered API integration, asynchronous programming, and conditional rendering based on external data inputs."
+      overview: "Comprehensive masterclass on building full-stack applications with MongoDB, Express, React, and Node.js.",
+      challenge: "Managing shared state across complex UI components while keeping the server response time under 100ms.",
+      solution: "Implemented Redux Toolkit for global state and optimized MongoDB aggregations for fast data retrieval.",
+      features: ["Real-time Data Sync", "Advanced JWT Auth", "Dynamic Dashboarding", "Cloud Deployment"],
+      techStack: ["React.js", "Node.js", "MongoDB", "Express", "JWT", "Redux"],
+      result: "Mastered end-to-end development of modern, highly interactive web platforms.",
+      stats: [
+        { label: "Performance", value: "98/100" },
+        { label: "Stability", value: "99.9%" }
+      ]
     }
   },
   {
     id: "02",
     title: "Enterprise Dashboard",
-    label: "Fullstack Architecture",
-    desc: "A comprehensive enterprise-grade dashboard for managing users, tracking analytics, and visualizing complex data sets.",
-    gradient: "from-sky-500/10 to-transparent",
-    icon: SiNextdotjs,
-    techIcons: [SiNextdotjs, SiTypescript, SiPrisma],
-    accentColor: "text-sky-500",
-    borderColor: "group-hover:border-sky-500/30",
+    label: "Enterprise Computing",
+    domain: "Java Fullstack Development",
+    desc: "Architect robust mission-critical systems & microservices using Java and modern frontend frameworks.",
+    gradient: "from-blue-600/20 to-transparent",
+    icon: SiPostgresql,
+    techIcons: [SiPostgresql, SiNextdotjs],
+    cardTech: ["Spring Boot Core", "Microservices Arch", "PostgreSQL Engine"],
+    accentColor: "text-blue-500",
+    borderColor: "group-hover:border-blue-500/50",
+    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1200",
     modalContent: {
-      overview: "A complex data management system designed to handle large datasets and provide actionable insights through visual representation.",
-      features: ["Interactive Data Charts", "User Role Management", "Light/Dark Mode Support", "Custom Analytics Widgets"],
-      techStack: ["Next.js", "Recharts", "Prisma ORM", "TypeScript"],
-      result: "Learned complex state management, database schema design, and enterprise-level UI/UX principles."
+      overview: "Advanced training in building secure, distributed enterprise systems with Spring Boot and Java.",
+      challenge: "Coordinating data consistency across multiple microservices in a high-concurrency environment.",
+      solution: "Adopted SAGA patterns and Kafka messaging for reliable event-driven communication between services.",
+      features: ["SAGA Patterns", "Kafka Messaging", "Role-Based RBAC", "Optimized Querying"],
+      techStack: ["Java", "Spring Boot", "Hibernate", "React", "PostgreSQL", "Docker"],
+      result: "Acquired the skills to lead large-scale backend engineering for financial and corporate tech.",
+      stats: [
+        { label: "Scale", value: "10k+ Req/s" },
+        { label: "Security", value: "Enterprise" }
+      ]
     }
   },
   {
     id: "03",
     title: "Premium Portfolio",
-    label: "Motion & UI Design",
-    desc: "A high-performance personal brand showcase featuring glassmorphism design, smooth animations, and optimized SEO.",
-    gradient: "from-emerald-500/10 to-transparent",
-    icon: SiFramer,
-    techIcons: [SiNextdotjs, SiFramer],
-    accentColor: "text-emerald-500",
-    borderColor: "group-hover:border-emerald-500/30",
+    label: "Rapid Innovation",
+    domain: "Python Fullstack Development",
+    desc: "Harness the power of Python to develop sophisticated web backends and data-driven frontend experiences.",
+    gradient: "from-yellow-400/20 to-transparent",
+    icon: SiPython,
+    techIcons: [SiPython, SiTailwindcss],
+    cardTech: ["Django & Flask Hub", "Python Automation", "RESTful API Flow"],
+    accentColor: "text-yellow-500",
+    borderColor: "group-hover:border-yellow-500/50",
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200",
     modalContent: {
-      overview: "A premium personal portfolio for developers to showcase their skills, projects, and professional journey with a focus on web performance.",
-      features: ["Framer Motion Animations", "Responsive Grid Layout", "Optimized Asset Loading", "Contact Form Integration"],
-      techStack: ["Next.js", "Framer Motion", "Three.js", "Resend API"],
-      result: "Mastered high-end animations, performance optimization (Lighthouse 90+), and personal brand storytelling."
+      overview: "Deep dive into web development using Django and Flask, combined with modern JavaScript tools.",
+      challenge: "Building a flexible CMS that handles dynamic schema changes without database migrations.",
+      solution: "Utilized Django's polymorphic models and NoSQL integration for high flexibility.",
+      features: ["Polymorphic Models", "NoSQL Integration", "Automated Pipelines", "ML Pre-processing"],
+      techStack: ["Python", "Django", "JavaScript", "PostgreSQL", "Redis"],
+      result: "Built multiple high-traffic applications with clean, maintainable Pythonic code.",
+      stats: [
+        { label: "Build Time", value: "-40%" },
+        { label: "Efficiency", value: "High" }
+      ]
     }
   },
   {
     id: "04",
     title: "Inventory SaaS",
-    label: "Backend Scalability",
-    desc: "A full-stack CRUD application for business logistics, featuring real-time stock alerts and secure database management.",
-    gradient: "from-blue-500/10 to-transparent",
+    label: "Backend Architecture",
+    domain: "Python Fullstack Development",
+    desc: "Master the algorithms behind machine learning, predictive modeling, and AI-driven automation.",
+    gradient: "from-blue-500/20 to-transparent",
     icon: SiNodedotjs,
     techIcons: [SiNodedotjs, SiMongodb],
+    cardTech: ["Node.js Backend", "MongoDB Schema", "JWT Security"],
     accentColor: "text-blue-500",
-    borderColor: "group-hover:border-blue-500/30",
+    borderColor: "group-hover:border-blue-500/50",
+    image: "https://images.unsplash.com/photo-1586769852044-692d6e3703a0?auto=format&fit=crop&q=80&w=1200",
     modalContent: {
-      overview: "A robust backend-driven system that allows businesses to track inventory levels, sales, and supply chains in real-time.",
-      features: ["Real-time Stock Tracking", "PDF Invoice Generation", "Authentication System", "Inventory Search & Filter"],
-      techStack: ["Node.js", "Express", "MongoDB", "JWT Auth"],
-      result: "Deep understanding of RESTful API architecture, JWT authentication, and NoSQL database management."
+      overview: "A robust inventory management system designed for small to medium logistics operations.",
+      challenge: "Processing massive real-time datasets and achieving model accuracy above 90% for inventory tasks.",
+      solution: "Optimized data processing using asynchronous workers and indexed database queries.",
+      features: ["Batch Management", "Real-time Tracking", "Low Stock Alerts", "Invoicing Engine"],
+      techStack: ["Node.js", "Express", "MongoDB", "Tailwind"],
+      result: "Developed production-ready management systems capable of handling enterprise-scale logistics.",
+      stats: [
+        { label: "Uptime", value: "100%" },
+        { label: "Response", value: "<50ms" }
+      ]
     }
   },
   {
     id: "05",
     title: "Predictive Analytics",
-    label: "Data Engineering",
-    desc: "A specialized data processing engine that transforms raw CSV data into interactive visual reports with predictive insights.",
-    gradient: "from-indigo-500/10 to-transparent",
+    label: "Intelligent Systems",
+    domain: "Data Science & AI",
+    desc: "Master the algorithms behind machine learning, predictive modeling, and AI-driven automation.",
+    gradient: "from-purple-500/20 to-transparent",
     icon: SiPython,
-    techIcons: [SiPython, SiReact],
-    accentColor: "text-indigo-500",
-    borderColor: "group-hover:border-indigo-500/30",
+    techIcons: [SiPython, SiNodedotjs],
+    cardTech: ["PyTorch & TensorFlow", "Pandas & Numpy", "Predictive ML Tech"],
+    accentColor: "text-purple-500",
+    borderColor: "group-hover:border-purple-500/50",
+    image: "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?auto=format&fit=crop&q=80&w=1200",
     modalContent: {
-      overview: "A data-science focused web tool that processes large CSV/JSON files to generate statistical insights and predictions.",
-      features: ["CSV Bulk Upload", "Trend Prediction Graphs", "Exportable Data Reports", "Custom Filter Engine"],
-      techStack: ["Python", "Pandas", "React", "Chart.js"],
-      result: "Learned data cleaning, statistical modeling, and bridge communication between Python backends and React frontends."
+      overview: "Focus on statistical modeling, neural networks, and deploying models to production environments.",
+      challenge: "Processing massive real-time datasets and achieving model accuracy above 90% for predictive tasks.",
+      solution: "Optimized model training using GPU acceleration and ensemble learning techniques.",
+      features: ["Neural Networks", "NLP Processing", "Big Data Cleaning", "Model Versioning"],
+      techStack: ["Python", "TensorFlow", "PyTorch", "Scikit-Learn", "FastAPI"],
+      result: "Developed production-ready models capable of handling enterprise-scale data analysis.",
+      stats: [
+        { label: "Accuracy", value: "94.2%" },
+        { label: "Data Cap", value: "1TB+" }
+      ]
     }
   },
   {
     id: "06",
-    title: "EMS Institution Platform",
-    label: "Relational Systems",
-    desc: "A scalable Education Management System for tracking student performance, attendance, and assignment submissions.",
-    gradient: "from-purple-500/10 to-transparent",
-    icon: SiPostgresql,
-    techIcons: [SiNextdotjs, SiPostgresql],
-    accentColor: "text-purple-500",
-    borderColor: "group-hover:border-purple-500/30",
+    title: "EMS Institution",
+    label: "Industrial Infrastructure",
+    domain: "Embedded Systems",
+    desc: "Develop low-level software that bridges hardware and code, powering next-gen smart devices and IoT.",
+    gradient: "from-teal-500/20 to-transparent",
+    icon: Cpu,
+    techIcons: [Cpu, Zap],
+    cardTech: ["Arduino / ESP32 Core", "C++ / Embedded C", "MQTT & IoT Protocols"],
+    accentColor: "text-teal-500",
+    borderColor: "group-hover:border-teal-500/50",
+    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1200",
     modalContent: {
-      overview: "A multi-role platform for students, teachers, and admins to manage the entire lifecycle of an educational institution.",
-      features: ["Attendance Tracker", "Assignment Submission Portal", "Grade Management", "Event Messaging"],
-      techStack: ["PostgreSQL", "React", "NestJS", "Docker"],
-      result: "Mastered relational database design, complex role-based access control (RBAC), and containerization."
+      overview: "An institution management system designed for high-performance and scalability.",
+      challenge: "Synthesizing contradictory data sources into a single, unified executive dashboard.",
+      solution: "Built robust ETL pipelines and used advanced DAX patterns for dynamic visualization.",
+      features: ["Attendance Suite", "Grade Portal", "RBAC System", "Event Timeline"],
+      techStack: ["PostgreSQL", "React", "NestJS", "Tailwind"],
+      result: "Enabled data-driven decision making for industrial partners through automated management tools.",
+      stats: [
+        { label: "Latency", value: "Real-time" },
+        { label: "Uptime", value: "99.9%" }
+      ]
     }
   },
-];
-
-export default function StudentProjects() {
+]; export default function StudentProjects() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
+  const containerVars = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1, delayChildren: 0.2 },
+    },
+  } as const;
+
+  const itemVars = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+  } as const;
+
   return (
-    <Section className="bg-white dark:bg-zinc-950 transition-colors overflow-hidden py-16 sm:py-24 relative">
-      <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-emerald-500/5 blur-[120px] rounded-full hidden dark:block" />
-      <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] bg-sky-500/5 blur-[120px] rounded-full hidden dark:block" />
-      
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <div className="text-center mb-24">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 text-xs font-bold uppercase tracking-widest mb-6"
-          >
-            What Students Build Here
-          </motion.div>
-          
-          <h2 className="text-5xl md:text-6xl font-black mb-8 tracking-tight text-zinc-900 dark:text-white leading-[1] max-w-4xl mx-auto">
-            Project-first learning that <br className="hidden md:block" />
-            makes <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-emerald-400">students stand out.</span>
-          </h2>
-        </div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {studentProjects.map((project, index) => {
-            const Icon = project.icon;
-            return (
-              <motion.div
-                key={project.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
-                className="group relative"
-                onClick={() => setSelectedProject(project)}
-              >
-                <div 
-                  className={cn(
-                    "relative flex flex-col h-full p-6 rounded-[2rem] bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-700 transition-all duration-500 cursor-pointer overflow-hidden",
-                    project.borderColor
-                  )}
-                >
-                  <div className={cn(
-                    "absolute top-0 left-0 w-full h-[300px] bg-gradient-to-b opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none",
-                    project.gradient
-                  )} />
-                  
-                  <div className="relative z-10 flex flex-col h-full">
-                    <div className="flex justify-between items-start mb-6">
-                      <div className={cn("p-4 rounded-2xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 group-hover:scale-110 transition-transform shadow-sm", project.accentColor)}>
-                        <Icon className="w-6 h-6" />
-                      </div>
-                      <div className="text-xs font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.2em]">{project.id}</div>
-                    </div>
-
-                    <div className="mb-2">
-                       <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
-                         {project.label}
-                       </span>
-                    </div>
-
-                    <h3 className="text-2xl font-bold mb-4 text-zinc-900 dark:text-white group-hover:text-emerald-500 transition-colors uppercase tracking-tight">
-                      {project.title}
-                    </h3>
-                    
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium mb-6 flex-grow">
-                      {project.desc}
-                    </p>
-
-                    <div className="flex items-center justify-between pt-6 border-t border-zinc-200 dark:border-zinc-800 mt-auto">
-                      <div className="flex gap-2">
-                        {project.techIcons.map((Tech, i) => (
-                           <Tech key={i} className="w-4 h-4 text-zinc-400 dark:text-zinc-600" />
-                        ))}
-                      </div>
-                      <div className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-200 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-[10px] font-black uppercase tracking-widest group-hover:bg-gradient-to-r group-hover:from-emerald-600 group-hover:to-emerald-400 group-hover:text-white transition-all shadow-sm">
-                        Case Study <MoveUpRight className="w-3 h-3" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-{/* 
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.6 }}
-          className="flex justify-center mt-20 relative z-20"
-        >
-          <motion.a 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            href="/programs" 
-            className="inline-flex items-center gap-3 px-10 py-5 rounded-full bg-gradient-to-r from-emerald-600 to-emerald-400 text-white font-black text-xl hover:shadow-[0_10px_40px_rgba(16,185,129,0.3)] transition-all cursor-pointer group"
-          >
-            Explore Our Programs 
-            <motion.div
-              animate={{ x: [0, 5, 0] }}
-              transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-            >
-              <MoveUpRight className="w-5 h-5" />
-            </motion.div>
-          </motion.a>
-        </motion.div> */}
+    <Section className="bg-zinc-50 dark:bg-zinc-950 py-24 transition-colors overflow-hidden relative">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-emerald-500/5 blur-[120px] rounded-full" />
       </div>
 
-      {/* Project Detail Modal */}
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        {/* Header - Centered Style */}
+        <div className="flex flex-col items-center text-center mb-16">
+          <div className="flex flex-col items-center gap-6">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-4"
+            >
+              {/* <Terminal className="h-3.5 w-3.5" /> */}
+              Build Showcase
+            </motion.div>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-zinc-900 dark:text-zinc-100 leading-[1.1]"
+            >
+              Industrial <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-400 to-sky-500">Benchmarks.</span>
+            </motion.h2>
+          </div>
+          <div className="max-w-2xl mt-6">
+            <p className="text-sm md:text-base text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium">
+              Explore production-ready systems engineered with modern
+              microservices and cloud-native patterns.
+            </p>
+          </div>
+        </div>
+
+        {/* 3-Column Grid */}
+        <motion.div
+          variants={containerVars}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
+          {studentProjects.slice(0, 3).map((project) => (
+            <motion.div
+              key={project.id}
+              variants={itemVars}
+              whileHover={{ y: -5 }}
+              className="group cursor-pointer"
+              onClick={() => setSelectedProject(project)}
+            >
+              <Card className="h-full border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 rounded-2xl overflow-hidden p-0 transition-all duration-300 hover:border-emerald-500/50 hover:shadow-2xl hover:shadow-emerald-500/5">
+
+                {/* Visual Area */}
+                <div className="relative h-48 overflow-hidden">
+                  <img
+                    src={project.image}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    alt=""
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
+
+                  {/* Floating Icons */}
+                  <div className="absolute top-4 left-4 flex gap-1.5">
+                    {project.techIcons.map((Icon, i) => (
+                      <div key={i} className="h-8 w-8 rounded-lg bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/80">
+                        <Icon size={14} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Content Area */}
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
+                      {project.domain.split(' ')[0]} / {project.id}
+                    </span>
+                    <Layers size={14} className="text-zinc-300" />
+                  </div>
+
+                  <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight mb-2 group-hover:text-emerald-500 transition-colors">
+                    {project.title}
+                  </h3>
+
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed line-clamp-2 font-medium mb-6">
+                    {project.desc}
+                  </p>
+
+                  <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
+                    <div className="flex gap-2">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 mt-1.5" />
+                      <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-tighter">Production Ready</span>
+                    </div>
+                    <ArrowUpRight size={16} className="text-zinc-300 group-hover:text-emerald-500 transition-all" />
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+
+      {/* Case Study Modal */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-zinc-950/90 backdrop-blur-md"
             onClick={() => setSelectedProject(null)}
           >
             <motion.div
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="relative w-full max-w-4xl max-h-[85vh] overflow-hidden rounded-3xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 flex flex-col md:flex-row shadow-2xl"
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-[3rem] bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-2xl p-8 md:p-12 hide-scrollbar"
             >
-              <button
-                onClick={() => setSelectedProject(null)}
-                className="absolute top-8 right-8 w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white flex items-center justify-center transition-colors shadow-none"
-              >
-                <X className="w-5 h-5" />
-              </button>
-
-              <div className="flex items-center gap-5 mb-10">
-                <div className={cn("p-5 rounded-3xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-inner", selectedProject.accentColor)}>
-                  <selectedProject.icon className="w-10 h-10" />
-                </div>
-                <div>
-                  <div className="text-[10px] font-black text-orange-500 uppercase tracking-[0.3em] mb-1">
-                    Student Case Study {selectedProject.id}
+              <div className="md:w-5/12 relative hidden md:block bg-zinc-900">
+                <img src={selectedProject.image} className="w-full h-full object-cover" alt="" />
+                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 to-transparent" />
+                <div className="absolute bottom-8 left-8 right-8">
+                  <div className="grid grid-cols-2 gap-4">
+                    {selectedProject.modalContent.stats.map((s, i) => (
+                      <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                        <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-1">{s.label}</p>
+                        <p className="text-xl font-bold text-white">{s.value}</p>
+                      </div>
+                    ))}
                   </div>
-                  <h3 className="text-3xl md:text-4xl font-black text-zinc-900 dark:text-white tracking-tight leading-none uppercase">
-                    {selectedProject.title}
-                  </h3>
                 </div>
               </div>
 
-              <div className="space-y-12">
-                <div>
-                  <h4 className="text-sm font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                    <span className="w-8 h-[1px] bg-orange-500" /> Executive Overview
-                  </h4>
-                  <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed text-lg font-medium">
-                    {selectedProject.modalContent.overview}
-                  </p>
+              <div className="md:w-7/12 p-10 md:p-14 overflow-y-auto">
+                <div className="flex justify-between items-start mb-8">
+                  <div>
+                    <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-[0.2em] mb-2">Technical Analysis</p>
+                    <h3 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white uppercase leading-none">
+                      {selectedProject.title}
+                    </h3>
+                  </div>
+                  <button onClick={() => setSelectedProject(null)} className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors">
+                    <X size={20} />
+                  </button>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-12">
-                  <div>
-                    <h4 className="text-sm font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-6 flex items-center gap-2">
-                      <span className="w-8 h-[1px] bg-emerald-500" /> Key Features
-                    </h4>
-                    <ul className="space-y-4">
-                      {selectedProject.modalContent.features.map((feature, i) => (
-                        <li key={i} className="flex items-start gap-3 text-zinc-600 dark:text-zinc-300 font-bold text-sm">
-                          <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
+                <div className="space-y-10">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                      <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2"><Shield size={14} /> Challenge</h4>
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{selectedProject.modalContent.challenge}</p>
+                    </div>
+                    <div className="space-y-3">
+                      <h4 className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] flex items-center gap-2"><Zap size={14} /> Solution</h4>
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{selectedProject.modalContent.solution}</p>
+                    </div>
                   </div>
 
-                  <div>
-                    <h4 className="text-sm font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-6 flex items-center gap-2">
-                      <span className="w-8 h-[1px] bg-blue-500" /> Stack
-                    </h4>
+                  <div className="space-y-4">
+                    <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">Primary Stack</h4>
                     <div className="flex flex-wrap gap-2">
-                      {selectedProject.modalContent.techStack.map((tech, i) => (
-                        <span key={i} className="px-4 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs font-black uppercase tracking-tighter">
-                          {tech}
+                      {selectedProject.modalContent.techStack.map((t, i) => (
+                        <span key={i} className="px-3 py-1 rounded bg-zinc-100 dark:bg-zinc-800 text-[10px] font-bold text-zinc-500 uppercase tracking-widest border border-zinc-200/50 dark:border-zinc-700/50">
+                          {t}
                         </span>
                       ))}
                     </div>
                   </div>
-                </div>
-
-                <div className="p-8 rounded-[2.5rem] bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 relative overflow-hidden group/result">
-                   <div className="absolute -top-10 -right-10 w-40 h-40 bg-orange-500/5 blur-3xl rounded-full" />
-                  <h4 className="text-sm font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-widest mb-4 flex items-center gap-2">
-                    <Rocket className="w-5 h-5 text-orange-500" />
-                    Industrial Impact
-                  </h4>
-                  <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed font-bold text-lg">
-                    {selectedProject.modalContent.result}
-                  </p>
                 </div>
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-
-      <style jsx global>{`
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
     </Section>
   );
 }

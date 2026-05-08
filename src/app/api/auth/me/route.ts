@@ -7,14 +7,26 @@ export async function GET() {
   const token = cookieStore.get("token")?.value;
 
   if (!token) {
-    return NextResponse.json({ authenticated: false }, { status: 401 });
+    return NextResponse.json({ authenticated: false, user: null }, { status: 401 });
   }
 
   try {
     const SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
-    await jwtVerify(token, SECRET);
-    return NextResponse.json({ authenticated: true });
+    
+    // 1. Verify and Extract the payload from the JWT
+    const { payload } = await jwtVerify(token, SECRET);
+
+    // 2. Return the user data (including the role) to the Navbar
+    return NextResponse.json({ 
+      authenticated: true, 
+      user: {
+        id: payload.id,
+        email: payload.email,
+        role: payload.role // This is what triggers your Admin button
+      } 
+    });
   } catch (err) {
-    return NextResponse.json({ authenticated: false }, { status: 401 });
+    console.error("JWT Verification failed:", err);
+    return NextResponse.json({ authenticated: false, user: null }, { status: 401 });
   }
 }

@@ -112,7 +112,7 @@ export default function InternshipProcess() {
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.1 }}
-        className="text-lg text-zinc-600 dark:text-zinc-400 w-full mb-16 max-w-2xl mx-auto text-center"
+        className="text-lg text-zinc-600 dark:text-zinc-400 w-full mb-12 max-w-2xl mx-auto text-center"
       >
         The content makes students feel that they are joining a structured career-focused system, not just another ordinary class.
       </motion.p>
@@ -131,10 +131,10 @@ export default function InternshipProcess() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1, duration: 0.5 }}
             >
-              <Card 
-                variant="glass" 
-                hover="lift" 
-                className="group relative flex flex-col items-center text-center h-full border-zinc-200/50 dark:border-zinc-800/50 p-6 sm:p-8 overflow-hidden"
+              <Card
+                variant="glass"
+                hover="lift"
+                className="group relative flex flex-col items-center text-center h-full border-zinc-200/50 dark:border-zinc-800/50 p-5 sm:p-6 overflow-hidden"
               >
                 {/* Step Number */}
                 <div className="absolute top-4 right-6 text-2xl font-black text-zinc-100 dark:text-zinc-900 transition-colors group-hover:text-orange-500/10">
@@ -143,13 +143,13 @@ export default function InternshipProcess() {
 
                 {/* Icon Container - Smaller */}
                 <div className={cn(
-                  "relative w-14 h-14 flex items-center justify-center rounded-2xl transition-transform duration-500 group-hover:rotate-12",
+                  "relative w-12 h-12 flex items-center justify-center rounded-2xl transition-transform duration-500 group-hover:rotate-12",
                   step.color,
                   "text-white mb-6",
                   step.shadow,
                   "shadow-lg"
                 )}>
-                  <Icon className="h-7 w-7" />
+                  <Icon className="h-6 w-6" />
                 </div>
 
                 <h3 className={cn(
@@ -173,16 +173,14 @@ export default function InternshipProcess() {
           );
         })}
       </div>
-      
+
       {/* CTA Footer for this section */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         className="mt-10 text-center"
       >
-        {/* <p className="text-zinc-500 dark:text-zinc-500 font-medium italic">
-          Join over 5,000+ students who have completed this journey.
-        </p> */}
+    
       </motion.div>
     </Section>
   );

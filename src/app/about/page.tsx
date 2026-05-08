@@ -108,7 +108,7 @@ export default function AboutPage() {
         lineBorder: "border-rose-500/40",
         hoverBorder: "hover:border-rose-500/50",
         groupHoverBorder: "group-hover:border-rose-500/30",
-        groupHoverShadow: "group-hover:shadow-[0_0_20_px_rgba(244,63,94,0.15)]",
+        groupHoverShadow: "group-hover:shadow-[0_0_20px_rgba(244,63,94,0.15)]",
         textColor: "text-rose-600 dark:text-rose-400",
         groupHoverText: "group-hover:text-rose-600 dark:group-hover:text-rose-400",
         hoverGlow: "from-rose-500/5",
@@ -137,51 +137,73 @@ export default function AboutPage() {
   return (
     <div className="bg-white dark:bg-zinc-950 min-h-screen">
       
-      {/* ─── RESTORED OLD HERO SECTION ─── */}
-      <section 
-        className="relative pt-32 pb-40 md:pt-20 md:pb-56 flex items-center justify-center overflow-hidden bg-fixed bg-center bg-cover"
-        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=2000')" }}
-      >
-        <div className="max-w-4xl mx-auto text-center relative z-10 px-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-8 backdrop-blur-md"
-          >
-            Our Mission
-          </motion.div>
-          
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-zinc-900 dark:text-white mb-8 drop-shadow-[0_0_20px_rgba(255,255,255,0.7)] dark:drop-shadow-xl"
-          >
-            The Gold Standard in <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-400 to-sky-500">Software Training</span>
-          </motion.h1>
-          
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-xl md:text-2xl text-zinc-700 dark:text-zinc-300 leading-relaxed max-w-3xl mx-auto font-bold"
-          >
-            Empower your career with Chennai's premier software training edtech company. 
-            Join 5000+ professionals who transformed their future with Inetz Technologies.
-          </motion.p>
+      {/* ─── HERO SECTION - REDUCED TOP PADDING ─── */}
+      <section className="relative pt-8 pb-16 md:pt-12 md:pb-24 bg-white dark:bg-zinc-950 overflow-hidden">
+        <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16">
+          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+            
+            <div className="w-full lg:w-1/2 space-y-8">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="space-y-6"
+              >
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-zinc-900 dark:text-white leading-[1.15]">
+                  The Gold Standard in  
+                  <span className="text-emerald-600 dark:text-emerald-500"> Software Training</span>
+                </h1>
+                
+                <p className="text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-xl">
+                  Empower your career with Chennai's premier software training edtech company. 
+                  We provide industry-aligned curriculum designed to transform your professional future 
+                  and bridge the skills gap in today's tech landscape.
+                </p>
+
+                <div className="flex flex-wrap gap-4 pt-4">
+                  <button className="px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-emerald-600/20 active:scale-95">
+                    Explore Programs
+                  </button>
+                  <button className="px-8 py-4 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white rounded-xl font-bold hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all">
+                    Learn More
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.98 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.7 }}
+              viewport={{ once: true }}
+              className="w-full lg:w-1/2"
+            >
+              <div className="relative group">
+                <div className="absolute inset-0 bg-emerald-500/5 blur-[100px] rounded-full -z-10" />
+                <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden shadow-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100">
+                  <img 
+                    src="/about.jpeg" 
+                    alt="Professional Software Training" 
+                    className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.03]"
+                  />
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* ─── NEW PROFESSIONAL STATS OVERLAP ─── */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-20 -mt-24 mb-32">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-8 md:p-10 rounded-[2.5rem] bg-white/75 dark:bg-zinc-900/80 backdrop-blur-xl border border-white/50 dark:border-zinc-800 shadow-[0_20px_50px_rgba(0,0,0,0.06)] overflow-hidden relative">
+      {/* ─── STATS OVERLAP - ADJUSTED MARGIN ─── */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-20">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-8 md:p-10 rounded-[2.5rem] bg-white/75 dark:bg-zinc-900/80 backdrop-blur-xl border border-white/50 dark:border-zinc-800 shadow-[0_20px_50px_rgba(0,0,0,0.06)] overflow-hidden">
           {[
             { label: "Students Placed", val: 500, suffix: "+" },
             { label: "Successful Alumni", val: 5000, suffix: "+" },
             { label: "Project Focus", val: 100, suffix: "%" },
             { label: "Trust Score", val: 4.9, suffix: "/5" }
           ].map((stat, i) => (
-            <div key={i} className="text-center p-4 relative z-10 hover:scale-105 transition-transform">
+            <div key={i} className="text-center p-4 hover:scale-105 transition-transform">
               <div className="text-3xl font-bold text-orange-500 mb-2">
                 <Counter to={stat.val} />{stat.suffix}
               </div>
@@ -191,7 +213,7 @@ export default function AboutPage() {
         </div>
       </div>
 
-      {/* ─── THE STORY SECTION (STAYS) ─── */}
+      {/* ─── THE STORY SECTION ─── */}
       <Section className="py-24 bg-white dark:bg-[#09090b]">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-20 items-center">
@@ -204,7 +226,7 @@ export default function AboutPage() {
               <div className="absolute -top-10 -left-10 w-40 h-40 bg-emerald-500/10 blur-[60px] rounded-full" />
               <div className="relative rounded-[2.5rem] overflow-hidden border border-zinc-200 dark:border-zinc-800 aspect-square lg:aspect-[4/5] group">
                 <img 
-                  src="/office.jpg" 
+                  src="/office.png" 
                   alt="Inetz Technologies HQ" 
                   className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105"
                 />
@@ -244,7 +266,6 @@ export default function AboutPage() {
       {/* ─── THE METHODOLOGY SECTION ─── */}
       <Section className="py-24 bg-white dark:bg-[#09090b] relative overflow-hidden">
         <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none" />
-        
         <div className="max-w-7xl mx-auto px-6 relative z-10 text-center mb-20">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-6">
             The Inetz Way
@@ -260,26 +281,10 @@ export default function AboutPage() {
 
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {[
-            {
-              title: "Architecture First",
-              desc: "Learn to design scalable systems and data models before writing a single line of code.",
-              icon: Layers
-            },
-            {
-              title: "Task-Driven Learning",
-              desc: "Every concept is taught through a real-world task derived from actual industry scenarios.",
-              icon: Target
-            },
-            {
-              title: "Elite Code Review",
-              desc: "Your code is reviewed by senior engineers to ensure it meets production-level standards.",
-              icon: Code2
-            },
-            {
-              title: "Cloud & Deployment",
-              desc: "Go beyond 'localhost'. Learn to ship, scale, and monitor applications in the real world.",
-              icon: Rocket
-            }
+            { title: "Architecture First", desc: "Learn to design scalable systems and data models before writing a single line of code.", icon: Layers },
+            { title: "Task-Driven Learning", desc: "Every concept is taught through a real-world task derived from actual industry scenarios.", icon: Target },
+            { title: "Elite Code Review", desc: "Your code is reviewed by senior engineers to ensure it meets production-level standards.", icon: Code2 },
+            { title: "Cloud & Deployment", desc: "Go beyond 'localhost'. Learn to ship, scale, and monitor applications in the real world.", icon: Rocket }
           ].map((m, i) => (
             <motion.div
               key={i}
@@ -299,22 +304,19 @@ export default function AboutPage() {
         </div>
       </Section>
 
-      {/* ─── RESTORED TIMELINE SECTION ─── */}
+      {/* ─── MASTER EVERY SKILL TIMELINE ─── */}
       <Section className="py-24 relative bg-zinc-50 dark:bg-zinc-950 overflow-hidden isolate">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[800px] bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none -z-10" />
-
         <div className="text-center mb-24 relative z-10">
           <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-zinc-900 dark:text-zinc-100 mb-6">Master Every Skill</h2>
-          <p className="text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto text-sm leading-6 font-medium uppercase tracking-widest">The gold standard in tech education and aspiring developer growth. Follow our proven blueprint.</p>
+          <p className="text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto text-sm leading-6 font-medium uppercase tracking-widest">The gold standard in tech education and aspiring developer growth.</p>
         </div>
         
         <div className="relative max-w-5xl mx-auto z-10 flex flex-col gap-16 md:gap-8">
           <div className="absolute left-6 md:left-1/2 top-0 bottom-0 w-[2px] bg-gradient-to-b from-transparent via-emerald-500/40 to-transparent md:-translate-x-1/2 pointer-events-none" />
-
           {features.map((feature, i) => {
             const isEven = i % 2 === 0;
             const t = feature.timelineConfig;
-
             return (
               <motion.div
                 key={i}
@@ -325,22 +327,17 @@ export default function AboutPage() {
                 className="relative flex flex-col md:flex-row md:items-center w-full min-h-[140px]"
               >
                 <div className={`absolute left-6 md:left-1/2 top-8 md:top-1/2 w-4 h-4 rounded-full bg-zinc-950 border-[2px] ${t.dotBorder} transform -translate-x-[7px] md:-translate-x-1/2 md:-translate-y-1/2 z-20 ${t.dotShadow}`} />
-                
                 {isEven ? (
                   <>
                     <div className="w-full md:w-[45%] pl-16 md:pl-0 z-10 box-border md:pr-6">
                       <div className={`group relative p-6 md:p-8 rounded-[2.5rem] bg-white dark:bg-zinc-950/80 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 shadow-xl ${t.hoverBorder} transition-all duration-300`}>
                         <div className={`absolute inset-0 bg-gradient-to-br ${t.hoverGlow} to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-[2.5rem] pointer-events-none`} />
                         <div className="flex items-start gap-5 relative z-10">
-                          <div className={`shrink-0 w-14 h-14 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center ${t.groupHoverBorder} ${t.groupHoverShadow} transition-all`}>
-                            <span className={`text-xl font-semibold tracking-tight ${t.textColor}`}>
-                              {(i + 1).toString().padStart(2, '0')}
-                            </span>
+                          <div className={`shrink-0 w-14 h-14 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center ${t.groupHoverBorder} transition-all`}>
+                            <span className={`text-xl font-semibold tracking-tight ${t.textColor}`}>{(i + 1).toString().padStart(2, '0')}</span>
                           </div>
                           <div className="flex flex-col gap-2 pt-1 text-left">
-                            <h4 className={`text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 ${t.groupHoverText} transition-colors`}>
-                              {feature.title}
-                            </h4>
+                            <h4 className={`text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 ${t.groupHoverText} transition-colors`}>{feature.title}</h4>
                             <p className="text-sm text-zinc-600 dark:text-zinc-500 leading-relaxed font-medium">{feature.desc}</p>
                           </div>
                         </div>
@@ -357,13 +354,11 @@ export default function AboutPage() {
                       <div className={`group relative p-6 md:p-8 rounded-[2.5rem] bg-white dark:bg-zinc-950/80 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 shadow-xl ${t.hoverBorder} transition-all duration-300`}>
                         <div className={`absolute inset-0 bg-gradient-to-br ${t.hoverGlow} to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-[2.5rem] pointer-events-none`} />
                         <div className="flex items-start gap-5 relative z-10">
-                          <div className={`shrink-0 w-14 h-14 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center ${t.groupHoverBorder} ${t.groupHoverShadow} transition-all`}>
+                          <div className={`shrink-0 w-14 h-14 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center ${t.groupHoverBorder} transition-all`}>
                             <feature.icon className={`w-6 h-6 ${t.textColor}`} />
                           </div>
                           <div className="flex flex-col gap-2 pt-1 text-left">
-                            <h4 className={`text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 ${t.groupHoverText} transition-colors`}>
-                              {feature.title}
-                            </h4>
+                            <h4 className={`text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 ${t.groupHoverText} transition-colors`}>{feature.title}</h4>
                             <p className="text-sm text-zinc-600 dark:text-zinc-500 leading-relaxed font-medium">{feature.desc}</p>
                           </div>
                         </div>
@@ -377,7 +372,7 @@ export default function AboutPage() {
         </div>
       </Section>
 
-      {/* ─── LEADERSHIP SECTION (STAYS) ─── */}
+      {/* ─── LEADERSHIP SECTION ─── */}
       <Section className="py-32 bg-white dark:bg-zinc-950">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-20">
@@ -386,19 +381,23 @@ export default function AboutPage() {
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              { name: "Aravind", role: "Founder & Lead Architect", exp: "10+ Years", img: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=800" },
-              { name: "Senthil Kumar", role: "Principal Backend Developer", exp: "12+ Years", img: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=800" },
-              { name: "Lakshmi Narayanan", role: "Fullstack Engineering Lead", exp: "8+ Years", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=800" }
+              { name: "Senthil Kumar", role: "Founder & CEO", exp: "10+ Years", img: "/senthilkumar.jpg"},
+              { name: "Vigneshwaran", role: "Industry Expert", exp: "5+ Years", img: "/vigneshwaran.jpg" },
+              { name: "Amal", role: "Java Full Stack Trainer", exp: "3+ Years", img: "/amal.jpeg" },
+              { name: "Preethi", role: "Front End Trainer", exp: "5+ Years", img: "/preethi.png" },
+              { name: "Aravind", role: "Mern Stack Trainer", exp: "3+ Years", img: "/aravindh.png" },
+              { name: "Boomika", role: "Java Full Stack Trainer", exp: "3+ Years", img: "/boomika.png" },
+              { name: "Sri", role: "Data Analytics Trainer", exp: "3+ Years", img: "/sridhanalakshmi.png" },
+              { name: "Anbu", role: "Project Developer", exp: "3+ Years", img: "/anbu.png" }
             ].map((member, i) => (
               <motion.div key={i} className="group relative">
                 <div className="aspect-[4/5] rounded-[2.5rem] overflow-hidden bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl relative">
-                  <img src={member.img} alt={member.name} className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-110" />
+                  <img src={member.img} alt={member.name} className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80" />
                   <div className="absolute bottom-8 left-8 right-8">
-                    <div className="text-orange-400 font-bold text-[10px] tracking-widest mb-2 px-2 py-1 rounded bg-orange-500/10 border border-orange-500/20 w-fit">{member.exp} EXP</div>
-                    <h3 className="text-white text-3xl font-bold mb-1">{member.name}</h3>
+                    <h3 className="text-white text-2xl font-bold mb-1">{member.name}</h3>
                     <p className="text-zinc-300 font-medium">{member.role}</p>
                   </div>
                 </div>
@@ -424,7 +423,6 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
-
     </div>
   );
 }

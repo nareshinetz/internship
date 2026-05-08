@@ -1,24 +1,80 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { TechStack, catalogItems } from "@/lib/program-data";
 import CourseCard from "@/components/programs/courseCard";
 import InternshipPrograms from "@/components/programs/programDetails";
-import { Sparkles, ArrowLeft } from "lucide-react"; 
-import Image from "next/image"; 
-import backgroundAsset from "../../../public/programs.png"; 
+import { STACK_MAPPING, BRAND_DATA, getIconClass } from "@/lib/Tech-utils";
+import { Terminal, Loader2 } from "lucide-react";
+
+// ─── Moved outside component: stable reference, never changes ───────────────
+const ALL_SKILLS = Array.from(new Set(Object.values(STACK_MAPPING).flat()));
+// Pre-double the array so the ticker JSX doesn't allocate a new array on each render
+const TICKER_SKILLS = [...ALL_SKILLS, ...ALL_SKILLS];
 
 const ProgramsMainPage = () => {
-  const [selectedStack, setSelectedStack] = useState<TechStack | null>(null);
+  const [selectedStack, setSelectedStack] = useState<string | null>(null);
+  const [courses, setCourses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Scroll to top when switching views
+  // ─── Stable callbacks ──────────────────────────────────────────────────────
+  const handleSelect = useCallback((stack: string) => setSelectedStack(stack), []);
+
+  const handleBack = useCallback(() => setSelectedStack(null), []);
+
+  // ─── Fetch with AbortController to avoid state updates after unmount ───────
   useEffect(() => {
-    window.scrollTo(0, 0);
+    const controller = new AbortController();
+
+    const fetchCatalog = async () => {
+      try {
+        const res = await fetch("/api/programs/list", {
+          signal: controller.signal,
+        });
+        const data = await res.json();
+
+        /**
+         * LOGIC: If the DB has multiple durations for one course,
+         * we only show one unique card in the catalog.
+         */
+        const uniqueCatalog = data.reduce((acc: any[], current: any) => {
+          const exists = acc.find((item) => item.title === current.title);
+          if (!exists) return acc.concat([current]);
+          return acc;
+        }, []);
+
+        setCourses(uniqueCatalog);
+      } catch (err) {
+        // Ignore AbortError — it's intentional on cleanup
+        if (err instanceof Error && err.name !== "AbortError") {
+          console.error("Failed to load catalog data");
+        }
+      } finally {
+        // Only update loading state if the fetch wasn't aborted
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchCatalog();
+
+    return () => controller.abort();
+  }, []);
+
+  // ─── Scroll to top when stack selection changes ────────────────────────────
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [selectedStack]);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-zinc-950">
+    <div className="min-h-screen bg-[#fcfdfd] text-[#1a1a1a] antialiased">
+      {/* BACKGROUND ACCENT SHAPES */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-[10%] -right-[5%] w-[500px] h-[500px] bg-emerald-100/40 rounded-full blur-[120px]" />
+        <div className="absolute top-[20%] -left-[5%] w-[400px] h-[400px] bg-blue-50/40 rounded-full blur-[100px]" />
+      </div>
+
       <AnimatePresence mode="wait">
         {!selectedStack ? (
           <motion.div
@@ -26,115 +82,142 @@ const ProgramsMainPage = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-            // Balanced top padding
-            className="max-w-7xl mx-auto px-6"
+            className="relative z-10 max-w-6xl mx-auto px-6"
           >
-            {/* --- Seamless Professional Header --- */}
-            <div className="relative w-full overflow-hidden mb-10 lg:mb-16">
-              {/* 1. Background Image Layer */}
-              <div className="absolute inset-0 z-0">
-                <motion.div
-                  initial={{ scale: 1.05, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }} // 30% Opacity for professional depth
-                  transition={{ duration: 1.2 }}
-                  className="w-full h-full"
-                >
-                  <Image
-                    src={backgroundAsset}
-                    alt="Programs Background"
-                    fill
-                    priority
-                    className="object-cover" 
-                  />
-                </motion.div>
-
-                {/* 2. Gradient Overlay for Text Readability */}
-                <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white to-white dark:from-zinc-950/60 dark:via-zinc-950 dark:to-zinc-950" />
+            {/* 1. TICKER NAV */}
+            <nav className="flex items-center justify-between py-5 border-b border-emerald-100 overflow-hidden">
+              <div className="flex items-center gap-2 shrink-0 pr-10 bg-[#fcfdfd]/80 backdrop-blur-sm z-10">
+                <div className="p-1.5 rounded-md bg-emerald-600">
+                  <Terminal size={14} className="text-white" />
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-900">
+                  Protocol.26
+                </span>
               </div>
 
-              {/* 3. Content Layer */}
-              <div className="relative z-10 text-center max-w-4xl mx-auto pt-10 pb-6 lg:pt-16 lg:pb-10 px-6">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-[0.2em] mb-6"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  Industry Ready Internships
-                </motion.div>
-
-                <h1 className="text-5xl md:text-7xl font-black text-zinc-900 dark:text-white tracking-tighter leading-[0.9] mb-6 uppercase">
-                  Elevate Your <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-emerald-400">
-                    Professional
-                  </span>{" "}
-                  Career
-                </h1>
-                {/* --- Typographic Quote (Minimalist) --- */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="max-w-lg mx-auto border-t border-zinc-100 dark:border-zinc-800 pt-8"
-                >
-                  <p className="text-sm md:text-base italic font-bold text-zinc-700 dark:text-zinc-300 leading-relaxed">
-                    "Stop searching for jobs—start building the skills they
-                    search for. Your first professional commit starts here."
-                  </p>
-                  <div className="mt-4 flex items-center justify-center gap-3">
-                    <div className="h-px w-8 bg-emerald-500/30" />
-                    <span className="text-[9px] font-black uppercase tracking-[0.3em] text-emerald-600 dark:text-emerald-500">
-                      Success Mindset
+              <motion.div
+                animate={{ x: [0, -1200] }}
+                transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
+                className="flex gap-10 whitespace-nowrap"
+              >
+                {TICKER_SKILLS.map((skill, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-2.5 group cursor-default"
+                  >
+                    <i
+                      className={`${getIconClass(skill)} text-sm transition-transform group-hover:scale-125`}
+                      style={{ color: BRAND_DATA[skill.toLowerCase()]?.color }}
+                    />
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-500 group-hover:text-emerald-600 transition-colors">
+                      {skill}
                     </span>
-                    <div className="h-px w-8 bg-emerald-500/30" />
                   </div>
-                </motion.div>
-              </div>
-            </div>
+                ))}
+              </motion.div>
+            </nav>
 
-            {/* --- Programs Grid --- */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
-              {catalogItems.map((item, index) => (
-                <motion.div
-                  key={item.stack}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <CourseCard
-                    {...item}
-                    onSelect={(stack) => setSelectedStack(stack)}
-                  />
-                </motion.div>
-              ))}
+            {/* 2. HERO SECTION */}
+            <header className="grid grid-cols-1 lg:grid-cols-12 gap-12 pt-10 pb-14 items-center">
+              <div className="lg:col-span-6 space-y-5">
+                {/* Main Header */}
+                <div className="space-y-1">
+                  <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-zinc-900 leading-none">
+                    Master Modern <br />
+                    <span className="text-blue-600">Engineering.</span>
+                  </h1>
+                  <p className="text-base md:text-lg text-zinc-500 font-medium tracking-tight">
+                    Professional training for real-world systems.
+                  </p>
+                </div>
+
+                {/* Description */}
+                <p className="text-sm md:text-base text-zinc-600 max-w-sm leading-relaxed">
+                  Go beyond basic code. Learn to build, scale, and manage
+                  production apps with help from industry experts.
+                </p>
+
+                {/* Small Details */}
+                <div className="flex gap-6 pt-2 border-t border-zinc-100">
+                  <div>
+                    <p className="text-[9px] font-black uppercase text-zinc-400">
+                      Level
+                    </p>
+                    <p className="text-xs font-bold text-zinc-800 uppercase">
+                      Industry Ready
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[9px] font-black uppercase text-zinc-400">
+                      Focus
+                    </p>
+                    <p className="text-xs font-bold text-zinc-800 uppercase">
+                      Architecture
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* HERO IMAGE COLUMN */}
+              <div className="lg:col-span-6">
+                <div className="relative p-2 rounded-[2rem] bg-gradient-to-br from-emerald-100 to-blue-50 border border-white shadow-xl">
+                  <div className="aspect-[16/11] rounded-[1.5rem] overflow-hidden bg-white relative group">
+                    <img
+                      src="/programs.png"
+                      alt="Advanced System Architecture"
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
+                    />
+                  </div>
+                </div>
+              </div>
+            </header>
+
+            {/* 3. TRACKS CATALOG GRID */}
+            <div id="catalog-grid" className="space-y-8 pb-20">
+              <div className="flex items-center gap-4">
+                <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-800 shrink-0 bg-emerald-50 px-3 py-1 rounded-md border border-emerald-100">
+                  Catalog.2026
+                </h2>
+                <div className="h-[1px] w-full bg-gradient-to-r from-emerald-100 to-transparent" />
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+                {loading ? (
+                  <div className="col-span-full py-20 flex flex-col items-center justify-center gap-4 text-zinc-400">
+                    <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">
+                      Synchronizing Catalog...
+                    </span>
+                  </div>
+                ) : (
+                  courses.map((item) => (
+                    <CourseCard
+                      key={item.slug}
+                      stack={item.slug.split("-")[0]} // Normalizes "mern-1-week" to "mern"
+                      title={item.title}
+                      subtitle={item.subtitle}
+                      image={item.image}
+                      onSelect={handleSelect}
+                      description={item.subtitle}
+                      modules={item.syllabus?.length}
+                    />
+                  ))
+                )}
+              </div>
             </div>
           </motion.div>
         ) : (
           <motion.div
             key="details"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4 }}
-            className="relative"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
           >
-            {/* Overlay Back Button */}
-            <div className="fixed top-6 left-6 lg:left-10 z-[100]">
-              <motion.button
-                initial={{ x: -10, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                onClick={() => setSelectedStack(null)}
-                className="flex items-center gap-2 px-5 py-2.5 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 rounded-xl text-[10px] font-black uppercase tracking-widest text-zinc-900 dark:text-white shadow-2xl hover:bg-zinc-900 hover:text-white dark:hover:bg-white dark:hover:text-zinc-900 transition-all group"
-              >
-                <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
-                Back to Catalogue
-              </motion.button>
-            </div>
-
             <InternshipPrograms
               initialStack={selectedStack}
-              onBack={() => setSelectedStack(null)}
+              onBack={handleBack}
             />
           </motion.div>
         )}

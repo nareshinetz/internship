@@ -5,9 +5,13 @@ import { HeroInternship } from "@/components/HeroInternship";
 import HiringPartners from "@/components/HiringPartners";
 import IndustrySectors from "@/components/IndustrySectors";
 import InternshipProcess from "@/components/InternshipProcess";
+import { MOESection } from "@/components/MOE";
 import SuccessStories from "@/components/SuccessStories";
 import ProblemSolution from "@/components/ProblemSolution";
 import StudentProjects from "@/components/StudentProjects";
+import VideoTestimonials from "@/components/VideoTestimonials";
+import Quotes from "@/components/Quotes";
+import { EnrollmentActionSection } from "@/components/register";
 
 export default function Home() {
   return (
@@ -18,12 +22,15 @@ export default function Home() {
       <ProblemSolution />
       <InternshipProcess/>
       <HiringPartners/>
+      <MOESection />
       <IndustrySectors/>
       <CoursesSection/>   
       <StudentProjects />
+      <Quotes />
+      <VideoTestimonials />
       <CertificateSection/>
       <SuccessStories/>
-      <CTASection/>
+      <EnrollmentActionSection/>
     </div>
   );
 }

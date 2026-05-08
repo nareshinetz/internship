@@ -2,32 +2,36 @@ import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 
 export async function POST(req: Request) {
-  const { name, phone, stack } = await req.json();
-
-  // 1. Setup your email transport (Example using Gmail)
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER, // Your email
-      pass: process.env.EMAIL_PASS, // Your App Password
-    },
-  });
-
   try {
-    await transporter.sendMail({
-      from: '"Internship Leads" <your-email@gmail.com>',
-      to: 'your-target-email@gmail.com', // Where you want to receive leads
-      subject: `New Syllabus Unlock Request: ${stack}`,
-      html: `
-        <h3>New Lead Captured</h3>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Phone:</strong> ${phone}</p>
-        <p><strong>Program:</strong> ${stack}</p>
-      `,
+    const { name, phone, stack, type } = await req.json();
+    const verifiedType = type || "General Inquiry";
+    const sheetUrl = process.env.GOOGLE_SHEET_WEBAPP_URL;
+
+    // Trigger Google Sheets - NO 'await'
+    if (sheetUrl) {
+      fetch(sheetUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, phone, stack: `${verifiedType}: ${stack}` }),
+      }).catch(err => console.error("Sheet Error:", err)); // Log errors in background
+    }
+
+    // Trigger Nodemailer - NO 'await'
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
     });
 
-    return NextResponse.json({ message: "Email Sent" }, { status: 200 });
+    transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: 'naresh.inetz@gmail.com',
+      subject: `New Lead: ${name}`,
+      html: `<div>...</div>`,
+    }).catch(err => console.error("Email Error:", err));
+
+    // Respond immediately to the user
+    return NextResponse.json({ message: "Lead process started" }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ message: "Error Sending Email" }, { status: 500 });
+    return NextResponse.json({ message: "Error" }, { status: 500 });
   }
 }
