@@ -69,7 +69,7 @@ export default function ContactPage() {
     {
       icon: <Mail size={20} />,
       title: "Email Us",
-      details: "inetztechnologies@gmail.com",
+      details: "info@inetztech.com",
       description: "Support team ready to help",
       action: "mailto:info@inetztech.com",
     },
