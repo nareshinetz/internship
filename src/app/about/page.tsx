@@ -151,8 +151,8 @@ export default function AboutPage() {
                 className="space-y-6"
               >
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-zinc-900 dark:text-white leading-[1.15]">
-                  The Gold Standard in <br/>
-                  <span className="text-emerald-600 dark:text-emerald-500">Software Training</span>
+                  The Gold Standard in  
+                  <span className="text-emerald-600 dark:text-emerald-500"> Software Training</span>
                 </h1>
                 
                 <p className="text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-xl">
@@ -226,7 +226,7 @@ export default function AboutPage() {
               <div className="absolute -top-10 -left-10 w-40 h-40 bg-emerald-500/10 blur-[60px] rounded-full" />
               <div className="relative rounded-[2.5rem] overflow-hidden border border-zinc-200 dark:border-zinc-800 aspect-square lg:aspect-[4/5] group">
                 <img 
-                  src="/office.jpg" 
+                  src="/office.png" 
                   alt="Inetz Technologies HQ" 
                   className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105"
                 />

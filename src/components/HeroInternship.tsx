@@ -15,16 +15,16 @@ const slides = [
   },
   {
     type: "image",
-    title: "Fill your empty mind with",
-    highlight: "positive thoughts",
-    desc: "What do you want to learn?",
+    title: "Learn. Practice. Build. ",
+    highlight: "Get Ready for Your Career",
+    desc: "Internship programs designed for students to gain hands-on technical skills with real-time project exposure.",
     media: "https://images.unsplash.com/photo-1571260899304-425eee4c7efc?auto=format&fit=crop&q=80&w=1200", // Student with laptop/tablet vibe
   },
   {
     type: "image",
-    title: "Fill your empty mind with",
+    title: "Learn Beyond the Classroom.",
     highlight: "positive thoughts",
-    desc: "What do you want to learn?",
+    desc: "Get real-world development experience through project-based internship programs built for future software professionals.",
     media: "https://images.unsplash.com/photo-1544377193-33dcf4d68fb5?auto=format&fit=crop&q=80&w=1200", // Another student portrait
   }
 ];

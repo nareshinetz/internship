@@ -74,37 +74,42 @@ export default function SuccessStories() {
       <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="max-w-6xl mx-auto px-6 relative z-10">
-        {/* Header - Editorial Style */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
-          <div className="max-w-xl">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 dark:bg-emerald-500/10 border border-zinc-800 dark:border-emerald-500/20 text-white dark:text-emerald-400 text-[9px] font-bold uppercase tracking-[0.2em] mb-4"
-            >
-              Placement Success
-            </motion.div>
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
-              Future Talent. <span className="text-zinc-400 dark:text-zinc-600">Proven Results.</span>
-            </h2>
-          </div>
+        {/* Header - Centered Style */}
+        <div className="flex flex-col items-center text-center mb-16">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-4"
+          >
+            Placement Success
+          </motion.div>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-zinc-900 dark:text-zinc-100 mb-8"
+          >
+            Future Talent. <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-400 to-sky-500">Proven Results.</span>
+          </motion.h2>
 
-          <div className="flex gap-3">
+          {/* <div className="flex gap-4">
             <button
               onClick={() => scroll("left")}
               disabled={!canScrollLeft}
-              className="h-10 w-10 rounded-full border border-zinc-200 dark:border-zinc-800 flex items-center justify-center hover:bg-white dark:hover:bg-zinc-900 disabled:opacity-20 transition-all shadow-sm"
+              className="h-12 w-12 rounded-full border border-zinc-200 dark:border-zinc-800 flex items-center justify-center hover:bg-white dark:hover:bg-zinc-900 disabled:opacity-20 transition-all shadow-sm group"
+              title="Scroll Left"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-5 w-5 transition-transform group-hover:-translate-x-0.5" />
             </button>
             <button
               onClick={() => scroll("right")}
               disabled={!canScrollRight}
-              className="h-10 w-10 rounded-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 flex items-center justify-center hover:bg-emerald-600 dark:hover:bg-emerald-500 disabled:opacity-20 transition-all shadow-md"
+              className="h-12 w-12 rounded-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 flex items-center justify-center hover:bg-emerald-600 dark:hover:bg-emerald-500 disabled:opacity-20 transition-all shadow-md group"
+              title="Scroll Right"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
             </button>
-          </div>
+          </div> */}
         </div>
 
         {/* Scroll Track */}
@@ -124,7 +129,7 @@ export default function SuccessStories() {
               className="min-w-[260px] md:min-w-[300px] snap-start group"
             >
               <Card className="relative h-full border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/40 backdrop-blur-sm overflow-hidden p-0 rounded-2xl transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-2">
-                
+
                 {/* Image Section */}
                 <div className="relative h-[280px] overflow-hidden group-hover:grayscale-0 transition-all duration-700">
                   <img
@@ -134,7 +139,7 @@ export default function SuccessStories() {
                   />
                   {/* Subtle Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
-                  
+
                   {/* Company Badge - Glass Style */}
                   <div className="absolute top-4 right-4 flex items-center gap-1.5 px-2.5 py-1 rounded-md backdrop-blur-md bg-blue-600 border border-white/20">
                     <span className="text-[8px] font-black text-white uppercase tracking-wider">
@@ -152,7 +157,7 @@ export default function SuccessStories() {
                   <p className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mt-1">
                     {item.role}
                   </p>
-                  
+
                   {/* Bottom Progress Accent */}
                   <div className={cn(
                     "absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full transition-all duration-500 bg-gradient-to-r",

@@ -19,7 +19,7 @@ const videoTestimonials: VideoTestimonial[] = [
     id: "v1",
     name: "Harshini",
     thumbnail: "/thumbnail/studentthumbnail1.png",
-    videoUrl: "https://www.instagram.com/reel/DOLsgFfCZbC/", 
+    videoUrl: "https://www.instagram.com/reel/DOLsgFfCZbC/",
     year: "Batch of 2022"
   },
   {
@@ -58,22 +58,27 @@ export default function VideoTestimonials() {
 
       <Section className="bg-white dark:bg-[#080808] py-20 relative overflow-hidden">
         <div className="max-w-6xl mx-auto px-6 text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
-            Hear it from <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-sky-500">Our Students</span>
-          </h2>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl text-zinc-900 dark:text-zinc-100 mb-4"
+          >
+            Hear it from <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-400 to-sky-500">Our Students</span>
+          </motion.h2>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto px-6">
           {videoTestimonials.map((testimonial) => (
-            <div 
-              key={testimonial.id} 
+            <div
+              key={testimonial.id}
               onClick={() => setActiveVideo(testimonial)}
               className="group relative aspect-video rounded-xl overflow-hidden cursor-pointer bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800"
             >
-              <img 
-                src={testimonial.thumbnail} 
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                alt={testimonial.name} 
+              <img
+                src={testimonial.thumbnail}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                alt={testimonial.name}
               />
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center">
@@ -98,11 +103,10 @@ export default function VideoTestimonials() {
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.95, opacity: 0 }}
                 onClick={(e) => e.stopPropagation()}
-                className={`relative w-full flex flex-col items-center ${
-                  activeVideo.videoUrl.includes("instagram.com") 
-                    ? "max-w-[400px]" 
+                className={`relative w-full flex flex-col items-center ${activeVideo.videoUrl.includes("instagram.com")
+                    ? "max-w-[400px]"
                     : "max-w-5xl"
-                }`}
+                  }`}
               >
                 <button
                   onClick={() => setActiveVideo(null)}
@@ -118,9 +122,9 @@ export default function VideoTestimonials() {
                         className="instagram-media"
                         data-instgrm-permalink={activeVideo.videoUrl}
                         data-instgrm-version="14"
-                        style={{ 
-                          width: '100%', 
-                          border: 'none', 
+                        style={{
+                          width: '100%',
+                          border: 'none',
                           borderRadius: '16px',
                           margin: '0 auto',
                           background: 'white'
