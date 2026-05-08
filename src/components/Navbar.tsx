@@ -20,11 +20,11 @@ const navItems = [
 function InetzLogo({ className }: { className?: string }) {
   return (
     <div
-      className={cn("relative h-12 w-44 flex items-center group", className)}
+      className={cn("relative h-14 w-45 flex items-center group", className)}
     >
       <Image
-        src="/logo.png"
-        alt="Inetz Technologies Logo"
+        src="/Inetz-logo-removebg1.png"
+        alt="Inetz Technologies Logo" 
         fill
         className="object-contain transition-transform group-hover:scale-105"
         priority
