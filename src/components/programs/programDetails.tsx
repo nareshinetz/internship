@@ -5,12 +5,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Code2, LayoutGrid, ArrowRight, CheckCircle2, Video, Mic2, ArrowUpRight,
   Sparkles, Quote, Star, ArrowLeft, X, Download, Lock, UserCheck, Briefcase, Loader2,
+  PhoneCall,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import ProgramCard from "./ProgramCard";
 import { BRAND_DATA, getIconClass } from "../../lib/Tech-utils";
 import theComSession from "../../../public/TheComSession.png";
+import { toast } from "sonner";
 
 const DURATION_ORDER = ["1 Week", "2 Weeks", "1 Month", "3 Months"];
 
@@ -183,6 +185,44 @@ const InternshipPrograms = ({ initialStack = "mern", onBack }: { initialStack?: 
       setIsSubmitting(false);
     }
   }, [leadForm, activeStack]);
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
+    const [formData, setFormData] = useState({ name: "", phone: "" });
+  
+    const handleCallbackSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setIsSubmitting(true);
+  
+      try {
+        const response = await fetch("/api/send-lead", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: formData.name,
+            phone: formData.phone,
+            stack: "General Assistance",
+            type: "Callback Request",
+          }),
+        });
+  
+        if (response.ok) {
+          setIsSuccess(true);
+          setTimeout(() => {
+            setIsModalOpen(false);
+            setIsSuccess(false);
+            setFormData({ name: "", phone: "" });
+          }, 3000);
+        } else {
+          toast.error("Something went wrong. Please try again.");
+        }
+      } catch (error) {
+        toast.error("Network error. Please check your connection.");
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+  
 
   const handleDownload = useCallback(() => {
     if (isSyllabusLocked) { setShowModal(true); return; }
@@ -393,7 +433,7 @@ const InternshipPrograms = ({ initialStack = "mern", onBack }: { initialStack?: 
                   </div>
                   {savings > 0 && <p className="text-[10px] text-emerald-600 font-bold uppercase mt-1 tracking-widest">Save {savings}% Today</p>}
                 </div>
-                <button onClick={handleApply} disabled={isLoggedIn === null}
+                <button onClick={() => setIsModalOpen(true)} disabled={isLoggedIn === null}
                   className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-60"
                 >
                   {isLoggedIn === null ? "Checking..." : <>Enroll in {activeStack} Track <ArrowRight className="w-3.5 h-3.5" /></>}
@@ -433,6 +473,95 @@ const InternshipPrograms = ({ initialStack = "mern", onBack }: { initialStack?: 
           </div>
         )}
       </AnimatePresence>
+      <AnimatePresence>
+              {isModalOpen && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => setIsModalOpen(false)}
+                    className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" 
+                  />
+                  
+                  <motion.div 
+                    initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                    exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                    className="relative bg-white dark:bg-zinc-950 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden"
+                  >
+                    <button 
+                      onClick={() => setIsModalOpen(false)}
+                      className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 transition-colors"
+                    >
+                      <X size={20} />
+                    </button>
+      
+                    {!isSuccess ? (
+                      <div className="p-8">
+                        <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center mb-6">
+                          <PhoneCall className="text-indigo-600" size={24} />
+                        </div>
+                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                          Request a Callback
+                        </h3>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm mb-8">
+                          Enter your details and our counselor will call you within 24 hours.
+                        </p>
+      
+                        <form onSubmit={handleCallbackSubmit} className="space-y-4">
+                          <div>
+                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Full Name</label>
+                            <input 
+                              required
+                              type="text" 
+                              placeholder="e.g. John Doe"
+                              className="w-full mt-1.5 px-4 py-3 rounded-xl bg-slate-100 dark:bg-zinc-900 border-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm"
+                              value={formData.name}
+                              onChange={(e) => setFormData({...formData, name: e.target.value})}
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">WhatsApp Number</label>
+                            <input 
+                              required
+                              type="tel" 
+                              placeholder="+91 98765 43210"
+                              className="w-full mt-1.5 px-4 py-3 rounded-xl bg-slate-100 dark:bg-zinc-900 border-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm"
+                              value={formData.phone}
+                              onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                            />
+                          </div>
+      
+                          <button 
+                            type="submit" 
+                            disabled={isSubmitting}
+                            className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 transition-all"
+                          >
+                            {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : "Request Call Now"}
+                          </button>
+                        </form>
+                      </div>
+                    ) : (
+                      <div className="p-12 text-center">
+                        <motion.div 
+                          initial={{ scale: 0.5 }}
+                          animate={{ scale: 1 }}
+                          className="w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-900/20 flex items-center justify-center mx-auto mb-6 text-emerald-600"
+                        >
+                          <CheckCircle2 size={40} />
+                        </motion.div>
+                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Request Sent!</h3>
+                        <p className="text-slate-500 text-sm">
+                          Check your phone. Our counselors will reach out to you shortly.
+                        </p>
+                      </div>
+                    )}
+                  </motion.div>
+                </div>
+              )}
+            </AnimatePresence>
+       
     </div>
   );
 };

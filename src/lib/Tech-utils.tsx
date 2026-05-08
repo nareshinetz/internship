@@ -58,6 +58,11 @@ export const STACK_MAPPING: Record<string, string[]> = {
   "dataanalytics": ["excel", "postgresql", "python", "powerbi"],
   "Embedded": ["c", "cpp", "python", "git"],
   "default": ["html5", "css3", "javascript", "react"],
+  "machinelearning": ["python", "scikit-learn", "pandas", "numpy", "matplotlib", "postgresql"],
+  "deeplearning": ["python", "pytorch", "tensorflow", "opencv", "cuda", "docker"],
+  "ai": ["python", "langchain", "openai_api", "pinecone", "huggingface", "git"],
+  "javascript": ["javascript"],
+  "react": ["react"]
 };
 
 export const MARKET_INSIGHTS: Record<string, { demand: string; trend: string }> = {
@@ -68,6 +73,12 @@ export const MARKET_INSIGHTS: Record<string, { demand: string; trend: string }> 
   "dataanalytics": { demand: "Rising", trend: "Business Intelligence" },
   "Embedded": { demand: "Niche", trend: "IoT & Robotics" },
   "default": { demand: "Rising", trend: "Modern Web" },
+  "machinelearning": { "demand": "Critical", "trend": "Predictive Analytics & Automation" },
+  "deeplearning": { "demand": "High", "trend": "Computer Vision & Advanced Robotics" },
+  "ai": { "demand": "Explosive", "trend": "Generative AI & Agentic Workflows" },
+  "javascript": { "demand": "High", "trend": "Reliability & Scalable Production" },
+  "edge_ai": { "demand": "Rising", "trend": "IoT & On-Device Intelligence" }
+  
 };
 
 export const getStackLogos = (stack: TechStack | string): string[] => {
