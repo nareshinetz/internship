@@ -32,9 +32,9 @@ const footerLinks = {
 
 function InetzLogo() {
   return (
-    <div className="relative h-12 w-40 flex items-center group">
+    <div className="relative h-16 w-38 mb-2 flex items-center group">
       <Image
-        src="/logo.png"
+        src="/Inetz-logo-removebg1.png"
         alt="Inetz Technologies Logo"
         fill
         className="object-contain transition-transform group-hover:scale-105"
@@ -53,7 +53,7 @@ export default function Footer() {
             <Link href="/">
               <InetzLogo />
             </Link>
-            <p className="mt-8 text-lg text-zinc-500 dark:text-zinc-400 max-w-sm leading-relaxed font-medium">
+            <p className=" text-lg text-zinc-500 dark:text-zinc-400 max-w-sm leading-relaxed font-medium">
               Leading the way in tech education and high-impact career
               placement. We transform students into industry-ready
               professionals.
@@ -73,7 +73,7 @@ export default function Footer() {
                 },
                 {
                   icon: FaLinkedin,
-                  href: "#",
+                  href: "https://share.google/gc1yv1vbcgwznlob2",
                   hover: "hover:bg-[#0A66C2] hover:border-[#0A66C2]",
                 },
                 {
