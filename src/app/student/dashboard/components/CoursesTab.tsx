@@ -131,6 +131,7 @@ export default function CoursesTab({
                             totalBilling: course.totalBilling || 0,
                             amountToPay: validAmount ? enteredAmount : 0,
                             balancePayment: true,
+                            enrollmentId: course._id,
                           }}
                           onSuccess={(emailSent) => {
                             setPaymentAmounts((current) => ({ ...current, [course._id]: "" }));

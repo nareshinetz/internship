@@ -13,6 +13,7 @@
 
 # testing
 /coverage
+/audit-output/
 
 public/*.mp4
 

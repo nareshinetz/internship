@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db";
-import { Student } from "@/models/Student";
+import Enrollment from "@/models/Enrollment";
 
 export async function GET(req: Request) {
   try {
@@ -13,13 +13,11 @@ export async function GET(req: Request) {
 
     await connectToDatabase();
 
-    // Look up by Mongo ObjectId or numeric sNo
-    let studentDoc = null;
-    if (id.match(/^[0-9a-fA-F]{24}$/)) {
-      studentDoc = await Student.findById(id).lean();
-    } else {
-      studentDoc = await Student.findOne({ sNo: Number(id) }).lean();
-    }
+    const enrollment = id.match(/^[0-9a-fA-F]{24}$/)
+      ? await Enrollment.findById(id).populate("userId", "studentId name email phone college degree").lean()
+      : null;
+    const user = enrollment?.userId as unknown as Record<string, unknown> | undefined;
+    const studentDoc = enrollment ? { ...enrollment, studentId: user?.studentId, name: user?.name, email: user?.email, phone: user?.phone, college: user?.college, degree: user?.degree, doj: enrollment.joinedAt } : null;
 
     if (!studentDoc) {
       return NextResponse.json({ success: false, error: "Student record not found in database" }, { status: 404 });

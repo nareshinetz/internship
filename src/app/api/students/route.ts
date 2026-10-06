@@ -1,564 +1,98 @@
-import { NextRequest, NextResponse } from "next/server";
 import { requireRole } from "@/lib/api-auth";
-import { Student } from "@/models/Student";
 import { connectToDatabase } from "@/lib/db";
+import Enrollment from "@/models/Enrollment";
+import Program from "@/models/Program";
+import User from "@/models/user";
 import { createAdminNotification } from "@/lib/admin-notifications";
+import { NextResponse } from "next/server";
 
-// ─── GET: HIGH-SPEED PAGINATED STUDENT DIRECTORY & METRICS ──────────────────
+const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const prefixFor = (duration: string) => /6\s*month/i.test(duration) ? "INC" : /3\s*month/i.test(duration) ? "IN3" : "INI";
+
+async function nextStudentId(duration: string) {
+  const prefix = prefixFor(duration);
+  const latest = await User.findOne({ studentId: new RegExp(`^${prefix}`) }).select("studentId").sort({ studentId: -1 }).collation({ locale: "en", numericOrdering: true }).lean();
+  const current = latest?.studentId ? Number.parseInt(latest.studentId.slice(prefix.length), 10) : 0;
+  return `${prefix}${String((Number.isFinite(current) ? current : 0) + 1).padStart(3, "0")}`;
+}
+
+const flatten = (enrollment: Record<string, unknown>) => {
+  const user = enrollment.userId as Record<string, unknown>;
+  return { ...enrollment, userId: user?._id, studentId: user?.studentId, name: user?.name, email: user?.email || "", phone: user?.phone, college: user?.college || "N/A", degree: user?.degree || "", doj: enrollment.joinedAt };
+};
 
 export async function GET(req: Request) {
-  try {
-    const auth = await requireRole("admin");
-    if (auth.error) return auth.error;
-    await connectToDatabase();  
-
-    const { searchParams } = new URL(req.url);
-
-    const search = searchParams.get("search")?.trim() || "";
-    const domain = searchParams.get("domain")?.trim() || "";
-    const duration = searchParams.get("duration")?.trim() || "";
-    const fromDate = searchParams.get("fromDate")?.trim() || "";
-    const toDate = searchParams.get("toDate")?.trim() || "";
-    const joiningDate = searchParams.get("joiningDate")?.trim() || "";
-
-    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-    const limit = Math.max(1, parseInt(searchParams.get("limit") || "15", 10));
-    const skip = (page - 1) * limit;
-
-    // ── 1. Match Filter (Ensuring duration exists & ignoring Assessment Cleared) ──
-    const matchQuery: Record<string, any> = {
-      duration: { 
-        $exists: true, 
-        $nin: ["", null], 
-        $not: /assessment\s*cleared/i, // Excludes Assessment Cleared records automatically
-      },
-    };
-
-    if (domain && domain.toLowerCase() !== "all") {
-      matchQuery.domain = { $regex: `^${domain.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, $options: "i" };
-    }
-
-    if (duration && duration.toLowerCase() !== "all") {
-      matchQuery.duration = { 
-        $regex: `^${duration.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, 
-        $options: "i" 
-      };
-    }
-
-    if (fromDate || toDate) {
-      matchQuery.createdAt = {};
-      if (fromDate) matchQuery.createdAt.$gte = new Date(fromDate);
-      if (toDate) {
-        const endOfDay = new Date(toDate);
-        endOfDay.setHours(23, 59, 59, 999);
-        matchQuery.createdAt.$lte = endOfDay;
-      }
-    }
-
-    if (joiningDate) {
-      const [year, month, day] = joiningDate.split("-").map(Number);
-      const selectedDate = new Date(year, month - 1, day);
-      if (
-        !/^\d{4}-\d{2}-\d{2}$/.test(joiningDate) ||
-        Number.isNaN(selectedDate.getTime()) ||
-        selectedDate.getFullYear() !== year ||
-        selectedDate.getMonth() !== month - 1 ||
-        selectedDate.getDate() !== day
-      ) {
-        return NextResponse.json(
-          { success: false, error: "Invalid joining date." },
-          { status: 400 },
-        );
-      }
-
-      matchQuery.doj = {
-        $in: [
-          joiningDate,
-          selectedDate.toLocaleDateString("en-IN", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-          }),
-          `${String(day).padStart(2, "0")}/${String(month).padStart(2, "0")}/${year}`,
-        ],
-      };
-    }
-
-    if (search) {
-      const cleanPhone = search.replace(/\D/g, "");
-      const searchRegex = { $regex: search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), $options: "i" };
-
-      matchQuery.$or = [
-        { name: searchRegex },
-        { email: searchRegex },
-        { college: searchRegex },
-        ...(cleanPhone.length >= 3 ? [{ phone: { $regex: cleanPhone } }] : []),
-      ];
-    }
-
-    // ── 2. Parallel Fast Execution (Indexed Lookups) ───────────────────────────
-    const [students, [summaryStats], distinctDomains] = await Promise.all([
-      // A. Paginated results reading only necessary fields
-      Student.find(matchQuery)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .select("-__v")
-        .lean(),
-
-      // B. Fast metric aggregation using direct numeric keys (no array unwinding)
-      Student.aggregate([
-        { $match: matchQuery },
-        {
-          $group: {
-            _id: null,
-            totalStudents: { $sum: 1 },
-            totalBilling: { $sum: "$totalBilling" },
-            totalCollected: { $sum: "$totalCollection" },
-            totalPending: { $sum: "$pendingAmount" },
-            duesCount: {
-              $sum: { $cond: [{ $eq: ["$feesStatus", "Pending"] }, 1, 0] },
-            },
-            // 6 Months Buckets
-            sixMonthsCount: {
-              $sum: { $cond: [{ $regexMatch: { input: "$duration", regex: /6\s*Month/i } }, 1, 0] },
-            },
-            sixMonthsCollected: {
-              $sum: {
-                $cond: [
-                  { $regexMatch: { input: "$duration", regex: /6\s*Month/i } },
-                  "$totalCollection",
-                  0,
-                ],
-              },
-            },
-            sixMonthsPending: {
-              $sum: {
-                $cond: [
-                  { $regexMatch: { input: "$duration", regex: /6\s*Month/i } },
-                  "$pendingAmount",
-                  0,
-                ],
-              },
-            },
-            // 3 Months Buckets
-            threeMonthsCount: {
-              $sum: { $cond: [{ $regexMatch: { input: "$duration", regex: /3\s*Month/i } }, 1, 0] },
-            },
-            threeMonthsCollected: {
-              $sum: {
-                $cond: [
-                  { $regexMatch: { input: "$duration", regex: /3\s*Month/i } },
-                  "$totalCollection",
-                  0,
-                ],
-              },
-            },
-            threeMonthsPending: {
-              $sum: {
-                $cond: [
-                  { $regexMatch: { input: "$duration", regex: /3\s*Month/i } },
-                  "$pendingAmount",
-                  0,
-                ],
-              },
-            },
-          },
-        },
-      ]),
-
-      // C. Cached or distinct domains
-      Student.distinct("domain"),
-    ]);
-
-    const stats = summaryStats || {
-      totalStudents: 0,
-      totalBilling: 0,
-      totalCollected: 0,
-      totalPending: 0,
-      duesCount: 0,
-      sixMonthsCount: 0,
-      sixMonthsCollected: 0,
-      sixMonthsPending: 0,
-      threeMonthsCount: 0,
-      threeMonthsCollected: 0,
-      threeMonthsPending: 0,
-    };
-
-    const shortTermCount = Math.max(0, stats.totalStudents - (stats.sixMonthsCount + stats.threeMonthsCount));
-    const shortTermCollected = Math.max(0, stats.totalCollected - (stats.sixMonthsCollected + stats.threeMonthsCollected));
-    const shortTermPending = Math.max(0, stats.totalPending - (stats.sixMonthsPending + stats.threeMonthsPending));
-
-    const totalStudents = stats.totalStudents;
-
-    return NextResponse.json(
-      {
-        success: true,
-        students,
-        availableDomains: ["All", ...Array.from(new Set(distinctDomains.filter(Boolean)))],
-        pagination: {
-          totalStudents,
-          totalPages: Math.ceil(totalStudents / limit) || 1,
-          currentPage: page,
-          limit,
-        },
-        summary: {
-          totalStudents,
-          totalCollected: stats.totalCollected,
-          totalPending: stats.totalPending,
-          duesCount: stats.duesCount,
-          clearCount: Math.max(0, totalStudents - stats.duesCount),
-          byDuration: {
-            "6 Months": {
-              count: stats.sixMonthsCount,
-              collected: stats.sixMonthsCollected,
-              pending: stats.sixMonthsPending,
-            },
-            "3 Months": {
-              count: stats.threeMonthsCount,
-              collected: stats.threeMonthsCollected,
-              pending: stats.threeMonthsPending,
-            },
-            "Short Term (1W / 2W / 1M)": {
-              count: shortTermCount,
-              collected: shortTermCollected,
-              pending: shortTermPending,
-            },
-          },
-        },
-      },
-      {
-        status: 200,
-        headers: {
-          "Cache-Control": "private, no-cache, no-store, must-revalidate",
-        },
-      }
-    );
-  } catch (error: any) {
-    console.error("GET_STUDENTS_ERROR:", error.message);
-    return NextResponse.json(
-      { success: false, error: "Internal Server Error" },
-      { status: 500 }
-    );
+  const auth = await requireRole("admin"); if (auth.error) return auth.error;
+  await connectToDatabase();
+  const params = new URL(req.url).searchParams;
+  const page = Math.max(1, Number(params.get("page")) || 1);
+  const limit = Math.max(1, Number(params.get("limit")) || 15);
+  const query: Record<string, unknown> = { type: "internship", status: { $ne: "cancelled" } };
+  const domain = params.get("domain")?.trim(); const duration = params.get("duration")?.trim();
+  if (domain && domain.toLowerCase() !== "all") query.domain = new RegExp(`^${escapeRegex(domain)}$`, "i");
+  if (duration && duration.toLowerCase() !== "all") query.duration = new RegExp(`^${escapeRegex(duration)}$`, "i");
+  const search = params.get("search")?.trim();
+  let userIds: unknown[] | undefined;
+  if (search) {
+    const rx = new RegExp(escapeRegex(search), "i");
+    userIds = (await User.find({ $or: [{ name: rx }, { email: rx }, { phone: rx }, { college: rx }, { studentId: rx }] }).distinct("_id"));
+    query.$or = [{ domain: rx }, { userId: { $in: userIds } }];
   }
+  const [docs, total, domains, summary] = await Promise.all([
+    Enrollment.find(query).populate("userId", "studentId name email phone college degree").sort({ joinedAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
+    Enrollment.countDocuments(query),
+    Enrollment.distinct("domain", { type: "internship", status: { $ne: "cancelled" } }),
+    Enrollment.aggregate([{ $match: query }, { $group: { _id: null, totalCollected: { $sum: "$totalCollection" }, totalPending: { $sum: "$pendingAmount" }, duesCount: { $sum: { $cond: [{ $eq: ["$feesStatus", "Pending"] }, 1, 0] } } } }]),
+  ]);
+  const stats = summary[0] || { totalCollected: 0, totalPending: 0, duesCount: 0 };
+  return NextResponse.json({ success: true, students: docs.map((doc) => flatten(doc as unknown as Record<string, unknown>)), availableDomains: ["All", ...domains], pagination: { totalStudents: total, totalPages: Math.ceil(total / limit) || 1, currentPage: page, limit }, summary: { totalStudents: total, totalCollected: stats.totalCollected, totalPending: stats.totalPending, duesCount: stats.duesCount, clearCount: total - stats.duesCount, byDuration: {} } });
 }
 
-// ─── POST: CREATE A NEW STUDENT PROFILE (ADMIN MANUAL ADMISSION) ─────────────
-function getDurationPrefix(duration: string): string {
-  const clean = (duration || "").toLowerCase();
-  if (clean.includes("6") && clean.includes("month")) {
-    return "INC";
-  }
-  if (clean.includes("3") && clean.includes("month")) {
-    return "IN3";
-  }
-  return "INI"; 
+export async function POST(req: Request) {
+  try {
+    const auth = await requireRole("admin"); if (auth.error) return auth.error;
+    const body = await req.json(); await connectToDatabase();
+    const phone = String(body.phone || "").replace(/\D/g, "");
+    const name = String(body.name || "").trim();
+    if (!name || phone.length < 10 || phone.length > 15) return NextResponse.json({ success: false, error: "Valid name and phone are required." }, { status: 400 });
+    const program = await Program.findOne({ title: String(body.domain || "").trim(), duration: String(body.duration || "").trim() }).select("title slug duration price");
+    if (!program) return NextResponse.json({ success: false, error: "Select an existing internship program." }, { status: 400 });
+    const email = String(body.email || "").trim().toLowerCase();
+    let user = await User.findOne({ phone });
+    if (!user) user = new User({ name, phone, college: String(body.college || "N/A").trim(), degree: body.degree ? String(body.degree).trim() : undefined, role: "student", studentId: await nextStudentId(program.duration || "") });
+    if (email) {
+      const emailOwner = await User.findOne({ email, _id: { $ne: user._id } });
+      if (emailOwner) return NextResponse.json({ success: false, error: "That email belongs to another account." }, { status: 409 });
+      user.email = email;
+    }
+    await user.save();
+    const joinedAt = body.batchStartDate || body.doj ? new Date(`${body.batchStartDate || body.doj}T00:00:00`) : new Date();
+    const paid = Number(body.initialPayment) || 0; const total = Number(body.totalBilling ?? program.price) || 0;
+    const installments = paid > 0 ? [{ receiptNo: `IT-ADM-${Date.now()}`, date: joinedAt.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }), paidAmount: paid, paymentMethod: body.paymentMethod || "Cash", transactionId: "N/A", billingBy: body.billingBy || "Admin Manual Entry" }] : [];
+    const enrollment = await Enrollment.create({ userId: user._id, type: "internship", offeringId: program._id, offeringSlug: program.slug, joinedAt, domain: program.title, duration: program.duration, status: paid > 0 ? "active" : "payment_pending", totalBilling: total, installments, certificateStatus: "Pending" });
+    await createAdminNotification({ type: "enrollment", title: "New enrollment", message: `${user.name} enrolled in ${enrollment.domain} (${enrollment.duration}).`, entityId: enrollment._id.toString(), dedupeKey: `enrollment:${enrollment._id}` });
+    return NextResponse.json({ success: true, message: "Student enrolled successfully.", data: flatten({ ...enrollment.toObject(), userId: user.toObject() }) }, { status: 201 });
+  } catch (error) { return NextResponse.json({ success: false, error: error instanceof Error ? error.message : "Failed to enroll student." }, { status: 500 }); }
 }
 
-export async function POST(req: NextRequest) {
-  try {
-    const auth = await requireRole("admin");
-    if (auth.error) return auth.error;
-    await connectToDatabase();
-    const body = await req.json();
-
-    const {
-      name,
-      email,
-      phone,
-      college,
-      domain,
-      duration,
-      doj,
-      batchStartDate,
-      totalBilling,
-      initialPayment,
-      paymentMethod,
-      billingBy,
-    } = body;
-
-    const studentName = (name || "").trim();
-    const studentPhone = String(phone || "").trim().replace(/\D/g, "");
-    const studentEmail = (email || "").trim().toLowerCase();
-    const targetDomain = (domain || "Web Development").trim();
-    const targetDuration = (duration || "1 Month").trim();
-
-    if (!studentName || !studentPhone || studentPhone.length < 10) {
-      return NextResponse.json(
-        { success: false, error: "Valid Student Name and 10-digit Phone Number are required." },
-        { status: 400 }
-      );
-    }
-
-    const existingEnrollment = await Student.findOne({
-      phone: studentPhone,
-      domain: targetDomain,
-    }).lean();
-
-    if (existingEnrollment) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: `Student (${studentPhone}) is already enrolled in ${targetDomain}.`,
-        },
-        { status: 400 }
-      );
-    }
-
-    const lastStudent = await Student.findOne({}, { sNo: 1 })
-      .sort({ sNo: -1 })
-      .lean();
-    const nextSNo =
-      lastStudent && typeof lastStudent.sNo === "number" ? lastStudent.sNo + 1 : 1;
-
-    const prefix = getDurationPrefix(targetDuration);
-    const latestWithPrefix = await Student.findOne(
-      { studentId: new RegExp(`^${prefix}`) },
-      { studentId: 1 }
-    )
-      .sort({ studentId: -1 })
-      .collation({ locale: "en", numericOrdering: true })
-      .lean();
-
-    let nextSeqNum = 1;
-    if (latestWithPrefix?.studentId) {
-      const numericPart = parseInt(latestWithPrefix.studentId.replace(prefix, ""), 10);
-      if (!isNaN(numericPart)) {
-        nextSeqNum = numericPart + 1;
-      }
-    }
-
-    const generatedStudentId = `${prefix}${String(nextSeqNum).padStart(3, "0")}`;
-
-    const requestedDoj = String(batchStartDate || doj || "").trim();
-    const joiningDate = new Date(`${requestedDoj}T00:00:00`);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (
-      batchStartDate &&
-      (!/^\d{4}-\d{2}-\d{2}$/.test(requestedDoj) ||
-        Number.isNaN(joiningDate.getTime()) ||
-        `${joiningDate.getFullYear()}-${String(joiningDate.getMonth() + 1).padStart(2, "0")}-${String(joiningDate.getDate()).padStart(2, "0")}` !== requestedDoj ||
-        joiningDate < today ||
-        (joiningDate.getDay() !== 1 && joiningDate.getDay() !== 5))
-    ) {
-      return NextResponse.json(
-        { success: false, error: "Choose an upcoming Monday or Friday as the date of joining." },
-        { status: 400 }
-      );
-    }
-
-    const displayDate = batchStartDate
-      ? joiningDate.toLocaleDateString("en-IN", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        })
-      : requestedDoj || new Date().toLocaleDateString("en-IN", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        });
-
-    const billingTotal = Number(totalBilling) || 0;
-    const initialPaid = Number(initialPayment) || 0;
-
-    const installments =
-      initialPaid > 0
-        ? [
-            {
-              receiptNo: `IT-ADM-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`,
-              date: displayDate,
-              paidAmount: initialPaid,
-              paymentMethod: paymentMethod === "GPay" ? "GPay" : paymentMethod || "Cash",
-              transactionId: "N/A",
-              billingBy: billingBy || "Admin Manual Entry",
-            },
-          ]
-        : [];
-
-    const newStudent = new Student({
-      sNo: nextSNo,
-      studentId: generatedStudentId,
-      doj: displayDate,
-      name: studentName,
-      email: studentEmail || "",
-      phone: studentPhone,
-      college: college?.trim() || "N/A",
-      domain: targetDomain,
-      duration: targetDuration,
-      totalBilling: billingTotal,
-      installments: installments,
-      totalCollection: initialPaid,
-      pendingAmount: Math.max(0, billingTotal - initialPaid),
-      feesStatus: billingTotal > 0 && billingTotal - initialPaid === 0 ? "Clear" : "Pending",
-      certificateStatus: "Pending",
-    });
-
-    await newStudent.save();
-
-    await createAdminNotification({
-      type: "enrollment",
-      title: "New enrollment",
-      message: `${newStudent.name} enrolled in ${newStudent.domain} (${newStudent.duration}).`,
-      entityId: newStudent._id.toString(),
-      dedupeKey: `enrollment:${newStudent._id}`,
-    });
-    if (initialPaid > 0) {
-      await createAdminNotification({
-        type: "payment",
-        title: "Initial payment received",
-        message: `${newStudent.name} paid ₹${initialPaid.toLocaleString("en-IN")}.`,
-        entityId: newStudent._id.toString(),
-        amount: initialPaid,
-        dedupeKey: `payment:${installments[0].receiptNo}`,
-      });
-    }
-
-    return NextResponse.json(
-      {
-        success: true,
-        message: "Student enrolled successfully.",
-        data: newStudent,
-      },
-      { status: 201 }
-    );
-  } catch (error: any) {
-    console.error("Student manual creation failure:", error);
-    return NextResponse.json(
-      { success: false, error: error.message || "Failed to create student record." },
-      { status: 500 }
-    );
-  }
+export async function PUT(req: Request) {
+  const auth = await requireRole("admin"); if (auth.error) return auth.error;
+  const body = await req.json(); await connectToDatabase();
+  const enrollment = await Enrollment.findOne({ _id: body.id, type: "internship" });
+  if (!enrollment) return NextResponse.json({ success: false, error: "Enrollment not found." }, { status: 404 });
+  const user = await User.findById(enrollment.userId); if (!user) return NextResponse.json({ success: false, error: "Account not found." }, { status: 404 });
+  if (body.name) user.name = String(body.name).trim(); if (body.college !== undefined) user.college = String(body.college).trim(); if (body.degree !== undefined) user.degree = String(body.degree).trim(); await user.save();
+  const requestedBilling = body.totalBilling === undefined ? enrollment.totalBilling : Number(body.totalBilling);
+  if (!Number.isFinite(requestedBilling) || requestedBilling < enrollment.totalCollection) return NextResponse.json({ success: false, error: "Total fee cannot be less than collected." }, { status: 400 });
+  enrollment.totalBilling = body.clearFees ? enrollment.totalCollection : requestedBilling; if (body.notes !== undefined) enrollment.notes = String(body.notes).trim(); await enrollment.save();
+  return NextResponse.json({ success: true, data: flatten({ ...enrollment.toObject(), userId: user.toObject() }) });
 }
 
-// ─── PUT: EDIT EXISTING STUDENT DATA SAFELY ─────────────────────────────────
-
-export async function PUT(req: NextRequest) {
-  try {
-    const auth = await requireRole("admin");
-    if (auth.error) return auth.error;
-    await connectToDatabase();
-    const data = await req.json();
-    const { id, name, email, phone, college, domain, duration, doj, totalBilling, notes, clearFees } = data;
-
-    if (!id) {
-      return NextResponse.json(
-        { success: false, error: "Missing Target Document Student ID." },
-        { status: 400 }
-      );
-    }
-
-    const currentStudent = await Student.findById(id);
-    if (!currentStudent) {
-      return NextResponse.json(
-        { success: false, error: "Student profile not found." },
-        { status: 404 }
-      );
-    }
-
-    const cleanPhone = phone ? String(phone).trim().replace(/\D/g, "") : currentStudent.phone;
-    const targetDomain = domain ? String(domain).trim() : currentStudent.domain;
-
-    if (domain && (targetDomain !== currentStudent.domain || cleanPhone !== currentStudent.phone)) {
-      const duplicateOtherDoc = await Student.findOne({
-        _id: { $ne: id },
-        phone: cleanPhone,
-        domain: targetDomain,
-      }).lean();
-
-      if (duplicateOtherDoc) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: `Another active record already exists for ${cleanPhone} in ${targetDomain}.`,
-          },
-          { status: 400 }
-        );
-      }
-    }
-
-    const currentCollected = Number(currentStudent.totalCollection || 0);
-    const adminNotes = notes !== undefined ? String(notes).trim() : currentStudent.notes || "";
-    if (clearFees && !adminNotes) {
-      return NextResponse.json(
-        { success: false, error: "Add a note before marking fees as clear." },
-        { status: 400 },
-      );
-    }
-
-    const requestedBilling =
-      totalBilling !== undefined ? Number(totalBilling) : currentStudent.totalBilling;
-    if (!Number.isFinite(requestedBilling) || requestedBilling < currentCollected) {
-      return NextResponse.json(
-        { success: false, error: "Total fee cannot be less than the amount already collected." },
-        { status: 400 },
-      );
-    }
-
-    const updatedBilling = clearFees ? currentCollected : requestedBilling;
-    const newPendingAmount = Math.max(0, updatedBilling - currentCollected);
-    const newFeesStatus = newPendingAmount === 0 && updatedBilling > 0 ? "Clear" : "Pending";
-
-    const updatedStudent = await Student.findByIdAndUpdate(
-      id,
-      {
-        $set: {
-          name: name ? String(name).trim() : currentStudent.name,
-          email: email !== undefined ? String(email).trim().toLowerCase() : currentStudent.email,
-          phone: cleanPhone,
-          college: college !== undefined ? String(college).trim() : currentStudent.college,
-          domain: targetDomain,
-          duration: duration ? String(duration).trim() : currentStudent.duration,
-          doj: doj ? String(doj).trim() : currentStudent.doj,
-          totalBilling: updatedBilling,
-          pendingAmount: newPendingAmount,
-          feesStatus: newFeesStatus,
-          notes: adminNotes,
-        },
-      },
-      { new: true, runValidators: true }
-    );
-
-    return NextResponse.json({ success: true, data: updatedStudent }, { status: 200 });
-  } catch (error: any) {
-    console.error("Student directory update failure:", error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-  }
-}
-
-// ─── DELETE: REMOVE A STUDENT RECORD ENTIRELY ───────────────────────────────
-
-export async function DELETE(req: NextRequest) {
-  try {
-    const auth = await requireRole("admin");
-    if (auth.error) return auth.error;
-    await connectToDatabase();
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get("id");
-
-    if (!id) {
-      return NextResponse.json(
-        { success: false, error: "Missing Target Document ID." },
-        { status: 400 }
-      );
-    }
-
-    const deleted = await Student.findByIdAndDelete(id);
-    if (!deleted) {
-      return NextResponse.json(
-        { success: false, error: "Profile does not exist or was already deleted." },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json(
-      { success: true, message: "Student record removed successfully." },
-      { status: 200 }
-    );
-
-  } catch (error: any) {
-    console.error("Student deletion failure:", error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-  }
+export async function DELETE(req: Request) {
+  const auth = await requireRole("admin"); if (auth.error) return auth.error;
+  await connectToDatabase(); const id = new URL(req.url).searchParams.get("id");
+  const enrollment = await Enrollment.findOne({ _id: id, type: "internship" });
+  if (!enrollment) return NextResponse.json({ success: false, error: "Enrollment not found." }, { status: 404 });
+  enrollment.status = "cancelled"; enrollment.cancelledAt = new Date(); await enrollment.save();
+  return NextResponse.json({ success: true, message: "Enrollment cancelled." });
 }

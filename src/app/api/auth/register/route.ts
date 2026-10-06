@@ -5,12 +5,13 @@ import { createAdminNotification } from "@/lib/admin-notifications";
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password } = await req.json();
+    const { name, email, password, phone } = await req.json();
+    const cleanPhone = String(phone || "").replace(/\D/g, "");
 
     // 1. Basic validation
-    if (!name?.trim() || !email || !password) {
+    if (!name?.trim() || !email || !password || cleanPhone.length < 10 || cleanPhone.length > 15) {
       return NextResponse.json(
-        { error: "Name, email, and password are required fields." },
+        { error: "Name, email, password, and a valid phone number are required." },
         { status: 400 }
       );
     }
@@ -27,11 +28,11 @@ export async function POST(req: Request) {
 
     // 3. Check if user exists (using case-insensitive lowercase matching)
     const normalizedEmail = email.toLowerCase();
-    const existingUser = await User.findOne({ email: normalizedEmail });
+    const existingUser = await User.findOne({ $or: [{ email: normalizedEmail }, { phone: cleanPhone }] });
     
     if (existingUser) {
       return NextResponse.json(
-        { error: "An account with this email is already registered." }, 
+        { error: "An account with this email or phone is already registered." },
         { status: 400 }
       );
     }
@@ -41,6 +42,7 @@ export async function POST(req: Request) {
       name: name.trim(),
       email: normalizedEmail, 
       password,
+      phone: cleanPhone,
       role: "student", // Matches standard fallback roles expected by UI layouts
       provider: "credentials", // Tagged to separate from Google sign-ups safely
     });

@@ -1,80 +1,60 @@
-import mongoose, { Schema, model, models, Document } from "mongoose";
 import bcrypt from "bcryptjs";
+import mongoose, { Document, model, models, Schema } from "mongoose";
 
-// 1. Define the Interface
+export type UserRole = "public" | "student" | "employer" | "admin";
+
 export interface IUser extends Document {
+  studentId?: string;
   name: string;
-  email: string;
+  email?: string;
   password?: string;
-  role: "student" | "admin";
-  image?: string;
-  provider?: string;
-  
   phone?: string;
-
+  phoneVerifiedAt?: Date;
+  college?: string;
+  degree?: string;
+  role: UserRole;
+  provider?: "credentials" | "google";
+  image?: string;
+  companyName?: string;
+  companyWebsite?: string;
+  isApproved?: boolean;
+  isExclusive?: boolean;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-// 2. Define the Schema
-const UserSchema = new Schema<IUser>(
-  {
-    name: { type: String, required: true, trim: true },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-    password: { 
-      type: String, 
-      required: false,
-      select: false, // Prevents password from leaking in API queries by default
-    },
-    role: {
-      type: String,
-      enum: ["student", "admin"],
-      default: "student",
-    },
-    image: { type: String },
-    provider: { type: String, default: "credentials" },
+const UserSchema = new Schema<IUser>({
+  studentId: { type: String, trim: true, immutable: true },
+  name: { type: String, required: true, trim: true },
+  email: { type: String, lowercase: true, trim: true },
+  password: { type: String, select: false },
+  phone: { type: String, trim: true },
+  phoneVerifiedAt: Date,
+  college: { type: String, trim: true },
+  degree: { type: String, trim: true },
+  role: { type: String, enum: ["public", "student", "employer", "admin"], default: "public" },
+  provider: { type: String, enum: ["credentials", "google"] },
+  image: String,
+  companyName: { type: String, trim: true },
+  companyWebsite: { type: String, trim: true },
+  isApproved: Boolean,
+  isExclusive: Boolean,
+}, { timestamps: true, autoIndex: false, collection: "users" });
 
-    phone: { type: String, trim: true },
-  },
-  {
-    timestamps: true, // Replaces manual createdAt with automatic createdAt & updatedAt tracking
-  }
-);
+UserSchema.index({ phone: 1 }, { unique: true, partialFilterExpression: { phone: { $type: "string" } } });
+UserSchema.index({ email: 1 }, { unique: true, partialFilterExpression: { email: { $type: "string" } } });
+UserSchema.index({ studentId: 1 }, { unique: true, partialFilterExpression: { studentId: { $type: "string" } } });
 
-/**
- * 3. Pre-save Hook
- * Hashes password when present and modified
- */
 UserSchema.pre("save", async function () {
   if (!this.password || !this.isModified("password")) return;
-
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+  this.password = await bcrypt.hash(this.password, 10);
 });
 
-/**
- * 4. Instance Method for Password Comparison
- */
-UserSchema.methods.comparePassword = async function (
-  candidatePassword: string
-): Promise<boolean> {
-  // If query did not explicitly include `.select("+password")`, this.password will be undefined
-  if (!this.password) {
-    throw new Error("Password field was not selected in query");
-  }
-  return await bcrypt.compare(candidatePassword, this.password);
+UserSchema.methods.comparePassword = async function (candidatePassword: string) {
+  if (!this.password) throw new Error("Password field was not selected in query");
+  return bcrypt.compare(candidatePassword, this.password);
 };
 
-// 5. Export Strategy
-const User =
-  (models.User as mongoose.Model<IUser>) ||
-  model<IUser>("User", UserSchema);
-
+const User = (models.User as mongoose.Model<IUser>) || model<IUser>("User", UserSchema);
 export default User;

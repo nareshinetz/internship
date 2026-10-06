@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Loader2, ArrowLeft, User, Mail, Lock, Sparkles } from "lucide-react";
+import { Loader2, ArrowLeft, User, Mail, Lock, Sparkles, Phone } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -12,6 +12,7 @@ export default function RegisterPage() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     password: "",
   });
   const [error, setError] = useState("");
@@ -84,6 +85,24 @@ export default function RegisterPage() {
           )}
 
           <form className="space-y-4" onSubmit={handleSubmit}>
+            <div className="space-y-1.5">
+              <label className="block text-[9px] font-black uppercase tracking-[0.15em] text-zinc-400 ml-1">
+                Phone_Number
+              </label>
+              <div className="relative group">
+                <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-300 group-focus-within:text-orange-500 transition-colors" />
+                <input
+                  required
+                  type="tel"
+                  inputMode="numeric"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                  placeholder="10-digit phone"
+                  className="block w-full pl-10 pr-4 py-2.5 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs outline-none transition-all focus:border-orange-500 focus:ring-0"
+                />
+              </div>
+            </div>
+
             <div className="space-y-1.5">
               <label className="block text-[9px] font-black uppercase tracking-[0.15em] text-zinc-400 ml-1">
                 Full_Name

@@ -1,8 +1,8 @@
-import mongoose, { Schema, type Model } from "mongoose";
+import mongoose, { Schema, type Model, type Types } from "mongoose";
 
 export interface IRazorpayOrder {
-  accountId: string;
-  studentId: mongoose.Types.ObjectId;
+  userId: Types.ObjectId;
+  enrollmentId: Types.ObjectId;
   lockKey?: string;
   orderId?: string;
   paymentId?: string;
@@ -19,35 +19,25 @@ export interface IRazorpayOrder {
 }
 
 const RazorpayOrderSchema = new Schema<IRazorpayOrder>({
-  accountId: { type: String, required: true, index: true },
-  studentId: { type: Schema.Types.ObjectId, ref: "Student", required: true, index: true },
-  lockKey: { type: String },
+  userId: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
+  enrollmentId: { type: Schema.Types.ObjectId, ref: "Enrollment", required: true, index: true },
+  lockKey: String,
   orderId: { type: String, trim: true },
   paymentId: { type: String, trim: true },
   amount: { type: Number, required: true, min: 1 },
   currency: { type: String, enum: ["INR"], default: "INR" },
-  status: {
-    type: String,
-    enum: ["creating", "created", "processed", "expired", "failed"],
-    required: true,
-  },
+  status: { type: String, enum: ["creating", "created", "processed", "expired", "failed"], required: true },
   expiresAt: { type: Date, required: true },
   processedAt: Date,
   excessAmount: { type: Number, default: 0, min: 0 },
-  refundStatus: {
-    type: String,
-    enum: ["not_required", "required", "refunded"],
-    default: "not_required",
-  },
+  refundStatus: { type: String, enum: ["not_required", "required", "refunded"], default: "not_required" },
   refundId: String,
-}, { timestamps: true });
+}, { timestamps: true, autoIndex: false, collection: "razorpayorders" });
 
 RazorpayOrderSchema.index({ lockKey: 1 }, { unique: true, sparse: true });
 RazorpayOrderSchema.index({ orderId: 1 }, { unique: true, sparse: true });
 RazorpayOrderSchema.index({ paymentId: 1 }, { unique: true, sparse: true });
-RazorpayOrderSchema.index({ accountId: 1, createdAt: -1 });
+RazorpayOrderSchema.index({ userId: 1, createdAt: -1 });
 
-const RazorpayOrder: Model<IRazorpayOrder> =
-  mongoose.models.RazorpayOrder || mongoose.model<IRazorpayOrder>("RazorpayOrder", RazorpayOrderSchema);
-
+const RazorpayOrder: Model<IRazorpayOrder> = mongoose.models.RazorpayOrder || mongoose.model<IRazorpayOrder>("RazorpayOrder", RazorpayOrderSchema);
 export default RazorpayOrder;

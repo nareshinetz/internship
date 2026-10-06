@@ -1,185 +1,60 @@
-import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/api-auth";
 import { connectToDatabase } from "@/lib/db";
+import Enrollment from "@/models/Enrollment";
 import User from "@/models/user";
-import { Student } from "@/models/Student";
+import { NextResponse } from "next/server";
 
-// Helper to authenticate request via NextAuth or custom JWT
-async function getAuthenticatedUser() {
-  await connectToDatabase();
-  const auth = await requireRole();
-  if (auth.error) return { userId: null, userEmail: null };
-  const user = auth.session.user as { id?: string; email?: string | null };
-  return { userId: user.id || null, userEmail: user.email || null };
-}
-
-// ────────────────── GET: FETCH PROFILE & STUDENT RECORD ──────────────────
 export async function GET() {
   try {
-    const { userId, userEmail } = await getAuthenticatedUser();
-
-    if (!userId && !userEmail) {
-      return NextResponse.json(
-        { authenticated: false, user: null },
-        { status: 401 }
-      );
-    }
-
-    const userDoc = userId
-      ? ((await User.findById(userId).select("-password").lean()) as any)
-      : null;
-
-    const emailToSearch = userEmail || userDoc?.email;
-
-    // Search Student collection by case-insensitive email or phone
-    let studentDoc = null;
-    if (emailToSearch) {
-      studentDoc = (await Student.findOne({
-        email: { $regex: new RegExp(`^${emailToSearch.trim()}$`, "i") },
-      }).lean()) as any;
-    }
-
-    if (!studentDoc && userDoc?.phone) {
-      studentDoc = (await Student.findOne({
-        phone: userDoc.phone.trim(),
-      }).lean()) as any;
-    }
-
-    const collectedAmount = studentDoc?.installments?.reduce(
-      (total: number, installment: { paidAmount?: number }) =>
-        total + (Number(installment.paidAmount) || 0),
-      0
-    ) || 0;
-    const totalBilling = Number(studentDoc?.totalBilling) || collectedAmount;
-    const pendingAmount = Math.max(0, totalBilling - collectedAmount);
-    const feesStatus = totalBilling > 0 && pendingAmount === 0 ? "Clear" : "Pending";
-
-    const enrolledCourses = studentDoc
-      ? [
-          {
-            _id: studentDoc._id.toString(),
-            courseTitle: `${studentDoc.domain} Internship Track`,
-            domain: studentDoc.domain,
-            duration: studentDoc.duration,
-            enrolledDate: studentDoc.doj,
-            status: studentDoc.certificateStatus === "Issued" ? "Completed" : "Active",
-            totalBilling,
-            totalCollection: collectedAmount,
-            pendingAmount,
-            feesStatus,
-            certificateStatus: studentDoc.certificateStatus || "Pending",
-          },
-        ]
-      : [];
-
-    let previouslyPaid = 0;
-    const transactions = studentDoc?.installments
-      ? studentDoc.installments.map((inst: any) => {
-          const paidAmount = Number(inst.paidAmount || 0);
-          const transaction = {
-          _id: inst._id?.toString() || inst.receiptNo,
-          receiptNo: inst.receiptNo || inst.transactionId || "RECEIPT",
-          paymentId: inst.transactionId || inst.receiptNo,
-          description: `${studentDoc.domain} Internship Fee (${inst.billingBy || "Receipt"})`,
-          amount: `₹${paidAmount.toLocaleString("en-IN")}`,
-          date: inst.date,
-          paymentMethod: inst.paymentMethod || "Razorpay Online",
-          studentName: studentDoc.name,
-          phone: studentDoc.phone,
-          college: studentDoc.college,
-          domain: studentDoc.domain,
-          courseName: studentDoc.duration,
-          totalFee: totalBilling,
-          previouslyPaid,
-          paidAmount,
-          billingBy: inst.billingBy || "Razorpay Online",
-          status: "Success",
-          };
-          previouslyPaid += paidAmount;
-          return transaction;
-        })
-      : [];
-
-    return NextResponse.json({
-      authenticated: true,
-      user: {
-        _id: studentDoc?._id?.toString() || userDoc?._id?.toString() || userId,
-        id: studentDoc?._id?.toString() || userDoc?._id?.toString() || userId,
-        studentId: studentDoc?._id?.toString() || null,
-        name: studentDoc?.name || userDoc?.name || "",
-        fullName: studentDoc?.name || userDoc?.name || "",
-        email: emailToSearch,
-        role: userDoc?.role || "student",
-        phone: studentDoc?.phone || userDoc?.phone || "",
-        college: studentDoc?.college || userDoc?.college || "",
-        degree: studentDoc?.degree || userDoc?.degree || "B.E / B.Tech",
-        domain: studentDoc?.domain || userDoc?.domain || "Web Development",
-        domainTrack: studentDoc?.domain || userDoc?.domain || "Web Development",
-        enrolledCourses,
-        transactions,
-      },
+    const auth = await requireRole("student", "admin");
+    if (auth.error) return auth.error;
+    const userId = (auth.session.user as { id?: string }).id;
+    await connectToDatabase();
+    const user = await User.findById(userId).lean();
+    if (!user) return NextResponse.json({ authenticated: false, user: null }, { status: 401 });
+    const enrollments = await Enrollment.find({ userId: user._id, type: "internship" }).sort({ joinedAt: -1 }).lean();
+    const enrolledCourses = enrollments.map((enrollment) => ({
+      _id: enrollment._id.toString(),
+      courseTitle: `${enrollment.domain} Internship Track`,
+      domain: enrollment.domain,
+      duration: enrollment.duration,
+      enrolledDate: enrollment.joinedAt.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }),
+      status: enrollment.status === "completed" ? "Completed" : "Active",
+      totalBilling: enrollment.totalBilling,
+      totalCollection: enrollment.totalCollection,
+      pendingAmount: enrollment.pendingAmount,
+      feesStatus: enrollment.feesStatus,
+      certificateStatus: enrollment.certificateStatus,
+    }));
+    const transactions = enrollments.flatMap((enrollment) => {
+      let previouslyPaid = 0;
+      return enrollment.installments.map((installment) => {
+        const transaction = { _id: installment._id?.toString() || installment.receiptNo, receiptNo: installment.receiptNo, paymentId: installment.transactionId, description: `${enrollment.domain} Internship Fee (${installment.billingBy})`, amount: `₹${installment.paidAmount.toLocaleString("en-IN")}`, date: installment.date, paymentMethod: installment.paymentMethod, studentName: user.name, phone: user.phone, college: user.college || "", domain: enrollment.domain, courseName: enrollment.duration, totalFee: enrollment.totalBilling, previouslyPaid, paidAmount: installment.paidAmount, billingBy: installment.billingBy, status: "Success" };
+        previouslyPaid += installment.paidAmount;
+        return transaction;
+      });
     });
-  } catch (err: any) {
-    return NextResponse.json(
-      { authenticated: false, error: err.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ authenticated: true, user: { _id: user._id.toString(), id: user._id.toString(), studentId: user.studentId || null, name: user.name, fullName: user.name, email: user.email || "", role: user.role, phone: user.phone, college: user.college || "", degree: user.degree || "", domain: enrollments[0]?.domain || "", domainTrack: enrollments[0]?.domain || "", enrolledCourses, transactions } });
+  } catch (error) {
+    return NextResponse.json({ authenticated: false, error: error instanceof Error ? error.message : "Failed to load account." }, { status: 500 });
   }
 }
 
-// ────────────────── PUT: UPDATE USER PROFILE & SYNC STUDENT RECORD ──────────────────
 export async function PUT(req: Request) {
   try {
-    const { userId, userEmail } = await getAuthenticatedUser();
-
-    if (!userId && !userEmail) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
+    const auth = await requireRole("student", "admin");
+    if (auth.error) return auth.error;
+    const userId = (auth.session.user as { id?: string }).id;
     const body = await req.json();
-
-    const updateFields = {
-      name: body.fullName || body.name,
-      phone: body.phone,
-      college: body.college,
-      degree: body.degree,
-      domain: body.domainTrack || body.domain,
-    };
-
-    // 1. Update User Document
-    if (userId) {
-      await User.findByIdAndUpdate(userId, { $set: updateFields });
-    }
-
-    // 2. Sync full details with Student Document
-    const emailToSearch = userEmail || body.email;
-    if (emailToSearch) {
-      await Student.findOneAndUpdate(
-        { email: { $regex: new RegExp(`^${emailToSearch.trim()}$`, "i") } },
-        {
-          $set: {
-            name: body.fullName || body.name,
-            phone: body.phone,
-            college: body.college,
-            degree: body.degree,
-            domain: body.domainTrack || body.domain,
-          },
-        }
-      );
-    }
-
-    return NextResponse.json(
-      { success: true, message: "Profile details updated successfully!" },
-      { status: 200 }
-    );
-  } catch (err: any) {
-    console.error("PROFILE_UPDATE_ERROR:", err.message);
-    return NextResponse.json(
-      { success: false, error: "Failed to update profile." },
-      { status: 500 }
-    );
+    await connectToDatabase();
+    const user = await User.findById(userId);
+    if (!user) return NextResponse.json({ success: false, error: "Account not found." }, { status: 404 });
+    if (body.fullName || body.name) user.name = String(body.fullName || body.name).trim();
+    if (body.college !== undefined) user.college = String(body.college).trim();
+    if (body.degree !== undefined) user.degree = String(body.degree).trim();
+    await user.save();
+    return NextResponse.json({ success: true, message: "Profile details updated successfully!" });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: error instanceof Error ? error.message : "Failed to update profile." }, { status: 500 });
   }
 }

@@ -4,7 +4,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { connectToDatabase } from "@/lib/db";
 import bcrypt from "bcryptjs";
 import User from "@/models/user";
-import { createAdminNotification } from "@/lib/admin-notifications";
 
 const DUMMY_HASH =
   "$2b$10$e8m4L.3vT8g9kS.eG2u.3e3/uW9x8Z7Y6X5W4V3U2T1S0R9Q8P7O";
@@ -85,26 +84,13 @@ export const authOptions: NextAuthOptions = {
 
           const cleanEmail = user.email.toLowerCase();
 
-          let dbUser = await User.findOne({
+          const dbUser = await User.findOne({
             email: cleanEmail,
           });
 
-          if (!dbUser) {
-            dbUser = await User.create({
-              name: user.name || "Student",
-              email: cleanEmail,
-              image: user.image || undefined,
-              role: "student",
-              provider: "google",
-            });
-            await createAdminNotification({
-              type: "registration",
-              title: "New Google account",
-              message: `${dbUser.name} registered with ${dbUser.email}.`,
-              entityId: dbUser._id.toString(),
-              dedupeKey: `registration:${dbUser._id}`,
-            });
-          }
+          // Shared users require a unique phone. Register/claim the account first,
+          // then Google may authenticate the existing identity by email.
+          if (!dbUser) return false;
 
           if (dbUser.role !== "student" && dbUser.role !== "admin") {
             return false;

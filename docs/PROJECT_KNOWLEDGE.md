@@ -41,6 +41,14 @@ client providers.
 
 ## Identity and authorization
 
+The shared identity/enrollment design is documented in
+`docs/STUDENT_ENROLLMENT_ARCHITECTURE.md`. The internship application now uses
+the target `User`, `Enrollment`, and `RazorpayOrder` contracts in its active
+flows, but production data has not been migrated and the legacy `Student`
+model remains available as the migration source. Coordinate the identical
+schemas and indexes with the course application before deployment or index
+creation against the shared database.
+
 Primary files:
 
 - `src/lib/authOptions.ts`: NextAuth providers, sign-in rules, JWT/session role
@@ -60,8 +68,9 @@ must independently call `requireRole` before reading input or mutating data.
 ## Core data ownership
 
 - `User`: login identity, provider, role, and phone fields.
-- `Student`: enrollment/profile, course domain and duration, billing total,
-  embedded installments, derived collection/balance/status, certificate state.
+- `Enrollment`: service ownership, domain/duration, billing total, embedded
+  installments, derived collection/balance/status, and certificate state.
+- `Student`: preserved legacy migration source; active flows do not write it.
 - `Program`: public catalog content, official price, syllabus, projects, reviews.
 - `RazorpayOrder`: local order lock and audit trail (`creating`, `created`,
   `processed`, `expired`, `failed`), with unique lock/order/payment IDs.
@@ -70,9 +79,9 @@ must independently call `requireRole` before reading input or mutating data.
   and deduplication key.
 
 Important relationships are application-level rather than a single aggregate:
-`User.email` identifies the account, while `Student` represents an enrollment.
-Payment work must resolve the authenticated account to the correct enrollment,
-not accept a student ID or email supplied by the client.
+`User._id` identifies the account and `Enrollment.userId` owns each enrollment.
+Payment work must resolve the authenticated account to the exact enrollment,
+not accept identity, price, or ownership supplied by the client.
 
 ## Razorpay payment flow
 
@@ -180,6 +189,10 @@ browser resource.
   and authorization; then lint/build.
 - Schema changes: inspect every writer and reader of the model, indexes, existing
   production data compatibility, and whether a migration is required.
+- Shared student cutover: while both applications are write-frozen, run
+  `migration:dry-run`, install reviewed indexes with `migration:indexes`, apply
+  that exact reviewed plan with `migration:apply`, and confirm it with
+  `migration:verify`. Index and apply commands require an explicit `--apply`.
 - UI changes: reuse the nearest feature component and `src/components/ui`; check
   mobile and desktop layouts plus loading/error/empty states.
 - API changes: test unauthenticated, wrong-role, invalid-input, success, and

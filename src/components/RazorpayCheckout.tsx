@@ -22,6 +22,7 @@ interface PaymentData {
   totalBilling: number;
   amountToPay: number;
   balancePayment?: boolean;
+  enrollmentId?: string;
 }
 
 export default function RazorpayCheckout({
