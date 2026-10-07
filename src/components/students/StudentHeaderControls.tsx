@@ -32,7 +32,7 @@ interface SummaryData {
   byDuration?: {
     "6 Months": DurationStat;
     "3 Months": DurationStat;
-    "Short Term (1W / 2W / 1M)": DurationStat;
+    "Short Term (1W / 2W / 3W / 1M)": DurationStat;
   };
 }
 
@@ -188,7 +188,7 @@ export default function StudentHeaderControls({
 
   const sixMonthStats = summary?.byDuration?.["6 Months"] || { count: 0, collected: 0, pending: 0 };
   const threeMonthStats = summary?.byDuration?.["3 Months"] || { count: 0, collected: 0, pending: 0 };
-  const shortTermStats = summary?.byDuration?.["Short Term (1W / 2W / 1M)"] || { count: 0, collected: 0, pending: 0 };
+  const shortTermStats = summary?.byDuration?.["Short Term (1W / 2W / 3W / 1M)"] || { count: 0, collected: 0, pending: 0 };
 
   // ─── EXCEL EXPORT HANDLER ─────────────────────────────────────────────────
   const handleExportCsv = async () => {
@@ -408,7 +408,7 @@ export default function StudentHeaderControls({
                 <span className="text-[10px] font-black uppercase tracking-widest text-emerald-700 block">
                   Short Term Tracks
                 </span>
-                <p className="text-xs font-bold text-zinc-500">1W / 2W / 1 Month</p>
+                <p className="text-xs font-bold text-zinc-500">1W / 2W / 3W / 1 Month</p>
               </div>
             </div>
             <div className="text-right">
@@ -589,7 +589,7 @@ export default function StudentHeaderControls({
 
           {/* 4. From Date Picker */}
           <div className="space-y-1.5">
-            <label htmlFor="student-added-from" className="text-[10px] font-bold text-zinc-500">Added from</label>
+              <label htmlFor="student-added-from" className="text-[10px] font-bold text-zinc-500">Joined from</label>
             <div className="relative flex items-center">
               <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400 pointer-events-none" />
               <input
@@ -606,7 +606,7 @@ export default function StudentHeaderControls({
           {/* 5. To Date Picker */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label htmlFor="student-added-to" className="text-[10px] font-bold text-zinc-500">Added until</label>
+              <label htmlFor="student-added-to" className="text-[10px] font-bold text-zinc-500">Joined until</label>
               {(fromDate || toDate) && (
                 <button onClick={onClearDates} className="text-[10px] font-bold text-red-600 hover:text-red-700 cursor-pointer">
                   Clear range

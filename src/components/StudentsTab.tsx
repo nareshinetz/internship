@@ -13,6 +13,7 @@ const DEFAULT_DURATIONS = ["1 Week", "2 Weeks", "1 Month", "2 Months", "3 Months
 export default function StudentsTab() {
   const [students, setStudents] = useState<StudentRecord[]>([]);
   const [availableDomains, setAvailableDomains] = useState<string[]>(["All"]);
+  const [availableDurations, setAvailableDurations] = useState<string[]>(["All", ...DEFAULT_DURATIONS]);
   const [loading, setLoading] = useState(true);
 
   // Summary Metrics State
@@ -125,6 +126,9 @@ export default function StudentsTab() {
               : ["All"];
           });
         }
+        if (Array.isArray(res.data.availableDurations) && res.data.availableDurations.length > 0) {
+          setAvailableDurations(Array.from(new Set(res.data.availableDurations)) as string[]);
+        }
 
         if (res.data.pagination) {
           setTotalPages(res.data.pagination.totalPages || 1);
@@ -193,7 +197,7 @@ export default function StudentsTab() {
         availableDomains={availableDomains}
         durationFilter={durationFilter}
         onDurationChange={handleDurationChange}
-        availableDurations={["All", ...DEFAULT_DURATIONS]}
+        availableDurations={availableDurations}
         fromDate={fromDate}
         onFromDateChange={handleFromDateChange}
         toDate={toDate}

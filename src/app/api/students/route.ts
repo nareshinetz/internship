@@ -8,6 +8,7 @@ import { NextResponse } from "next/server";
 
 const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const prefixFor = (duration: string) => /6\s*month/i.test(duration) ? "INC" : /3\s*month/i.test(duration) ? "IN3" : "INI";
+const day = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) ? new Date(`${value}T00:00:00.000Z`) : undefined;
 
 async function nextStudentId(duration: string) {
   const prefix = prefixFor(duration);
@@ -27,10 +28,23 @@ export async function GET(req: Request) {
   const params = new URL(req.url).searchParams;
   const page = Math.max(1, Number(params.get("page")) || 1);
   const limit = Math.max(1, Number(params.get("limit")) || 15);
-  const query: Record<string, unknown> = { type: "internship", status: { $ne: "cancelled" } };
+  const query: Record<string, unknown> = { status: { $ne: "cancelled" } };
   const domain = params.get("domain")?.trim(); const duration = params.get("duration")?.trim();
   if (domain && domain.toLowerCase() !== "all") query.domain = new RegExp(`^${escapeRegex(domain)}$`, "i");
   if (duration && duration.toLowerCase() !== "all") query.duration = new RegExp(`^${escapeRegex(duration)}$`, "i");
+  const joiningDate = params.get("joiningDate")?.trim();
+  const fromDate = params.get("fromDate")?.trim();
+  const toDate = params.get("toDate")?.trim();
+  if (joiningDate) {
+    const start = day(joiningDate);
+    if (!start) return NextResponse.json({ success: false, error: "Invalid joining date." }, { status: 400 });
+    query.joinedAt = { $gte: start, $lt: new Date(start.getTime() + 86_400_000) };
+  } else if (fromDate || toDate) {
+    const start = fromDate ? day(fromDate) : undefined;
+    const end = toDate ? day(toDate) : undefined;
+    if ((fromDate && !start) || (toDate && !end)) return NextResponse.json({ success: false, error: "Invalid joining date range." }, { status: 400 });
+    query.joinedAt = { ...(start ? { $gte: start } : {}), ...(end ? { $lt: new Date(end.getTime() + 86_400_000) } : {}) };
+  }
   const search = params.get("search")?.trim();
   let userIds: unknown[] | undefined;
   if (search) {
@@ -38,14 +52,17 @@ export async function GET(req: Request) {
     userIds = (await User.find({ $or: [{ name: rx }, { email: rx }, { phone: rx }, { college: rx }, { studentId: rx }] }).distinct("_id"));
     query.$or = [{ domain: rx }, { userId: { $in: userIds } }];
   }
-  const [docs, total, domains, summary] = await Promise.all([
-    Enrollment.find(query).populate("userId", "studentId name email phone college degree").sort({ joinedAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
+  const [docs, total, domains, durations, summary, durationSummary] = await Promise.all([
+    Enrollment.find(query).populate("userId", "studentId name email phone college degree").sort({ joinedAt: -1, _id: -1 }).skip((page - 1) * limit).limit(limit).lean(),
     Enrollment.countDocuments(query),
-    Enrollment.distinct("domain", { type: "internship", status: { $ne: "cancelled" } }),
+    Enrollment.distinct("domain", { status: { $ne: "cancelled" } }),
+    Enrollment.distinct("duration", { status: { $ne: "cancelled" } }),
     Enrollment.aggregate([{ $match: query }, { $group: { _id: null, totalCollected: { $sum: "$totalCollection" }, totalPending: { $sum: "$pendingAmount" }, duesCount: { $sum: { $cond: [{ $eq: ["$feesStatus", "Pending"] }, 1, 0] } } } }]),
+    Enrollment.aggregate([{ $match: query }, { $group: { _id: "$duration", count: { $sum: 1 }, collected: { $sum: "$totalCollection" }, pending: { $sum: "$pendingAmount" } } }]),
   ]);
   const stats = summary[0] || { totalCollected: 0, totalPending: 0, duesCount: 0 };
-  return NextResponse.json({ success: true, students: docs.map((doc) => flatten(doc as unknown as Record<string, unknown>)), availableDomains: ["All", ...domains], pagination: { totalStudents: total, totalPages: Math.ceil(total / limit) || 1, currentPage: page, limit }, summary: { totalStudents: total, totalCollected: stats.totalCollected, totalPending: stats.totalPending, duesCount: stats.duesCount, clearCount: total - stats.duesCount, byDuration: {} } });
+  const durationStats = (pattern: RegExp) => durationSummary.filter(({ _id }) => pattern.test(String(_id))).reduce((result, item) => ({ count: result.count + item.count, collected: result.collected + item.collected, pending: result.pending + item.pending }), { count: 0, collected: 0, pending: 0 });
+  return NextResponse.json({ success: true, students: docs.map((doc) => flatten(doc as unknown as Record<string, unknown>)), availableDomains: ["All", ...domains], availableDurations: ["All", ...durations], pagination: { totalStudents: total, totalPages: Math.ceil(total / limit) || 1, currentPage: page, limit }, summary: { totalStudents: total, totalCollected: stats.totalCollected, totalPending: stats.totalPending, duesCount: stats.duesCount, clearCount: total - stats.duesCount, byDuration: { "6 Months": durationStats(/^6\s*months?$/i), "3 Months": durationStats(/^3\s*months?$/i), "Short Term (1W / 2W / 3W / 1M)": durationStats(/^(1|2|3)\s*weeks?$|^1\s*months?$/i) } } });
 }
 
 export async function POST(req: Request) {

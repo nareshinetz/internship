@@ -10,6 +10,13 @@ const email = (value) => typeof value === "string" ? value.trim().toLowerCase() 
 const phone = (value) => typeof value === "string" ? value.replace(/\D/g, "") : "";
 const id = (value) => value?.toString?.() || "";
 const money = (value) => Number(value) || 0;
+const legacyJoiningDate = (value) => {
+  const text = String(value || "").trim();
+  const iso = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (iso) return new Date(Date.UTC(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3])));
+  const parsed = new Date(text);
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed;
+};
 const installmentsTotal = (student) => (student.installments || []).reduce((sum, item) => sum + money(item.paidAmount), 0);
 const groupBy = (items, keyOf) => {
   const groups = new Map();
@@ -119,7 +126,7 @@ try {
     }
 
     const collected = installmentsTotal(student);
-    const joinedAt = student.createdAt || student.doj;
+    const joinedAt = legacyJoiningDate(student.doj) || student.createdAt;
     const problems = [...identityProblems];
     if (service.error) problems.push(service.error);
     if (!joinedAt || Number.isNaN(new Date(joinedAt).getTime())) problems.push("joining date is missing or invalid");

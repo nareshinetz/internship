@@ -13,7 +13,8 @@
     "migration:clean-optionals": "node scripts/cleanup-empty-user-fields.mjs",
     "migration:indexes": "node scripts/install-shared-indexes.mjs",
     "migration:apply": "node scripts/apply-student-enrollment-migration.mjs",
-    "migration:verify": "node scripts/verify-student-enrollment-migration.mjs"
+    "migration:verify": "node scripts/verify-student-enrollment-migration.mjs",
+    "migration:sync-joined-at": "node scripts/sync-enrollment-joined-at.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

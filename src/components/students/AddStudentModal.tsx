@@ -32,16 +32,6 @@ interface AddStudentModalProps {
 
 const DEFAULT_DURATIONS = ["1 Week", "2 Weeks", "1 Month", "3 Months", "6 Months"];
 
-const formatToIndianDate = (dateString: string) => {
-  const d = new Date(dateString);
-  if (isNaN(d.getTime())) return dateString;
-  return d.toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-};
-
 export default function AddStudentModal({
   isOpen,
   onClose,
@@ -171,7 +161,7 @@ export default function AddStudentModal({
       college: form.college.trim(),
       domain: form.domain.trim(),
       duration: form.duration,
-      doj: formatToIndianDate(form.doj),
+      doj: form.doj,
       totalBilling: Number(form.totalBilling) || 0,
       initialPayment: Number(form.initialPayment) || 0,
       paymentMethod: form.paymentMethod,
