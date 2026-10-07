@@ -1,6 +1,7 @@
 import { createAdminNotification } from "@/lib/admin-notifications";
 import { connectToDatabase } from "@/lib/db";
 import { sendPaymentReceipt } from "@/lib/payment-receipt-email";
+import { ensureStudentId } from "@/lib/student-id";
 import Enrollment from "@/models/Enrollment";
 import RazorpayOrder from "@/models/RazorpayOrder";
 import User from "@/models/user";
@@ -35,6 +36,7 @@ export async function recordRazorpayPayment(orderId: string, paymentId: string) 
 
   const excessAmount = Math.max(0, enrollment.totalCollection - enrollment.totalBilling);
   await RazorpayOrder.updateOne({ _id: trackedOrder._id }, { $set: { paymentId, status: "processed", processedAt: new Date(), excessAmount, refundStatus: excessAmount > 0 ? "required" : "not_required" }, $unset: { lockKey: "" } });
+  await ensureStudentId(trackedOrder.userId, enrollment.duration);
   if (alreadyRecorded) return { enrollmentId, receiptNo, emailSent: false, alreadyRecorded: true };
 
   const user = await User.findById(trackedOrder.userId).lean();

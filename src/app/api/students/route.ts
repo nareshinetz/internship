@@ -3,19 +3,12 @@ import { connectToDatabase } from "@/lib/db";
 import Enrollment from "@/models/Enrollment";
 import Program from "@/models/Program";
 import User from "@/models/user";
+import { ensureStudentId } from "@/lib/student-id";
 import { createAdminNotification } from "@/lib/admin-notifications";
 import { NextResponse } from "next/server";
 
 const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-const prefixFor = (duration: string) => /6\s*month/i.test(duration) ? "INC" : /3\s*month/i.test(duration) ? "IN3" : "INI";
 const day = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) ? new Date(`${value}T00:00:00.000Z`) : undefined;
-
-async function nextStudentId(duration: string) {
-  const prefix = prefixFor(duration);
-  const latest = await User.findOne({ studentId: new RegExp(`^${prefix}`) }).select("studentId").sort({ studentId: -1 }).collation({ locale: "en", numericOrdering: true }).lean();
-  const current = latest?.studentId ? Number.parseInt(latest.studentId.slice(prefix.length), 10) : 0;
-  return `${prefix}${String((Number.isFinite(current) ? current : 0) + 1).padStart(3, "0")}`;
-}
 
 const flatten = (enrollment: Record<string, unknown>) => {
   const user = enrollment.userId as Record<string, unknown>;
@@ -76,19 +69,20 @@ export async function POST(req: Request) {
     if (!program) return NextResponse.json({ success: false, error: "Select an existing internship program." }, { status: 400 });
     const email = String(body.email || "").trim().toLowerCase();
     let user = await User.findOne({ phone });
-    if (!user) user = new User({ name, phone, college: String(body.college || "N/A").trim(), degree: body.degree ? String(body.degree).trim() : undefined, role: "student", studentId: await nextStudentId(program.duration || "") });
+    if (!user) user = new User({ name, phone, college: String(body.college || "N/A").trim(), degree: body.degree ? String(body.degree).trim() : undefined, role: "student" });
     if (email) {
       const emailOwner = await User.findOne({ email, _id: { $ne: user._id } });
       if (emailOwner) return NextResponse.json({ success: false, error: "That email belongs to another account." }, { status: 409 });
       user.email = email;
     }
     await user.save();
+    const studentId = await ensureStudentId(user._id, program.duration || "");
     const joinedAt = body.batchStartDate || body.doj ? new Date(`${body.batchStartDate || body.doj}T00:00:00`) : new Date();
     const paid = Number(body.initialPayment) || 0; const total = Number(body.totalBilling ?? program.price) || 0;
     const installments = paid > 0 ? [{ receiptNo: `IT-ADM-${Date.now()}`, date: joinedAt.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }), paidAmount: paid, paymentMethod: body.paymentMethod || "Cash", transactionId: "N/A", billingBy: body.billingBy || "Admin Manual Entry" }] : [];
     const enrollment = await Enrollment.create({ userId: user._id, type: "internship", offeringId: program._id, offeringSlug: program.slug, joinedAt, domain: program.title, duration: program.duration, status: paid > 0 ? "active" : "payment_pending", totalBilling: total, installments, certificateStatus: "Pending" });
     await createAdminNotification({ type: "enrollment", title: "New enrollment", message: `${user.name} enrolled in ${enrollment.domain} (${enrollment.duration}).`, entityId: enrollment._id.toString(), dedupeKey: `enrollment:${enrollment._id}` });
-    return NextResponse.json({ success: true, message: "Student enrolled successfully.", data: flatten({ ...enrollment.toObject(), userId: user.toObject() }) }, { status: 201 });
+    return NextResponse.json({ success: true, message: "Student enrolled successfully.", data: flatten({ ...enrollment.toObject(), userId: { ...user.toObject(), studentId } }) }, { status: 201 });
   } catch (error) { return NextResponse.json({ success: false, error: error instanceof Error ? error.message : "Failed to enroll student." }, { status: 500 }); }
 }
 

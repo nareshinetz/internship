@@ -68,6 +68,8 @@ must independently call `requireRole` before reading input or mutating data.
 ## Core data ownership
 
 - `User`: login identity, provider, role, and phone fields.
+- `src/lib/student-id.ts`: assigns one permanent User.studentId on first paid
+  online enrollment or admin enrollment; registration alone has no ID.
 - `Enrollment`: service ownership, domain/duration, billing total, embedded
   installments, derived collection/balance/status, and certificate state.
 - `Student`: preserved legacy migration source; active flows do not write it.
@@ -99,7 +101,7 @@ Student dashboard
      -> recordRazorpayPayment(orderId, paymentId)
         -> fetch authoritative Razorpay order/payment
         -> require captured payment, INR, matching IDs and amount
-        -> atomically append one Student installment
+        -> append one Enrollment installment and assign User.studentId if absent
         -> mark RazorpayOrder processed
         -> email receipt
 ```
@@ -124,8 +126,9 @@ Key files:
 
 The database row is retained after completion as an audit/idempotency record;
 its active lock is released and status becomes `processed`. Never delete it as
-part of normal success. Browser verification and webhook may race safely only
-because they share the recorder and unique payment/installment checks.
+part of normal success. Browser verification and webhook share the recorder,
+but its read/check/save installment sequence is not atomic across simultaneous
+calls; resolve that race before relying on strict exactly-once recording.
 
 Razorpay webhook configuration is an external operational step. Point it at
 `/api/razorpay/webhook`, subscribe to `payment.captured`, and configure the same

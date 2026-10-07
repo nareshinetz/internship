@@ -8,13 +8,15 @@
     "start": "next start",
     "lint": "eslint",
     "test:auth": "node scripts/check-auth.mjs",
+    "test:student-id": "node scripts/check-student-id.mjs",
     "audit:db": "node scripts/audit-shared-database.mjs",
     "migration:dry-run": "node scripts/plan-student-enrollment-migration.mjs",
     "migration:clean-optionals": "node scripts/cleanup-empty-user-fields.mjs",
     "migration:indexes": "node scripts/install-shared-indexes.mjs",
     "migration:apply": "node scripts/apply-student-enrollment-migration.mjs",
     "migration:verify": "node scripts/verify-student-enrollment-migration.mjs",
-    "migration:sync-joined-at": "node scripts/sync-enrollment-joined-at.mjs"
+    "migration:sync-joined-at": "node scripts/sync-enrollment-joined-at.mjs",
+    "migration:backfill-student-ids": "node scripts/backfill-student-ids.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
