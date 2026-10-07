@@ -23,6 +23,80 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Admin remains self-contained so public and student pages retain their existing style. */
+.admin-shell {
+  --admin-ink: #172033;
+  font-family: "Aptos", "Aptos Display", "Segoe UI Variable", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  color: var(--admin-ink);
+  text-rendering: optimizeLegibility;
+}
+
+.admin-shell :is(input, select, textarea, button) {
+  font-family: inherit;
+}
+
+.admin-shell .font-black {
+  font-weight: 700;
+}
+
+.admin-shell main > div {
+  animation: admin-content-enter 180ms ease-out;
+}
+
+.admin-shell .student-collection .metric-card,
+.admin-shell .student-collection .track-card,
+.admin-shell .student-collection .directory-panel {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 20px rgb(15 23 42 / 0.025);
+}
+
+.admin-shell .student-collection .metric-card > div:first-child > span,
+.admin-shell .student-collection .track-card .uppercase {
+  font-weight: 600;
+  letter-spacing: 0.075em;
+}
+
+.admin-shell .student-collection .metric-card h3,
+.admin-shell .student-collection .track-card .text-xl,
+.admin-shell .student-collection .track-card .text-sm {
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-shell .student-collection .track-card > div:last-child > div {
+  background: #f8fafc;
+  border-color: #eef2f7;
+}
+
+.admin-shell .student-collection .directory-panel h2 {
+  color: #172033;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.admin-shell .student-collection .directory-panel input,
+.admin-shell .student-collection .directory-panel select {
+  background: #ffffff;
+  border-color: #dbe3ee;
+  color: #253248;
+  font-weight: 500;
+}
+
+.admin-shell .student-collection .directory-panel input:focus,
+.admin-shell .student-collection .directory-panel select:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgb(16 185 129 / 0.1);
+}
+
+.admin-shell .student-collection .directory-panel button.bg-emerald-600 {
+  box-shadow: 0 4px 12px rgb(5 150 105 / 0.16);
+}
+
+@keyframes admin-content-enter {
+  from { opacity: 0; transform: translateY(2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* Vertical timeline connector positioning */
 .timeline-path {
   stroke-dasharray: 6 6;

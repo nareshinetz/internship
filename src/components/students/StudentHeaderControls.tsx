@@ -259,12 +259,12 @@ export default function StudentHeaderControls({
   };
 
   return (
-    <div className="space-y-5">
+    <div className="student-collection space-y-5">
       {/* ─── OVERALL KPI SUMMARY CARDS ────────────────────────────────────────── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         
         {/* Total Enrolled Students */}
-        <div className="bg-white p-5 rounded-3xl border border-zinc-200/80 shadow-xs flex items-center justify-between">
+        <div className="metric-card bg-white p-5 rounded-3xl border border-zinc-200/80 shadow-xs flex items-center justify-between">
           <div className="space-y-0.5">
             <span className="text-[10px] font-black uppercase tracking-wider text-zinc-400 block">
               Total Enrolled Students
@@ -279,7 +279,7 @@ export default function StudentHeaderControls({
         </div>
 
         {/* Total Fees Collected */}
-        <div className="bg-white p-5 rounded-3xl border border-zinc-200/80 shadow-xs flex items-center justify-between">
+        <div className="metric-card bg-white p-5 rounded-3xl border border-zinc-200/80 shadow-xs flex items-center justify-between">
           <div className="space-y-0.5">
             <span className="text-[10px] font-black uppercase tracking-wider text-emerald-600 block">
               Total Fees Collected
@@ -294,7 +294,7 @@ export default function StudentHeaderControls({
         </div>
 
         {/* Outstanding Balance */}
-        <div className="bg-white p-5 rounded-3xl border border-zinc-200/80 shadow-xs flex items-center justify-between">
+        <div className="metric-card bg-white p-5 rounded-3xl border border-zinc-200/80 shadow-xs flex items-center justify-between">
           <div className="space-y-0.5">
             <span className="text-[10px] font-black uppercase tracking-wider text-amber-600 block">
               Outstanding Balance
@@ -314,7 +314,7 @@ export default function StudentHeaderControls({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         
         {/* Card 1: 6 Months Track */}
-        <div className="bg-white p-5 rounded-3xl border border-zinc-200/80 shadow-xs flex flex-col justify-between space-y-4">
+        <div className="track-card bg-white p-5 rounded-3xl border border-zinc-200/80 shadow-xs flex flex-col justify-between space-y-4">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-700 flex items-center justify-center font-black text-xs border border-purple-100">
@@ -356,7 +356,7 @@ export default function StudentHeaderControls({
         </div>
 
         {/* Card 2: 3 Months Track */}
-        <div className="bg-white p-5 rounded-3xl border border-zinc-200/80 shadow-xs flex flex-col justify-between space-y-4">
+        <div className="track-card bg-white p-5 rounded-3xl border border-zinc-200/80 shadow-xs flex flex-col justify-between space-y-4">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center font-black text-xs border border-blue-100">
@@ -398,7 +398,7 @@ export default function StudentHeaderControls({
         </div>
 
         {/* Card 3: Short Term Tracks */}
-        <div className="bg-white p-5 rounded-3xl border border-zinc-200/80 shadow-xs flex flex-col justify-between space-y-4">
+        <div className="track-card bg-white p-5 rounded-3xl border border-zinc-200/80 shadow-xs flex flex-col justify-between space-y-4">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-black text-xs border border-emerald-100">
@@ -442,7 +442,7 @@ export default function StudentHeaderControls({
       </div>
 
       {/* ─── DIRECTORY HEADER & CONTROLS BOX ─────────────────────────────────── */}
-      <div className="bg-white p-6 rounded-3xl border border-zinc-200/80 shadow-xs space-y-4">
+      <div className="directory-panel bg-white p-6 rounded-3xl border border-zinc-200/80 shadow-xs space-y-4">
         
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-100 pb-4">
           <div>

@@ -12,7 +12,11 @@ export async function GET() {
     await connectToDatabase();
     const user = await User.findById(userId).lean();
     if (!user) return NextResponse.json({ authenticated: false, user: null }, { status: 401 });
-    const enrollments = await Enrollment.find({ userId: user._id, type: "internship" }).sort({ joinedAt: -1 }).lean();
+    const enrollments = await Enrollment.find({
+      userId: user._id,
+      type: "internship",
+      $nor: [{ status: "payment_pending", "installments.0": { $exists: false } }],
+    }).sort({ joinedAt: -1 }).lean();
     const enrolledCourses = enrollments.map((enrollment) => ({
       _id: enrollment._id.toString(),
       courseTitle: `${enrollment.domain} Internship Track`,

@@ -101,8 +101,8 @@ Student dashboard
      -> recordRazorpayPayment(orderId, paymentId)
         -> fetch authoritative Razorpay order/payment
         -> require captured payment, INR, matching IDs and amount
-        -> append one Enrollment installment and assign User.studentId if absent
-        -> mark RazorpayOrder processed
+        -> in one transaction, claim RazorpayOrder and append Enrollment installment
+        -> assign User.studentId if absent
         -> email receipt
 ```
 
@@ -126,9 +126,9 @@ Key files:
 
 The database row is retained after completion as an audit/idempotency record;
 its active lock is released and status becomes `processed`. Never delete it as
-part of normal success. Browser verification and webhook share the recorder,
-but its read/check/save installment sequence is not atomic across simultaneous
-calls; resolve that race before relying on strict exactly-once recording.
+part of normal success. Browser verification and webhook share the recorder;
+the tracked-order claim and Enrollment installment save commit in one MongoDB
+transaction, so a concurrent confirmation retries and sees the processed order.
 
 Razorpay webhook configuration is an external operational step. Point it at
 `/api/razorpay/webhook`, subscribe to `payment.captured`, and configure the same

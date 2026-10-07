@@ -131,17 +131,17 @@ export default function AdminPage() {
 
 
   return (
-    <div className="flex min-h-screen bg-zinc-50 font-sans">
+    <div className="admin-shell flex min-h-screen bg-slate-100 font-sans">
       {/* PERSISTENT ADMINISTRATIVE SIDEBAR NAVIGATION */}
-      <aside className="w-64 bg-zinc-900 text-zinc-400 p-6 flex flex-col justify-between shrink-0 hidden md:flex border-r border-zinc-800">
+      <aside className="w-64 bg-slate-950 text-slate-400 p-6 flex flex-col justify-between shrink-0 hidden md:flex border-r border-slate-800 shadow-2xl shadow-slate-950/10">
         <div className="space-y-8">
           <div className="flex items-center gap-3 px-2">
-            <span className="p-2.5 bg-emerald-600 text-white rounded-xl shadow-lg shadow-emerald-600/20">
+            <span className="p-2.5 bg-emerald-600 text-white rounded-xl shadow-lg shadow-emerald-950/40 ring-1 ring-emerald-400/30">
               <LayoutDashboard size={20} />
             </span>
             <div>
-              <h1 className="text-white text-sm font-black uppercase tracking-wider">iNetz Console</h1>
-              <p className="text-[10px] text-zinc-500 font-bold tracking-tight mt-0.5">ADMIN ENVIRONMENT</p>
+              <h1 className="text-white text-[15px] font-bold tracking-tight">iNetz Console</h1>
+              <p className="text-[10px] text-slate-500 font-semibold tracking-wide mt-0.5">ADMIN WORKSPACE</p>
             </div>
           </div>
 
@@ -151,10 +151,10 @@ export default function AdminPage() {
                 setActiveTab("tracks");
                 setView("list");
               }}
-              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-[13px] font-semibold tracking-normal transition-all cursor-pointer ${
                 activeTab === "tracks"
-                  ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/10"
-                  : "hover:bg-zinc-800 hover:text-zinc-200"
+                  ? "bg-emerald-600 text-white shadow-lg shadow-emerald-950/30"
+                  : "hover:bg-slate-800 hover:text-slate-100"
               }`}
             >
               <BookOpen size={16} /> Track Management
@@ -165,10 +165,10 @@ export default function AdminPage() {
                 setActiveTab("students");
                 setView("list");
               }}
-              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-[13px] font-semibold tracking-normal transition-all cursor-pointer ${
                 activeTab === "students"
-                  ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/10"
-                  : "hover:bg-zinc-800 hover:text-zinc-200"
+                  ? "bg-emerald-600 text-white shadow-lg shadow-emerald-950/30"
+                  : "hover:bg-slate-800 hover:text-slate-100"
               }`}
             >
               <Users size={16} /> Student Directory
@@ -179,10 +179,10 @@ export default function AdminPage() {
                 setActiveTab("transactions");
                 setView("list");
               }}
-              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-[13px] font-semibold tracking-normal transition-all cursor-pointer ${
                 activeTab === "transactions"
-                  ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/10"
-                  : "hover:bg-zinc-800 hover:text-zinc-200"
+                  ? "bg-emerald-600 text-white shadow-lg shadow-emerald-950/30"
+                  : "hover:bg-slate-800 hover:text-slate-100"
               }`}
             >
               <History size={16} /> Audit Collections
@@ -193,10 +193,10 @@ export default function AdminPage() {
                 setActiveTab("journals");
                 setView("list");
               }}
-              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-[13px] font-semibold tracking-normal transition-all cursor-pointer ${
                 activeTab === "journals"
-                  ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/10"
-                  : "hover:bg-zinc-800 hover:text-zinc-200"
+                  ? "bg-emerald-600 text-white shadow-lg shadow-emerald-950/30"
+                  : "hover:bg-slate-800 hover:text-slate-100"
               }`}
             >
               <BookOpen size={16} /> Blogs & Events
@@ -204,8 +204,8 @@ export default function AdminPage() {
           </nav>
         </div>
 
-        <div className="space-y-4 pt-6 border-t border-zinc-800/60 text-[11px] font-medium px-2">
-          <div className="flex items-center gap-2 hover:text-zinc-200 cursor-pointer transition-colors">
+        <div className="space-y-4 pt-6 border-t border-slate-800 text-xs font-medium px-2">
+          <div className="flex items-center gap-2 hover:text-slate-100 cursor-pointer transition-colors">
             <Settings size={14} /> System Parameters
           </div>
           <div className="flex items-center gap-2 text-red-400 hover:text-red-300 cursor-pointer transition-colors">
@@ -215,7 +215,7 @@ export default function AdminPage() {
       </aside>
 
       {/* VIEWPORT CONTROLLER SWITCHBOARD FOR ADMIN ROUTINGS */}
-      <main className="flex-1 overflow-y-auto h-screen p-6 md:p-12">
+      <main className="flex-1 overflow-y-auto h-screen bg-slate-50 p-6 md:p-12">
         <div className="max-w-6xl mx-auto">
           {activeTab === "tracks" && (
             <TracksTab

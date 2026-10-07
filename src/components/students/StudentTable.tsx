@@ -60,11 +60,11 @@ export default function StudentTable({ students, loading, onOpenEditModal }: Stu
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-zinc-200/80 shadow-sm overflow-hidden">
+    <div className="student-table bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-zinc-100 bg-zinc-50/60 text-[10px] font-black uppercase text-zinc-400 tracking-wider">
+            <tr className="border-b border-slate-200 bg-slate-50 text-[10px] font-semibold uppercase text-slate-500 tracking-[0.075em]">
               <th className="py-3.5 px-4">Student ID</th>
               <th className="py-3.5 px-4">Student Name</th>
               <th className="py-3.5 px-4">Contact Info</th>
@@ -75,33 +75,33 @@ export default function StudentTable({ students, loading, onOpenEditModal }: Stu
               <th className="py-3.5 px-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-100 text-xs font-medium text-zinc-700">
+          <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">
             {students.map((st) => (
-              <tr key={st._id} className="hover:bg-zinc-50/50 transition-colors">
+              <tr key={st._id} className="hover:bg-slate-50/80 transition-colors">
                 <td className="py-3.5 px-4">
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-md font-mono text-[11px] font-bold bg-zinc-100 border border-zinc-200 text-zinc-800">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-md font-mono text-[11px] font-semibold bg-slate-50 border border-slate-200 text-slate-700">
                     {st.studentId || `#${st.sNo || "N/A"}`}
                   </span>
                 </td>
                 <td className="py-3 px-4">
-                  <p className="font-bold text-zinc-900">{st.name}</p>
+                  <p className="font-semibold text-slate-900">{st.name}</p>
                 </td>
                 <td className="py-3 px-4">
-                  <p className="font-mono text-zinc-800">{st.phone}</p>
+                  <p className="font-mono text-slate-700 tabular-nums">{st.phone}</p>
                 </td>
                 <td className="py-3 px-4">
-                  <p className="font-bold text-zinc-800 truncate max-w-[180px]">{st.domain}</p>
+                  <p className="font-medium text-slate-800 truncate max-w-[180px]">{st.domain}</p>
                 </td>
                 <td className="py-3 px-4">
-                  <p className="font-bold text-zinc-800 truncate max-w-[180px]">{st.duration}</p>
+                  <p className="font-medium text-slate-800 truncate max-w-[180px]">{st.duration}</p>
                 </td>
                 <td className="py-3 px-4">
-                  <p className="font-bold text-zinc-800 truncate max-w-[180px]">{st.totalBilling}</p>
+                  <p className="font-semibold text-slate-900 tabular-nums truncate max-w-[180px]">{st.totalBilling}</p>
                 </td>
                 <td className="py-3 px-4">
                   <span
                     className={cn(
-                      "px-2.5 py-1 rounded-full text-[9px] font-black uppercase border tracking-wider",
+                      "px-2.5 py-1 rounded-full text-[9px] font-semibold uppercase border tracking-[0.06em]",
                       st.pendingAmount <= 0 || st.feesStatus === "Clear" || st.feesStatus === "Fully Paid"
                         ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                         : "bg-amber-50 text-amber-700 border-amber-200"
@@ -113,7 +113,7 @@ export default function StudentTable({ students, loading, onOpenEditModal }: Stu
                 <td className="py-3 px-4 text-right">
                   <button
                     onClick={() => onOpenEditModal(st)}
-                    className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 rounded-lg text-xs font-bold flex items-center gap-1 transition-colors ml-auto cursor-pointer"
+                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors ml-auto cursor-pointer"
                   >
                     <Eye size={12} /> View / Edit
                   </button>

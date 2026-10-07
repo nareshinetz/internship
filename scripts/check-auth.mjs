@@ -2,9 +2,10 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
-const [auth, register, students, apply, paymentRecorder, notifications, notificationStream, notificationModel, userModel, enrollmentModel] = await Promise.all([
+const [auth, register, me, students, apply, paymentRecorder, notifications, notificationStream, notificationModel, userModel, enrollmentModel] = await Promise.all([
   read("src/lib/authOptions.ts"),
   read("src/app/api/auth/register/route.ts"),
+  read("src/app/api/auth/me/route.ts"),
   read("src/app/api/students/route.ts"),
   read("src/app/api/apply/route.ts"),
   read("src/lib/record-razorpay-payment.ts"),
@@ -17,6 +18,7 @@ const [auth, register, students, apply, paymentRecorder, notifications, notifica
 
 assert.doesNotMatch(auth, /token\.role\s*=\s*session\.role/);
 assert.doesNotMatch(register, /bcrypt\.hash/);
+assert.match(me, /installments\.0/);
 assert.match(students, /requireRole\("admin"\)/);
 assert.doesNotMatch(apply, /This enrollment already exists\. Sign in to make another payment\./);
 assert.match(apply, /paymentId: \{ \$exists: false \}/);

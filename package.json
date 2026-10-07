@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test:auth": "node scripts/check-auth.mjs",
     "test:student-id": "node scripts/check-student-id.mjs",
+    "test:payment-recorder": "node scripts/check-payment-recorder.mjs",
     "audit:db": "node scripts/audit-shared-database.mjs",
     "migration:dry-run": "node scripts/plan-student-enrollment-migration.mjs",
     "migration:clean-optionals": "node scripts/cleanup-empty-user-fields.mjs",
