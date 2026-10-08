@@ -51,6 +51,8 @@ interface StudentHeaderControlsProps {
   availableDomains?: string[];
   durationFilter: string;
   onDurationChange: (value: string) => void;
+  statusFilter: string;
+  onStatusChange: (value: string) => void;
   availableDurations?: string[];
   fromDate: string;
   onFromDateChange: (value: string) => void;
@@ -94,6 +96,8 @@ export default function StudentHeaderControls({
   availableDomains,
   durationFilter,
   onDurationChange,
+  statusFilter,
+  onStatusChange,
   availableDurations = DEFAULT_DURATIONS,
   fromDate,
   onFromDateChange,
@@ -201,6 +205,7 @@ export default function StudentHeaderControls({
         search: search || "",
         domain: domainFilter || "",
         duration: durationFilter || "",
+        status: statusFilter,
         fromDate: fromDate || "",
         toDate: toDate || "",
         joiningDate: joiningDate || "",
@@ -216,7 +221,7 @@ export default function StudentHeaderControls({
       const headers = [
         "S.No", "Student ID", "Admission Date", "Student Name", "Phone Number", "Email Address",
         "College / Institution", "Domain / Track", "Duration", "Total Billing (₹)",
-        "Total Collected (₹)", "Pending Dues (₹)", "Fee Status", "Certificate Status",
+        "Total Collected (₹)", "Pending Dues (₹)", "Fee Status", "Enrollment Status", "Certificate Status",
       ];
       const rows: Record<string, string | number>[] = data.students.map((st: Record<string, string | number | undefined>, idx: number) => ({
         "S.No": st.sNo || idx + 1,
@@ -232,6 +237,7 @@ export default function StudentHeaderControls({
         "Total Collected (₹)": Number(st.totalCollection) || 0,
         "Pending Dues (₹)": Number(st.pendingAmount) || 0,
         "Fee Status": st.feesStatus || "Pending",
+        "Enrollment Status": st.status || "payment_pending",
         "Certificate Status": st.certificateStatus || "Pending",
       }));
 
@@ -501,7 +507,7 @@ export default function StudentHeaderControls({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           
           {/* 1. Search Input */}
           <div className="space-y-1.5">
@@ -580,6 +586,21 @@ export default function StudentHeaderControls({
               </select>
               <Clock className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400 pointer-events-none" />
             </div>
+          </div>
+          <div className="space-y-1.5">
+            <label htmlFor="student-status" className="text-[10px] font-black uppercase tracking-wider text-zinc-500">Enrollment status</label>
+            <select
+              id="student-status"
+              value={statusFilter}
+              onChange={(e) => onStatusChange(e.target.value)}
+              className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs font-bold text-zinc-800 outline-none focus:bg-white focus:border-emerald-500 cursor-pointer"
+            >
+              <option value="current">Current (Active + Completed)</option>
+              <option value="active">Active</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+              <option value="all">All statuses</option>
+            </select>
           </div>
         </div>
 

@@ -1,23 +1,15 @@
 import { NextResponse } from "next/server";
-import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/db";
-
-const ProgramSchema = new mongoose.Schema({
-  title: String,
-  slug: String,
-  duration: String,
-  price: Number,
-  originalPrice: Number,
-}, { collection: "programs" });
-
-const Program = mongoose.models.Program || mongoose.model("Program", ProgramSchema);
+import Program from "@/models/Program";
 
 export async function GET() {
   try {
     await connectToDatabase();
 
     // Fetch all programs with title, duration, price, and originalPrice
-    const programs = await Program.find({}, "title duration price originalPrice").lean();
+    const programs = await Program.find({}, "title duration price originalPrice")
+      .sort({ title: 1, duration: 1, _id: 1 })
+      .lean();
 
     return NextResponse.json(programs, { status: 200 });
   } catch (error) {

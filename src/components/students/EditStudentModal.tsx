@@ -20,8 +20,10 @@ export default function EditStudentModal({
   onSuccess,
 }: EditStudentModalProps) {
   const [isSaving, setIsSaving] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [isCertModalOpen, setIsCertModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [programs, setPrograms] = useState<{ _id: string; title: string; duration: string }[]>([]);
+  const [programId, setProgramId] = useState("");
 
   const [editForm, setEditForm] = useState({
     name: "",
@@ -30,54 +32,24 @@ export default function EditStudentModal({
     college: "",
     domain: "",
     duration: "",
+    status: "active" as "active" | "completed" | "cancelled",
     totalBilling: 0,
     certificateStatus: "Pending",
     notes: "",
     clearFees: false,
   });
 
-  const [programTracks, setProgramTracks] = useState<string[]>([]);
-  const [loadingTracks, setLoadingTracks] = useState(false);
-
-  useEffect(() => {
-    async function fetchTracks() {
-      setLoadingTracks(true);
-      try {
-        let res = await fetch("/api/tracks");
-        if (!res.ok) res = await fetch("/api/programs");
-
-        if (res.ok) {
-          const raw = await res.json();
-          const list = Array.isArray(raw)
-            ? raw
-            : raw.programs || raw.data || [];
-          const titles = Array.from(
-            new Set(list.map((item: any) => item.title).filter(Boolean)),
-          ) as string[];
-
-          if (titles.length > 0) {
-            setProgramTracks(titles);
-          }
-        }
-      } catch (err) {
-        console.error("Failed to load specialization domains:", err);
-      } finally {
-        setLoadingTracks(false);
-      }
-    }
-
-    fetchTracks();
-  }, []);
-
   useEffect(() => {
     if (student) {
+      setProgramId(student.offeringId || "");
       setEditForm({
         name: student.name || "",
         email: student.email || "",
         phone: student.phone || "",
         college: student.college || "",
-        domain: student.domain || "Web Development",
-        duration: student.duration || "1 Month",
+        domain: student.domain || "",
+        duration: student.duration || "",
+        status: student.status === "completed" || student.status === "cancelled" ? student.status : "active",
         totalBilling: student.totalBilling || 0,
         certificateStatus: student.certificateStatus || "Pending",
         notes: student.notes || "",
@@ -85,6 +57,19 @@ export default function EditStudentModal({
       });
     }
   }, [student]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    let active = true;
+    fetch("/api/tracks")
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error("Program catalog unavailable")))
+      .then((items: { _id?: string; title?: string; duration?: string }[]) => {
+        if (active) setPrograms(items.filter((item): item is { _id: string; title: string; duration: string } =>
+          Boolean(item._id && item.title && item.duration)));
+      })
+      .catch(() => { if (active) setPrograms([]); });
+    return () => { active = false; };
+  }, [isOpen]);
 
   if (!isOpen || !student) return null;
 
@@ -103,8 +88,8 @@ export default function EditStudentModal({
         email: editForm.email.trim(),
         phone: editForm.phone.trim(),
         college: editForm.college.trim(),
-        domain: editForm.domain,
-        duration: editForm.duration,
+        ...(programId && programId !== student.offeringId ? { programId } : {}),
+        status: editForm.status,
         totalBilling: Number(editForm.totalBilling),
         certificateStatus: editForm.certificateStatus,
         notes: editForm.notes.trim(),
@@ -124,25 +109,15 @@ export default function EditStudentModal({
     }
   };
 
-  const handleDeleteStudent = async () => {
-    if (
-      !confirm(
-        `Are you sure you want to delete profile for "${student.name}"? This action cannot be undone.`,
-      )
-    )
-      return;
-
+  const handleDelete = async () => {
+    if (!confirm(`Permanently delete the ${student.domain} enrollment for ${student.name}? The account stays. Paid or certified enrollments cannot be deleted.`)) return;
     setIsDeleting(true);
     try {
-      const res = await axios.delete(`/api/students?id=${student._id}`);
-      if (res.data.success) {
-        alert("Student profile deleted successfully.");
-        onClose();
-        onSuccess();
-      }
-    } catch (err: any) {
-      console.error("Error deleting student:", err);
-      alert(err.response?.data?.error || "Failed to delete profile.");
+      await axios.delete(`/api/students?id=${student._id}`);
+      onClose();
+      onSuccess();
+    } catch (err: unknown) {
+      alert(axios.isAxiosError(err) ? err.response?.data?.error || "Failed to delete enrollment." : "Failed to delete enrollment.");
     } finally {
       setIsDeleting(false);
     }
@@ -267,58 +242,35 @@ export default function EditStudentModal({
                     Specialization Domain
                   </label>
                   <select
-                    required
-                    value={editForm.domain}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, domain: e.target.value })
-                    }
-                    disabled={loadingTracks}
-                    className="w-full mt-1 px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-800 outline-none focus:bg-white focus:border-emerald-500 cursor-pointer disabled:opacity-60"
+                    value={programId}
+                    onChange={(e) => {
+                      const selected = programs.find((program) => program._id === e.target.value);
+                      setProgramId(e.target.value);
+                      if (selected) setEditForm({ ...editForm, domain: selected.title, duration: selected.duration });
+                    }}
+                    disabled={student.type !== "internship"}
+                    className="w-full mt-1 px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-800"
                   >
-                    {loadingTracks ? (
-                      <option value="">
-                        Loading specialization domains...
-                      </option>
-                    ) : programTracks.length > 0 ? (
-                      programTracks.map((title) => (
-                        <option key={title} value={title}>
-                          {title}
-                        </option>
-                      ))
-                    ) : (
-                      <>
-                        <option value="Web Development">
-                          Web Development (MERN)
-                        </option>
-                        <option value="Java Full Stack">Java Full Stack</option>
-                        <option value="Python Development">
-                          Python Development
-                        </option>
-                        <option value="Data Analytics">Data Analytics</option>
-                        <option value="AI & Machine Learning">
-                          AI & Machine Learning
-                        </option>
-                      </>
-                    )}
+                    {!programs.some((program) => program._id === programId) && <option value={programId}>{editForm.domain} — {editForm.duration} (current)</option>}
+                    {programs.map((program) => <option key={program._id} value={program._id}>{program.title} — {program.duration}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="text-[10px] font-bold text-zinc-400 uppercase ml-1">
                     Duration
                   </label>
+                  <input readOnly value={editForm.duration} className="w-full mt-1 px-3 py-2 bg-zinc-100 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-800" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-zinc-400 uppercase ml-1">Enrollment Status</label>
                   <select
-                    required
-                    value={editForm.duration}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, duration: e.target.value })
-                    }
-                    className="w-full mt-1 px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-800 outline-none focus:bg-white focus:border-emerald-500 cursor-pointer"
+                    value={editForm.status}
+                    onChange={(e) => setEditForm({ ...editForm, status: e.target.value as "active" | "completed" | "cancelled" })}
+                    className="w-full mt-1 px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-800 outline-none focus:bg-white focus:border-emerald-500"
                   >
-                    <option value="1 Week">1 Week</option>
-                    <option value="2 Weeks">2 Weeks</option>
-                    <option value="1 Month">1 Month</option>
-                    <option value="3 Months">3 Months</option>
-                    <option value="6 Months">6 Months</option>
+                    <option value="active">Active</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
                   </select>
                 </div>
               </div>
@@ -476,21 +428,10 @@ export default function EditStudentModal({
             </div>
 
             {/* 4. Bottom Action Toolbar */}
-            <div className="pt-4 border-t border-zinc-100 flex flex-col sm:flex-row justify-between items-center gap-3">
-              <button
-                type="button"
-                disabled={isDeleting}
-                onClick={handleDeleteStudent}
-                className="w-full sm:w-auto px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
-              >
-                {isDeleting ? (
-                  <Loader2 size={14} className="animate-spin" />
-                ) : (
-                  <Trash2 size={14} />
-                )}{" "}
-                Delete Profile
+            <div className="pt-4 border-t border-zinc-100 flex flex-wrap items-center justify-between gap-3">
+              <button type="button" disabled={isDeleting || isSaving} onClick={handleDelete} className="px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-xl text-xs font-bold flex items-center gap-2 disabled:opacity-50">
+                {isDeleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />} Delete Student
               </button>
-
               <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end">
                 <button
                   type="button"

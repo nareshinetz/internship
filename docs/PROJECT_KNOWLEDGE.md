@@ -152,8 +152,16 @@ compact, professional, light, and blue-accented.
 
 - Programs: `src/app/programs`, `src/components/programs`,
   `/api/programs`, `/api/catalog`, `Program` model.
-- Admin: `src/app/admin/page.tsx`; tracks, students, transactions, journals;
-  `/api/tracks`, `/api/students`, `/api/payments`, `/api/blogs`.
+- Admin: `src/app/admin/page.tsx`; executive overview, tracks, students,
+  transactions, journals. `/api/admin/overview` reads enrolled `Enrollment`
+  totals, admissions by `joinedAt`, and collections by installment `createdAt`
+  (falling back to the migrated installment's display date when absent);
+  `/api/tracks`, `/api/students`, `/api/payments`, `/api/blogs` serve the other tabs.
+  Admins set an enrollment's existing active/completed/cancelled status in the
+  student edit modal; cancelled records remain accessible through the directory
+  status filter for reactivation, while the overview reports distinct people
+  with an active enrollment versus only completed/cancelled enrollments. Cancelled enrollments cannot
+  initiate balance payments, and recording a payment does not reopen completed ones.
 - Admin notifications: registrations, enrollments, and successful payments are
   persisted in `Notification`; `/api/admin/notifications` provides paginated
   history/read state and `/stream` provides single-instance EC2 SSE updates.

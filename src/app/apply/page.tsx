@@ -475,7 +475,16 @@ function ReviewAndPayContent() {
     // PATH 1: ADMIN MANUAL ENTRY
     if (isAdmin) {
       try {
+        const selectedProgram = programs.find(
+          (program) => program.title === form.track && program.duration === form.duration,
+        );
+        if (!selectedProgram?._id) {
+          alert("Please select a valid internship program.");
+          setIsProcessing(false);
+          return;
+        }
         const response = await axios.post("/api/students", {
+          programId: selectedProgram._id,
           name: form.fullName.trim(),
           email: form.email.trim().toLowerCase(),
           phone: form.phone.trim(),

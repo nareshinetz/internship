@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
 import StudentHeaderControls from "./students/StudentHeaderControls";
 import StudentTable, { StudentRecord } from "./students/StudentTable";
@@ -30,6 +30,7 @@ export default function StudentsTab() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [domainFilter, setDomainFilter] = useState("All");
   const [durationFilter, setDurationFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("current");
 
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -37,6 +38,7 @@ export default function StudentsTab() {
 
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const latestRequest = useRef(0);
 
   // Modal States
   const [selectedStudent, setSelectedStudent] = useState<StudentRecord | null>(null);
@@ -84,12 +86,14 @@ export default function StudentsTab() {
 
   // Fetch students with normalized filters
   const fetchStudents = useCallback(async () => {
+    const request = ++latestRequest.current;
     setLoading(true);
     try {
       const queryParams: Record<string, string> = {
         search: debouncedSearch.trim(),
         page: page.toString(),
         limit: "15",
+        status: statusFilter,
       };
 
       // Case-insensitive check: only append if not 'all'
@@ -107,6 +111,7 @@ export default function StudentsTab() {
 
       const query = new URLSearchParams(queryParams);
       const res = await axios.get(`/api/students?${query.toString()}`);
+      if (request !== latestRequest.current) return;
 
       if (res.data.success) {
         setStudents(res.data.students || []);
@@ -135,11 +140,11 @@ export default function StudentsTab() {
         }
       }
     } catch (err) {
-      console.error("Failed to load students:", err);
+      if (request === latestRequest.current) console.error("Failed to load students:", err);
     } finally {
-      setLoading(false);
+      if (request === latestRequest.current) setLoading(false);
     }
-  }, [debouncedSearch, domainFilter, durationFilter, fromDate, toDate, joiningDate, page]);
+  }, [debouncedSearch, domainFilter, durationFilter, statusFilter, fromDate, toDate, joiningDate, page]);
 
   useEffect(() => {
     fetchStudents();
@@ -196,6 +201,8 @@ export default function StudentsTab() {
         onDomainChange={handleDomainChange}
         availableDomains={availableDomains}
         durationFilter={durationFilter}
+        statusFilter={statusFilter}
+        onStatusChange={(value) => { setStatusFilter(value); setPage(1); }}
         onDurationChange={handleDurationChange}
         availableDurations={availableDurations}
         fromDate={fromDate}

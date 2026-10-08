@@ -2,10 +2,13 @@ import { requireRole } from "@/lib/api-auth";
 import { connectToDatabase } from "@/lib/db";
 import Enrollment from "@/models/Enrollment";
 import Program from "@/models/Program";
+import RazorpayOrder from "@/models/RazorpayOrder";
 import User from "@/models/user";
 import { ensureStudentId } from "@/lib/student-id";
 import { createAdminNotification } from "@/lib/admin-notifications";
+import { setEnrollmentStatus } from "@/lib/enrollment-status";
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 
 const escapeRegex = (value: string) =>
   value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -37,10 +40,14 @@ export async function GET(req: Request) {
   const page = Math.max(1, Number(params.get("page")) || 1);
   const limit = Math.max(1, Number(params.get("limit")) || 15);
   const enrolledOnly: Record<string, unknown> = {
-    status: { $ne: "cancelled" },
     $nor: [{ status: "payment_pending", "installments.0": { $exists: false } }],
   };
   const query: Record<string, unknown> = { ...enrolledOnly };
+  const status = params.get("status") || "current";
+  if (status === "current") query.status = { $ne: "cancelled" };
+  else if (["active", "completed", "cancelled"].includes(status)) query.status = status;
+  else if (status !== "all")
+    return NextResponse.json({ success: false, error: "Invalid enrollment status filter." }, { status: 400 });
   const domain = params.get("domain")?.trim();
   const duration = params.get("duration")?.trim();
   if (domain && domain.toLowerCase() !== "all")
@@ -184,19 +191,44 @@ export async function POST(req: Request) {
         { success: false, error: "Valid name and phone are required." },
         { status: 400 },
       );
-    const program = await Program.findOne({
-      title: String(body.domain || "").trim(),
-      duration: String(body.duration || "").trim(),
-    }).select("title slug duration price");
+    if (body.programId && !mongoose.isValidObjectId(body.programId))
+      return NextResponse.json(
+        { success: false, error: "Select an existing internship program." },
+        { status: 400 },
+      );
+    const program = body.programId
+      ? await Program.findById(body.programId).select("title slug duration price")
+      : await Program.findOne({
+          title: String(body.domain || "").trim(),
+          duration: String(body.duration || "").trim(),
+        }).select("title slug duration price");
     if (!program)
       return NextResponse.json(
         { success: false, error: "Select an existing internship program." },
+        { status: 400 },
+      );
+    const paid = Number(body.initialPayment ?? 0);
+    const total = Number(body.totalBilling ?? program.price ?? 0);
+    if (!Number.isFinite(paid) || !Number.isFinite(total) || paid < 0 || total < 0 || paid > total)
+      return NextResponse.json(
+        { success: false, error: "Enter a valid fee and an initial payment no greater than the fee." },
+        { status: 400 },
+      );
+    const paymentMethod = body.paymentMethod || "Cash";
+    if (paid > 0 && !["Cash", "GPay", "UPI", "Card", "Netbanking", "Wallet", "EMI"].includes(paymentMethod))
+      return NextResponse.json(
+        { success: false, error: "Select a valid manual payment method." },
         { status: 400 },
       );
     const email = String(body.email || "")
       .trim()
       .toLowerCase();
     let user = await User.findOne({ phone });
+    if (user && await Enrollment.exists({ userId: user._id, type: "internship", offeringId: program._id }))
+      return NextResponse.json(
+        { success: false, error: "This student is already enrolled in that program." },
+        { status: 409 },
+      );
     if (!user)
       user = new User({
         name,
@@ -220,8 +252,6 @@ export async function POST(req: Request) {
       body.batchStartDate || body.doj
         ? new Date(`${body.batchStartDate || body.doj}T00:00:00`)
         : new Date();
-    const paid = Number(body.initialPayment) || 0;
-    const total = Number(body.totalBilling ?? program.price) || 0;
     const installments =
       paid > 0
         ? [
@@ -233,7 +263,7 @@ export async function POST(req: Request) {
                 year: "numeric",
               }),
               paidAmount: paid,
-              paymentMethod: body.paymentMethod || "Cash",
+              paymentMethod,
               transactionId: "N/A",
               billingBy: body.billingBy || "Admin Manual Entry",
             },
@@ -287,10 +317,9 @@ export async function PUT(req: Request) {
   if (auth.error) return auth.error;
   const body = await req.json();
   await connectToDatabase();
-  const enrollment = await Enrollment.findOne({
-    _id: body.id,
-    type: "internship",
-  });
+  if (!mongoose.isValidObjectId(body.id))
+    return NextResponse.json({ success: false, error: "Select a valid enrollment." }, { status: 400 });
+  const enrollment = await Enrollment.findById(body.id);
   if (!enrollment)
     return NextResponse.json(
       { success: false, error: "Enrollment not found." },
@@ -302,10 +331,23 @@ export async function PUT(req: Request) {
       { success: false, error: "Account not found." },
       { status: 404 },
     );
-  if (body.name) user.name = String(body.name).trim();
-  if (body.college !== undefined) user.college = String(body.college).trim();
-  if (body.degree !== undefined) user.degree = String(body.degree).trim();
-  await user.save();
+  if (body.status !== undefined && !["active", "completed", "cancelled"].includes(body.status))
+    return NextResponse.json(
+      { success: false, error: "Select Active, Completed, or Cancelled." },
+      { status: 400 },
+    );
+  let selectedProgram;
+  if (body.programId !== undefined && String(body.programId) !== String(enrollment.offeringId)) {
+    if (enrollment.type !== "internship" || !mongoose.isValidObjectId(body.programId))
+      return NextResponse.json({ success: false, error: "Select a valid internship program." }, { status: 400 });
+    selectedProgram = await Program.findById(body.programId).select("title slug duration");
+    if (!selectedProgram || !selectedProgram.title || !selectedProgram.slug || !selectedProgram.duration)
+      return NextResponse.json({ success: false, error: "Program is no longer available." }, { status: 400 });
+    if (await Enrollment.exists({ userId: enrollment.userId, type: "internship", offeringId: selectedProgram._id, _id: { $ne: enrollment._id } }))
+      return NextResponse.json({ success: false, error: "This student is already enrolled in that program." }, { status: 409 });
+    if (enrollment.certificateStatus === "Issued" || await RazorpayOrder.exists({ enrollmentId: enrollment._id }))
+      return NextResponse.json({ success: false, error: "This enrollment has certificate or Razorpay history; its program cannot be changed." }, { status: 409 });
+  }
   const requestedBilling =
     body.totalBilling === undefined
       ? enrollment.totalBilling
@@ -318,10 +360,21 @@ export async function PUT(req: Request) {
       { success: false, error: "Total fee cannot be less than collected." },
       { status: 400 },
     );
+  if (body.name) user.name = String(body.name).trim();
+  if (body.college !== undefined) user.college = String(body.college).trim();
+  if (body.degree !== undefined) user.degree = String(body.degree).trim();
+  await user.save();
   enrollment.totalBilling = body.clearFees
     ? enrollment.totalCollection
     : requestedBilling;
   if (body.notes !== undefined) enrollment.notes = String(body.notes).trim();
+  if (selectedProgram) {
+    enrollment.offeringId = selectedProgram._id;
+    enrollment.offeringSlug = selectedProgram.slug;
+    enrollment.domain = selectedProgram.title;
+    enrollment.duration = selectedProgram.duration;
+  }
+  if (body.status) setEnrollmentStatus(enrollment, body.status);
   await enrollment.save();
   return NextResponse.json({
     success: true,
@@ -334,14 +387,18 @@ export async function DELETE(req: Request) {
   if (auth.error) return auth.error;
   await connectToDatabase();
   const id = new URL(req.url).searchParams.get("id");
+  if (!id || !mongoose.isValidObjectId(id))
+    return NextResponse.json({ success: false, error: "Select a valid enrollment." }, { status: 400 });
   const enrollment = await Enrollment.findOne({ _id: id, type: "internship" });
   if (!enrollment)
     return NextResponse.json(
       { success: false, error: "Enrollment not found." },
       { status: 404 },
     );
-  enrollment.status = "cancelled";
-  enrollment.cancelledAt = new Date();
-  await enrollment.save();
-  return NextResponse.json({ success: true, message: "Enrollment cancelled." });
+  if (enrollment.installments.length > 0 || enrollment.totalCollection > 0 || enrollment.certificateStatus === "Issued" || await RazorpayOrder.exists({ enrollmentId: enrollment._id }))
+    return NextResponse.json({ success: false, error: "This enrollment has payment or certificate history. Mark it Cancelled instead." }, { status: 409 });
+  const deleted = await Enrollment.deleteOne({ _id: enrollment._id, "installments.0": { $exists: false }, totalCollection: 0, certificateStatus: { $ne: "Issued" } });
+  if (!deleted.deletedCount)
+    return NextResponse.json({ success: false, error: "Enrollment changed; refresh and try again." }, { status: 409 });
+  return NextResponse.json({ success: true, message: "Enrollment deleted. The student account was kept." });
 }

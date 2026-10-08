@@ -15,6 +15,8 @@ export interface Installment {
 
 export interface StudentRecord {
   _id: string;
+  offeringId?: string;
+  type?: "internship" | "course" | "certificate";
   sNo: number;
   studentId?: string;
   doj: string;
@@ -24,6 +26,7 @@ export interface StudentRecord {
   college: string;
   domain: string;
   duration: string;
+  status: "payment_pending" | "active" | "completed" | "cancelled";
   totalBilling: number;
   totalCollection: number;
   pendingAmount: number;
@@ -72,6 +75,7 @@ export default function StudentTable({ students, loading, onOpenEditModal }: Stu
               <th className="py-3.5 px-4">Duration</th>
               <th className="py-3.5 px-4">Total Fees</th>
               <th className="py-3.5 px-4">Fee Status</th>
+              <th className="py-3.5 px-4">Enrollment Status</th>
               <th className="py-3.5 px-4 text-right">Actions</th>
             </tr>
           </thead>
@@ -108,6 +112,16 @@ export default function StudentTable({ students, loading, onOpenEditModal }: Stu
                     )}
                   >
                     {st.pendingAmount <= 0 ? "Clear" : `Pending · ₹${st.pendingAmount}`}
+                  </span>
+                </td>
+                <td className="py-3 px-4">
+                  <span className={cn(
+                    "inline-flex rounded-full border px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.06em]",
+                    st.status === "active" ? "border-emerald-200 bg-emerald-50 text-emerald-700" :
+                    st.status === "completed" ? "border-blue-200 bg-blue-50 text-blue-700" :
+                    "border-slate-200 bg-slate-100 text-slate-600",
+                  )}>
+                    {st.status === "payment_pending" ? "Payment pending" : st.status}
                   </span>
                 </td>
                 <td className="py-3 px-4 text-right">

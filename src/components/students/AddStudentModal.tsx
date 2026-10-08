@@ -30,8 +30,6 @@ interface AddStudentModalProps {
   onSuccess: () => void;
 }
 
-const DEFAULT_DURATIONS = ["1 Week", "2 Weeks", "1 Month", "3 Months", "6 Months"];
-
 export default function AddStudentModal({
   isOpen,
   onClose,
@@ -42,22 +40,18 @@ export default function AddStudentModal({
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Track if user selected "Other" to input custom domain
-  const [isCustomDomain, setIsCustomDomain] = useState(false);
+  const [selectedProgramId, setSelectedProgramId] = useState("");
 
   const [form, setForm] = useState({
     name: "",
     email: "",
     phone: "",
     college: "",
-    degree: "B.E / B.Tech",
-    domain: "Web Development",
-    duration: "1 Month",
+    duration: "",
     doj: new Date().toISOString().split("T")[0],
     totalBilling: 0,
     initialPayment: 0,
     paymentMethod: "Cash",
-    remarks: "",
   });
 
   // 1. Fetch available programs
@@ -67,6 +61,8 @@ export default function AddStudentModal({
     async function fetchTracksData() {
       setLoadingTracks(true);
       setErrorMsg(null);
+      setPrograms([]);
+      setSelectedProgramId("");
       try {
         let res = await fetch("/api/tracks");
         if (!res.ok) {
@@ -79,22 +75,29 @@ export default function AddStudentModal({
             ? rawData
             : rawData.programs || rawData.data || [];
 
-          setPrograms(list);
+          const available = list.filter((program) => program._id && program.title && program.duration);
+          setPrograms(available);
 
-          if (list.length > 0) {
-            const firstTrack = list[0];
-            const parsedPrice = Number(firstTrack.price) || 0;
+          if (available.length > 0) {
+            const firstTrack = available[0];
+            setSelectedProgramId(firstTrack._id!);
 
             setForm((prev) => ({
               ...prev,
-              domain: prev.domain || firstTrack.title,
-              duration: firstTrack.duration || prev.duration || "1 Month",
-              totalBilling: prev.totalBilling || parsedPrice,
+              duration: firstTrack.duration || "",
+              totalBilling: Number(firstTrack.price) || 0,
+              initialPayment: 0,
             }));
+          } else {
+            setSelectedProgramId("");
+            setErrorMsg("No enrollment programs are available. Add a program before enrolling a student.");
           }
+        } else {
+          setErrorMsg("Could not load the program catalog. Please try again.");
         }
       } catch (err) {
         console.error("Failed to load tracks for student form:", err);
+        setErrorMsg("Could not load the program catalog. Please try again.");
       } finally {
         setLoadingTracks(false);
       }
@@ -103,48 +106,15 @@ export default function AddStudentModal({
     fetchTracksData();
   }, [isOpen]);
 
-  // 2. Handle Track Selection Change
-  const handleTrackChange = (selectedTitle: string) => {
-    if (selectedTitle === "OTHER_CUSTOM") {
-      setIsCustomDomain(true);
-      setForm((prev) => ({
-        ...prev,
-        domain: "",
-        totalBilling: 0,
-      }));
-      return;
-    }
-
-    setIsCustomDomain(false);
-    const matched = programs.find(
-      (p) =>
-        p.title.toLowerCase() === selectedTitle.toLowerCase() &&
-        p.duration?.toLowerCase() === form.duration.toLowerCase()
-    ) || programs.find((p) => p.title.toLowerCase() === selectedTitle.toLowerCase());
-
-    const matchedPrice = matched?.price ? Number(matched.price) : form.totalBilling;
-
+  const handleProgramChange = (programId: string) => {
+    const matched = programs.find((program) => program._id === programId);
+    if (!matched) return;
+    setSelectedProgramId(programId);
     setForm((prev) => ({
       ...prev,
-      domain: selectedTitle,
-      duration: matched?.duration || prev.duration,
-      totalBilling: matchedPrice,
-    }));
-  };
-
-  const handleDurationChange = (selectedDuration: string) => {
-    const matched = programs.find(
-      (p) =>
-        p.title.toLowerCase() === form.domain.toLowerCase() &&
-        p.duration?.toLowerCase() === selectedDuration.toLowerCase()
-    );
-
-    const matchedPrice = matched?.price ? Number(matched.price) : form.totalBilling;
-
-    setForm((prev) => ({
-      ...prev,
-      duration: selectedDuration,
-      totalBilling: matchedPrice,
+      duration: matched.duration || "",
+      totalBilling: Number(matched.price) || 0,
+      initialPayment: 0,
     }));
   };
 
@@ -155,12 +125,11 @@ export default function AddStudentModal({
     setErrorMsg(null);
 
     const payload = {
+      programId: selectedProgramId,
       name: form.name.trim(),
       email: form.email.trim(),
       phone: form.phone.trim(),
       college: form.college.trim(),
-      domain: form.domain.trim(),
-      duration: form.duration,
       doj: form.doj,
       totalBilling: Number(form.totalBilling) || 0,
       initialPayment: Number(form.initialPayment) || 0,
@@ -192,7 +161,6 @@ export default function AddStudentModal({
   if (!isOpen) return null;
 
   const balanceAmount = Math.max(0, Number(form.totalBilling) - Number(form.initialPayment));
-  const distinctTrackTitles = Array.from(new Set(programs.map((p) => p.title).filter(Boolean)));
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
@@ -288,79 +256,36 @@ export default function AddStudentModal({
           {/* Course Track, Duration & Date of Joining */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-zinc-100">
             
-            {/* Dynamic Course Track Selection / Custom Input */}
+            {/* Select one real program record, including its duration. */}
             <div className="space-y-1">
               <label className="block text-xs font-bold text-zinc-700 flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
-                  <BookOpen size={13} className="text-emerald-600" /> Domain Track *
+                  <BookOpen size={13} className="text-emerald-600" /> Program Track *
                 </span>
-                {isCustomDomain && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsCustomDomain(false);
-                      if (distinctTrackTitles.length > 0) {
-                        handleTrackChange(distinctTrackTitles[0]);
-                      }
-                    }}
-                    className="text-[10px] text-emerald-600 hover:underline font-bold"
-                  >
-                    ← Back to list
-                  </button>
-                )}
               </label>
 
-              {isCustomDomain ? (
-                <input
-                  type="text"
-                  required
-                  placeholder="Enter custom domain..."
-                  value={form.domain}
-                  onChange={(e) => setForm({ ...form, domain: e.target.value })}
-                  className="w-full px-3 py-2.5 bg-zinc-50 border border-emerald-500 rounded-xl text-xs font-bold text-zinc-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                />
-              ) : (
                 <select
                   required
-                  value={form.domain}
-                  onChange={(e) => handleTrackChange(e.target.value)}
-                  disabled={loadingTracks}
+                  value={selectedProgramId}
+                  onChange={(e) => handleProgramChange(e.target.value)}
+                  disabled={loadingTracks || programs.length === 0}
                   className="w-full px-3 py-2.5 bg-zinc-50 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer disabled:opacity-60"
                 >
-                  {loadingTracks ? (
-                    <option value="">Loading course tracks...</option>
-                  ) : (
-                    <>
-                      {distinctTrackTitles.map((title) => (
-                        <option key={title} value={title}>
-                          {title}
-                        </option>
-                      ))}
-                      <option value="OTHER_CUSTOM" className="font-bold text-emerald-600">
-                        + Other (Custom Domain...)
-                      </option>
-                    </>
-                  )}
+                  {!selectedProgramId && <option value="">{loadingTracks ? "Loading programs..." : "No programs available"}</option>}
+                  {programs.map((program) => (
+                    <option key={program._id} value={program._id}>
+                      {program.title} — {program.duration}
+                    </option>
+                  ))}
                 </select>
-              )}
             </div>
 
-            {/* Duration Selector */}
+            {/* Duration comes from the selected program. */}
             <div className="space-y-1">
               <label className="block text-xs font-bold text-zinc-700 flex items-center gap-1.5">
                 <Clock size={13} className="text-emerald-600" /> Duration *
               </label>
-              <select
-                value={form.duration}
-                onChange={(e) => handleDurationChange(e.target.value)}
-                className="w-full px-3 py-2.5 bg-zinc-50 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer"
-              >
-                {DEFAULT_DURATIONS.map((dur) => (
-                  <option key={dur} value={dur}>
-                    {dur}
-                  </option>
-                ))}
-              </select>
+              <input readOnly value={form.duration} className="w-full px-3 py-2.5 bg-zinc-100 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-700" />
             </div>
 
             {/* Date of Joining (DOJ) */}
@@ -413,9 +338,12 @@ export default function AddStudentModal({
                 className="w-full px-3.5 py-2.5 bg-zinc-50 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-800 focus:bg-white focus:outline-none cursor-pointer"
               >
                 <option value="Cash">Cash</option>
-                <option value="GPay">GPay / UPI</option>
-                <option value="Net Banking">Net Banking</option>
+                <option value="GPay">GPay</option>
+                <option value="UPI">UPI</option>
+                <option value="Netbanking">Net Banking</option>
                 <option value="Card">Card</option>
+                <option value="Wallet">Wallet</option>
+                <option value="EMI">EMI</option>
               </select>
             </div>
           </div>
@@ -439,7 +367,7 @@ export default function AddStudentModal({
             </button>
             <button
               type="submit"
-              disabled={submitting || loadingTracks}
+              disabled={submitting || loadingTracks || !selectedProgramId}
               className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-md shadow-emerald-600/20 disabled:opacity-50 cursor-pointer"
             >
               {submitting ? <Loader2 size={14} className="animate-spin" /> : <UserPlus size={14} />} Enrol Student

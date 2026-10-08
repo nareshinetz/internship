@@ -30,6 +30,7 @@ export async function POST(req: Request) {
       if (!mongoose.isValidObjectId(body.enrollmentId)) return NextResponse.json({ success: false, error: "Select a valid enrollment." }, { status: 400 });
       enrollment = await Enrollment.findOne({ _id: body.enrollmentId, userId, type: "internship" });
       if (!enrollment) return NextResponse.json({ success: false, error: "Enrollment not found." }, { status: 404 });
+      if (enrollment.status === "cancelled") return NextResponse.json({ success: false, error: "Cancelled enrollments cannot accept payments." }, { status: 409 });
       if (payAmount > enrollment.pendingAmount) return NextResponse.json({ success: false, error: "Payment must not exceed the outstanding balance." }, { status: 400 });
     } else {
       if (!mongoose.isValidObjectId(body.programId)) return NextResponse.json({ success: false, error: "Select a valid internship program." }, { status: 400 });
@@ -49,6 +50,7 @@ export async function POST(req: Request) {
         { $setOnInsert: { userId, type: "internship", offeringId: program._id, offeringSlug: program.slug, joinedAt, domain: program.title, duration: program.duration || "1 Month", status: "payment_pending", totalBilling: price, installments: [], totalCollection: 0, pendingAmount: price, feesStatus: "Pending", certificateStatus: "Pending" } },
         { new: true, upsert: true, runValidators: true },
       );
+      if (enrollment.status === "cancelled") return NextResponse.json({ success: false, error: "This enrollment was cancelled. Contact an admin to reactivate it." }, { status: 409 });
       if (enrollment.installments.length) return NextResponse.json({ success: false, error: "This enrollment already has a payment. Use your dashboard for the balance." }, { status: 409 });
     }
 
