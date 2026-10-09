@@ -22,6 +22,7 @@ export default function EditStudentModal({
   const [isSaving, setIsSaving] = useState(false);
   const [isCertModalOpen, setIsCertModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteOptions, setShowDeleteOptions] = useState(false);
   const [programs, setPrograms] = useState<{ _id: string; title: string; duration: string }[]>([]);
   const [programId, setProgramId] = useState("");
 
@@ -42,6 +43,7 @@ export default function EditStudentModal({
   useEffect(() => {
     if (student) {
       setProgramId(student.offeringId || "");
+      setShowDeleteOptions(false);
       setEditForm({
         name: student.name || "",
         email: student.email || "",
@@ -77,6 +79,9 @@ export default function EditStudentModal({
     student.pendingAmount <= 0 || student.feesStatus === "Clear" || student.feesStatus === "Fully Paid"
       ? "Clear"
       : "Pending";
+  const joinedDate = student.doj && !Number.isNaN(Date.parse(student.doj))
+    ? new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(student.doj))
+    : null;
 
   const handleSaveChanges = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,11 +114,14 @@ export default function EditStudentModal({
     }
   };
 
-  const handleDelete = async () => {
-    if (!confirm(`Permanently delete the ${student.domain} enrollment for ${student.name}? The account stays. Paid or certified enrollments cannot be deleted.`)) return;
+  const handleDelete = async (mode: "partial" | "full") => {
+    const detail = mode === "full"
+      ? `This also erases ₹${student.totalCollection.toLocaleString("en-IN")} of embedded fee history and any certificate status for this enrollment.`
+      : "This works only if there are no fees or issued certificate.";
+    if (!confirm(`Permanently delete only the ${student.domain} internship enrollment for ${student.name}? ${detail} The User account and other enrollments stay. This cannot be undone.`)) return;
     setIsDeleting(true);
     try {
-      await axios.delete(`/api/students?id=${student._id}`);
+      await axios.delete(`/api/students?id=${student._id}&mode=${mode}`);
       onClose();
       onSuccess();
     } catch (err: unknown) {
@@ -139,28 +147,28 @@ export default function EditStudentModal({
         onRefresh={onSuccess}
       />
 
-      <div className="fixed inset-0 z-[999] bg-zinc-950/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-        <div className="bg-white w-full max-w-4xl rounded-3xl border border-zinc-200 shadow-2xl overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-200">
+      <div className="fixed inset-0 z-[999] flex justify-end bg-slate-950/35 backdrop-blur-[2px]">
+        <aside role="dialog" aria-modal="true" aria-label="Student details" className="flex h-dvh w-full max-w-3xl flex-col overflow-hidden border-l border-slate-200 bg-slate-50 shadow-2xl animate-in slide-in-from-right duration-300">
           {/* Header */}
-          <div className="px-6 py-5 bg-zinc-900 text-white flex justify-between items-center">
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-base font-black uppercase tracking-tight">
-                  {student.name}
-                </h3>
-                <span className="text-[10px] font-mono bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded">
-                  S.No: #{student.sNo || "N/A"}
-                </span>
+          <div className="flex shrink-0 items-center justify-between border-b border-slate-200 bg-white px-6 py-5">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-emerald-50 text-sm font-black text-emerald-700">
+                {student.name?.trim().charAt(0).toUpperCase() || "S"}
+              </span>
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">Student details</p>
+                <h3 className="truncate text-base font-bold text-slate-900">{student.name}</h3>
+                <p className="mt-0.5 text-xs font-medium text-slate-500">
+                  {student.studentId && <>Student ID {student.studentId} · </>}Joined {joinedDate || "date unavailable"}
+                </p>
               </div>
-              <p className="text-xs text-zinc-400 font-medium mt-0.5">
-                Joined on: {student.doj || "N/A"}
-              </p>
             </div>
 
             <button
               type="button"
               onClick={onClose}
-              className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-xl transition-colors cursor-pointer"
+              aria-label="Close student details"
+              className="rounded-xl p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 cursor-pointer"
             >
               <X size={18} />
             </button>
@@ -168,11 +176,12 @@ export default function EditStudentModal({
 
           <form
             onSubmit={handleSaveChanges}
-            className="p-6 md:p-8 space-y-8 max-h-[80vh] overflow-y-auto"
+            className="flex min-h-0 flex-1 flex-col"
           >
+            <div className="flex-1 space-y-5 overflow-y-auto p-5 md:p-6">
             {/* 1. Personal & Program Details */}
-            <div className="space-y-4">
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 border-b border-zinc-100 pb-2">
+            <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <h4 className="border-b border-slate-100 pb-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
                 1. Personal & Program Details
               </h4>
 
@@ -277,8 +286,8 @@ export default function EditStudentModal({
             </div>
 
             {/* 2. Financial Status & Adjustments */}
-            <div className="space-y-4">
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 border-b border-zinc-100 pb-2">
+            <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <h4 className="border-b border-slate-100 pb-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
                 2. Financial Status & Adjustments
               </h4>
 
@@ -372,8 +381,8 @@ export default function EditStudentModal({
             </div>
 
             {/* 3. Installments Ledger */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-center border-b border-zinc-100 pb-2">
+            <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
                   3. Payment Installments Ledger (
                   {student.installments?.length || 0})
@@ -427,11 +436,23 @@ export default function EditStudentModal({
               )}
             </div>
 
+            </div>
             {/* 4. Bottom Action Toolbar */}
-            <div className="pt-4 border-t border-zinc-100 flex flex-wrap items-center justify-between gap-3">
-              <button type="button" disabled={isDeleting || isSaving} onClick={handleDelete} className="px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-xl text-xs font-bold flex items-center gap-2 disabled:opacity-50">
-                {isDeleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />} Delete Student
-              </button>
+            <div className="shrink-0 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-white px-5 py-4 md:px-6">
+              <div className="relative">
+                <button type="button" disabled={isDeleting || isSaving} onClick={() => setShowDeleteOptions(!showDeleteOptions)} aria-expanded={showDeleteOptions} className="px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-xl text-xs font-bold flex items-center gap-2 disabled:opacity-50">
+                  {isDeleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />} Delete Student
+                </button>
+                {showDeleteOptions && (
+                  <div className="absolute bottom-full left-0 z-10 mb-3 w-[min(28rem,calc(100vw-3rem))] rounded-2xl border border-red-100 bg-white p-3 shadow-xl" role="group" aria-label="Delete enrollment options">
+                    <p className="mb-2 text-[11px] text-zinc-600">Only this internship enrollment is removed; the User account stays.</p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button type="button" disabled={isDeleting || isSaving} onClick={() => handleDelete("partial")} className="px-3 py-2.5 rounded-xl border border-red-200 text-red-700 text-xs font-bold disabled:opacity-50">Partial: unpaid only</button>
+                      <button type="button" disabled={isDeleting || isSaving} onClick={() => handleDelete("full")} className="px-3 py-2.5 rounded-xl bg-red-700 text-white text-xs font-bold disabled:opacity-50">Full: delete fees too</button>
+                    </div>
+                  </div>
+                )}
+              </div>
               <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end">
                 <button
                   type="button"
@@ -467,7 +488,7 @@ export default function EditStudentModal({
               </div>
             </div>
           </form>
-        </div>
+        </aside>
       </div>
     </>
   );

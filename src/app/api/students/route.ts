@@ -7,6 +7,7 @@ import User from "@/models/user";
 import { ensureStudentId } from "@/lib/student-id";
 import { createAdminNotification } from "@/lib/admin-notifications";
 import { setEnrollmentStatus } from "@/lib/enrollment-status";
+import { deletionBlockReason } from "@/lib/student-deletion";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 
@@ -54,6 +55,7 @@ export async function GET(req: Request) {
     query.domain = new RegExp(`^${escapeRegex(domain)}$`, "i");
   if (duration && duration.toLowerCase() !== "all")
     query.duration = new RegExp(`^${escapeRegex(duration)}$`, "i");
+  if (params.get("feesPending") === "true") query.pendingAmount = { $gt: 0 };
   const joiningDate = params.get("joiningDate")?.trim();
   const fromDate = params.get("fromDate")?.trim();
   const toDate = params.get("toDate")?.trim();
@@ -386,7 +388,11 @@ export async function DELETE(req: Request) {
   const auth = await requireRole("admin");
   if (auth.error) return auth.error;
   await connectToDatabase();
-  const id = new URL(req.url).searchParams.get("id");
+  const params = new URL(req.url).searchParams;
+  const id = params.get("id");
+  const mode = params.get("mode") || "partial";
+  if (mode !== "partial" && mode !== "full")
+    return NextResponse.json({ success: false, error: "Select Partial Delete or Full Delete." }, { status: 400 });
   if (!id || !mongoose.isValidObjectId(id))
     return NextResponse.json({ success: false, error: "Select a valid enrollment." }, { status: 400 });
   const enrollment = await Enrollment.findOne({ _id: id, type: "internship" });
@@ -395,10 +401,19 @@ export async function DELETE(req: Request) {
       { success: false, error: "Enrollment not found." },
       { status: 404 },
     );
-  if (enrollment.installments.length > 0 || enrollment.totalCollection > 0 || enrollment.certificateStatus === "Issued" || await RazorpayOrder.exists({ enrollmentId: enrollment._id }))
-    return NextResponse.json({ success: false, error: "This enrollment has payment or certificate history. Mark it Cancelled instead." }, { status: 409 });
-  const deleted = await Enrollment.deleteOne({ _id: enrollment._id, "installments.0": { $exists: false }, totalCollection: 0, certificateStatus: { $ne: "Issued" } });
+  const blocked = deletionBlockReason(mode, {
+    installmentCount: enrollment.installments.length,
+    totalCollection: enrollment.totalCollection,
+    certificateStatus: enrollment.certificateStatus,
+  }, Boolean(await RazorpayOrder.exists({ enrollmentId: enrollment._id })));
+  if (blocked)
+    return NextResponse.json({ success: false, error: blocked }, { status: 409 });
+  const deleted = await Enrollment.deleteOne({
+    _id: enrollment._id,
+    updatedAt: enrollment.updatedAt,
+    ...(mode === "partial" ? { "installments.0": { $exists: false }, totalCollection: 0, certificateStatus: { $ne: "Issued" } } : {}),
+  });
   if (!deleted.deletedCount)
     return NextResponse.json({ success: false, error: "Enrollment changed; refresh and try again." }, { status: 409 });
-  return NextResponse.json({ success: true, message: "Enrollment deleted. The student account was kept." });
+  return NextResponse.json({ success: true, message: "Selected internship enrollment deleted. The shared User account and other enrollments were kept." });
 }
