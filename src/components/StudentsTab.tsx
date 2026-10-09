@@ -31,6 +31,7 @@ export default function StudentsTab() {
   const [domainFilter, setDomainFilter] = useState("All");
   const [durationFilter, setDurationFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("current");
+  const [feePendingOnly, setFeePendingOnly] = useState(false);
 
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -104,6 +105,7 @@ export default function StudentsTab() {
       if (durationFilter.trim().toLowerCase() !== "all") {
         queryParams.duration = durationFilter.trim();
       }
+      if (feePendingOnly) queryParams.feesPending = "true";
 
       if (fromDate) queryParams.fromDate = fromDate;
       if (toDate) queryParams.toDate = toDate;
@@ -144,7 +146,7 @@ export default function StudentsTab() {
     } finally {
       if (request === latestRequest.current) setLoading(false);
     }
-  }, [debouncedSearch, domainFilter, durationFilter, statusFilter, fromDate, toDate, joiningDate, page]);
+  }, [debouncedSearch, domainFilter, durationFilter, statusFilter, feePendingOnly, fromDate, toDate, joiningDate, page]);
 
   useEffect(() => {
     fetchStudents();
@@ -203,6 +205,9 @@ export default function StudentsTab() {
         durationFilter={durationFilter}
         statusFilter={statusFilter}
         onStatusChange={(value) => { setStatusFilter(value); setPage(1); }}
+        feePendingOnly={feePendingOnly}
+        onOutstandingBalanceClick={() => { setFeePendingOnly((value) => !value); setPage(1); }}
+        onClearFeeFilter={() => { setFeePendingOnly(false); setPage(1); }}
         onDurationChange={handleDurationChange}
         availableDurations={availableDurations}
         fromDate={fromDate}

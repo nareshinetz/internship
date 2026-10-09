@@ -9,7 +9,6 @@ import {
   Calendar, 
   Clock, 
   Loader2, 
-  CalendarDays, 
   Users, 
   Wallet, 
   AlertCircle,
@@ -17,23 +16,12 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface DurationStat {
-  count: number;
-  collected: number;
-  pending: number;
-}
-
 interface SummaryData {
   totalStudents: number;
   totalCollected: number;
   totalPending: number;
   duesCount: number;
   clearCount: number;
-  byDuration?: {
-    "6 Months": DurationStat;
-    "3 Months": DurationStat;
-    "Short Term (1W / 2W / 3W / 1M)": DurationStat;
-  };
 }
 
 interface ProgramTrack {
@@ -53,6 +41,9 @@ interface StudentHeaderControlsProps {
   onDurationChange: (value: string) => void;
   statusFilter: string;
   onStatusChange: (value: string) => void;
+  feePendingOnly: boolean;
+  onOutstandingBalanceClick: () => void;
+  onClearFeeFilter: () => void;
   availableDurations?: string[];
   fromDate: string;
   onFromDateChange: (value: string) => void;
@@ -98,6 +89,9 @@ export default function StudentHeaderControls({
   onDurationChange,
   statusFilter,
   onStatusChange,
+  feePendingOnly,
+  onOutstandingBalanceClick,
+  onClearFeeFilter,
   availableDurations = DEFAULT_DURATIONS,
   fromDate,
   onFromDateChange,
@@ -189,10 +183,6 @@ export default function StudentHeaderControls({
     const found = availableDurations.find((d) => d.trim().toLowerCase() === target);
     return found || "All";
   }, [durationFilter, availableDurations]);
-
-  const sixMonthStats = summary?.byDuration?.["6 Months"] || { count: 0, collected: 0, pending: 0 };
-  const threeMonthStats = summary?.byDuration?.["3 Months"] || { count: 0, collected: 0, pending: 0 };
-  const shortTermStats = summary?.byDuration?.["Short Term (1W / 2W / 3W / 1M)"] || { count: 0, collected: 0, pending: 0 };
 
   // ─── EXCEL EXPORT HANDLER ─────────────────────────────────────────────────
   const handleExportCsv = async () => {
@@ -300,7 +290,12 @@ export default function StudentHeaderControls({
         </div>
 
         {/* Outstanding Balance */}
-        <div className="metric-card bg-white p-5 rounded-3xl border border-zinc-200/80 shadow-xs flex items-center justify-between">
+        <button
+          type="button"
+          onClick={onOutstandingBalanceClick}
+          aria-pressed={feePendingOnly}
+          className={cn("metric-card flex items-center justify-between rounded-3xl border bg-white p-5 text-left shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md cursor-pointer", feePendingOnly ? "border-amber-400 ring-2 ring-amber-100" : "border-zinc-200/80")}
+        >
           <div className="space-y-0.5">
             <span className="text-[10px] font-black uppercase tracking-wider text-amber-600 block">
               Outstanding Balance
@@ -312,138 +307,7 @@ export default function StudentHeaderControls({
           <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center">
             <AlertCircle size={22} />
           </div>
-        </div>
-
-      </div>
-
-      {/* ─── DURATION-WISE EXECUTIVE TRACK CARDS ──────────────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        
-        {/* Card 1: 6 Months Track */}
-        <div className="track-card bg-white p-5 rounded-3xl border border-zinc-200/80 shadow-xs flex flex-col justify-between space-y-4">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-700 flex items-center justify-center font-black text-xs border border-purple-100">
-                6M
-              </div>
-              <div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-purple-700 block">
-                  6 Months Track
-                </span>
-                <p className="text-xs font-bold text-zinc-500">Long Term Master</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <span className="text-xl font-black text-zinc-900 block leading-tight">
-                {sixMonthStats.count.toLocaleString("en-IN")}
-              </span>
-              <span className="text-[9px] font-black text-zinc-400 uppercase tracking-wider">Students</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-zinc-100">
-            <div className="bg-zinc-50/70 p-2.5 rounded-2xl border border-zinc-100">
-              <span className="text-[9px] font-extrabold uppercase tracking-wider text-emerald-600 block">
-                Collected
-              </span>
-              <p className="font-black text-sm text-zinc-900 mt-0.5">
-                ₹{sixMonthStats.collected.toLocaleString("en-IN")}
-              </p>
-            </div>
-            <div className="bg-zinc-50/70 p-2.5 rounded-2xl border border-zinc-100">
-              <span className="text-[9px] font-extrabold uppercase tracking-wider text-amber-600 block">
-                Pending
-              </span>
-              <p className="font-black text-sm text-amber-600 mt-0.5">
-                ₹{sixMonthStats.pending.toLocaleString("en-IN")}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Card 2: 3 Months Track */}
-        <div className="track-card bg-white p-5 rounded-3xl border border-zinc-200/80 shadow-xs flex flex-col justify-between space-y-4">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center font-black text-xs border border-blue-100">
-                3M
-              </div>
-              <div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-blue-700 block">
-                  3 Months Track
-                </span>
-                <p className="text-xs font-bold text-zinc-500">Advanced Program</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <span className="text-xl font-black text-zinc-900 block leading-tight">
-                {threeMonthStats.count.toLocaleString("en-IN")}
-              </span>
-              <span className="text-[9px] font-black text-zinc-400 uppercase tracking-wider">Students</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-zinc-100">
-            <div className="bg-zinc-50/70 p-2.5 rounded-2xl border border-zinc-100">
-              <span className="text-[9px] font-extrabold uppercase tracking-wider text-emerald-600 block">
-                Collected
-              </span>
-              <p className="font-black text-sm text-zinc-900 mt-0.5">
-                ₹{threeMonthStats.collected.toLocaleString("en-IN")}
-              </p>
-            </div>
-            <div className="bg-zinc-50/70 p-2.5 rounded-2xl border border-zinc-100">
-              <span className="text-[9px] font-extrabold uppercase tracking-wider text-amber-600 block">
-                Pending
-              </span>
-              <p className="font-black text-sm text-amber-600 mt-0.5">
-                ₹{threeMonthStats.pending.toLocaleString("en-IN")}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Card 3: Short Term Tracks */}
-        <div className="track-card bg-white p-5 rounded-3xl border border-zinc-200/80 shadow-xs flex flex-col justify-between space-y-4">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-black text-xs border border-emerald-100">
-                <CalendarDays size={18} />
-              </div>
-              <div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-700 block">
-                  Short Term Tracks
-                </span>
-                <p className="text-xs font-bold text-zinc-500">1W / 2W / 3W / 1 Month</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <span className="text-xl font-black text-zinc-900 block leading-tight">
-                {shortTermStats.count.toLocaleString("en-IN")}
-              </span>
-              <span className="text-[9px] font-black text-zinc-400 uppercase tracking-wider">Students</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-zinc-100">
-            <div className="bg-zinc-50/70 p-2.5 rounded-2xl border border-zinc-100">
-              <span className="text-[9px] font-extrabold uppercase tracking-wider text-emerald-600 block">
-                Collected
-              </span>
-              <p className="font-black text-sm text-zinc-900 mt-0.5">
-                ₹{shortTermStats.collected.toLocaleString("en-IN")}
-              </p>
-            </div>
-            <div className="bg-zinc-50/70 p-2.5 rounded-2xl border border-zinc-100">
-              <span className="text-[9px] font-extrabold uppercase tracking-wider text-amber-600 block">
-                Pending
-              </span>
-              <p className="font-black text-sm text-amber-600 mt-0.5">
-                ₹{shortTermStats.pending.toLocaleString("en-IN")}
-              </p>
-            </div>
-          </div>
-        </div>
+        </button>
 
       </div>
 
@@ -470,6 +334,13 @@ export default function StudentHeaderControls({
                 <span className="ml-1 text-emerald-600 font-bold">
                   (Joining: {joiningDate})
                 </span>
+              )}
+              {feePendingOnly && (
+                <>
+                  <span className="text-zinc-300">•</span>
+                  <span className="font-bold text-amber-700">Fees: Pending</span>
+                  <button type="button" onClick={onClearFeeFilter} className="ml-1 text-[11px] font-bold text-rose-600 hover:text-rose-700">Clear</button>
+                </>
               )}
             </p>
           </div>

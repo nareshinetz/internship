@@ -206,8 +206,11 @@ export default function EditStudentModal({
                     Phone Number
                   </label>
                   <input
-                    type="text"
+                    type="tel"
                     required
+                    inputMode="tel"
+                    pattern="[+]?[0-9 ()-]{10,24}"
+                    title="Enter 10–15 digits; spaces, hyphens, parentheses, and a leading + are allowed."
                     value={editForm.phone}
                     onChange={(e) =>
                       setEditForm({ ...editForm, phone: e.target.value })

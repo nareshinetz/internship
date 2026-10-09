@@ -22,32 +22,69 @@ interface OverviewData {
 
 const money = (value: number) => `₹${value.toLocaleString("en-IN")}`;
 
-function MonthlyChart({ title, subtitle, series, field, currency }: {
+function MonthlyChart({ title, subtitle, series, field, currency, variant = "bar" }: {
   title: string;
   subtitle: string;
   series: OverviewData["series"];
   field: "admissions" | "collected";
   currency?: boolean;
+  variant?: "bar" | "line";
 }) {
   const peak = Math.max(1, ...series.map((item) => item[field]));
+  const linePoints = series.map((item, index) => ({
+    ...item,
+    x: series.length <= 1 ? 50 : (index / (series.length - 1)) * 100,
+    y: 92 - (item[field] / peak) * 74,
+  }));
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm">
       <h3 className="text-base font-bold text-slate-900">{title}</h3>
       <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
-      <div className="mt-7 flex h-56 items-end gap-1 sm:gap-2 border-b border-slate-200" role="img" aria-label={`${title}: ${series.map((item) => `${item.label} ${currency ? money(item[field]) : item[field]}`).join(", ")}`}>
-        {series.map((item) => (
-          <div key={item.key} className="flex h-full min-w-0 flex-1 flex-col justify-end group">
-            <div className="mb-2 text-center text-[10px] font-semibold text-slate-600 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 tabular-nums">
-              {currency ? money(item[field]) : item[field]}
+      {variant === "line" ? (
+        <div className="relative mt-7 h-56 border-b border-slate-200" role="img" aria-label={`${title}: ${series.map((item) => `${item.label} ${item[field]}`).join(", ")}`}>
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full" aria-hidden="true">
+            <defs>
+              <linearGradient id={`chart-area-${field}`} x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stopColor="#059669" stopOpacity="0.24" />
+                <stop offset="100%" stopColor="#059669" stopOpacity="0.02" />
+              </linearGradient>
+            </defs>
+            {[18, 55, 92].map((y) => <line key={y} x1="0" x2="100" y1={y} y2={y} stroke="#e2e8f0" strokeWidth="0.45" vectorEffect="non-scaling-stroke" />)}
+            <polygon points={`0,92 ${linePoints.map((point) => `${point.x},${point.y}`).join(" ")} 100,92`} fill={`url(#chart-area-${field})`} />
+            <polyline points={linePoints.map((point) => `${point.x},${point.y}`).join(" ")} fill="none" stroke="#059669" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+          </svg>
+          {linePoints.map((point) => (
+            <span
+              key={point.key}
+              role="img"
+              tabIndex={0}
+              aria-label={`${point.key}: ${point[field]} admissions`}
+              className="group absolute h-3 w-3 -translate-x-1/2 -translate-y-1/2"
+              style={{ left: `${point.x}%`, top: `${point.y}%` }}
+            >
+              <span className="block h-3 w-3 rounded-full border-2 border-emerald-600 bg-white shadow-sm transition-transform group-hover:scale-125 group-focus:scale-125" />
+              <span role="tooltip" className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-900 px-2.5 py-1.5 text-xs font-bold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus:opacity-100">
+                {point.label}: {point[field]} admissions
+              </span>
+            </span>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-7 flex h-56 items-end gap-1 sm:gap-2 border-b border-slate-200" role="img" aria-label={`${title}: ${series.map((item) => `${item.label} ${currency ? money(item[field]) : item[field]}`).join(", ")}`}>
+          {series.map((item) => (
+            <div key={item.key} className="flex h-full min-w-0 flex-1 flex-col justify-end group">
+              <div className="mb-2 text-center text-[10px] font-semibold text-slate-600 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 tabular-nums">
+                {currency ? money(item[field]) : item[field]}
+              </div>
+              <div
+                className="mx-auto w-full max-w-9 rounded-t-md bg-blue-600"
+                style={{ height: `${Math.max(item[field] ? 5 : 0, item[field] / peak * 88)}%` }}
+                title={`${item.key}: ${money(item[field])}`}
+              />
             </div>
-            <div
-              className={`mx-auto w-full max-w-9 rounded-t-md ${field === "collected" ? "bg-blue-600" : "bg-emerald-600"}`}
-              style={{ height: `${Math.max(item[field] ? 5 : 0, item[field] / peak * 88)}%` }}
-              title={`${item.key}: ${currency ? money(item[field]) : item[field]}`}
-            />
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
       <div className="mt-3 flex gap-1 sm:gap-2">
         {series.map((item) => <span key={item.key} className="min-w-0 flex-1 text-center text-[10px] text-slate-500">{item.label}</span>)}
       </div>
@@ -81,16 +118,17 @@ export default function CeoOverviewTab() {
   if (!data) return <div className="rounded-2xl border border-rose-200 bg-white p-8 text-sm text-rose-700"><AlertCircle className="mb-3" size={22} />{error}<button onClick={refresh} className="ml-3 font-semibold underline">Try again</button></div>;
 
   const cards = [
-    { label: "Total enrollments", value: data.totals.students.toLocaleString("en-IN"), icon: Users, tone: "text-blue-700 bg-blue-50" },
+    { label: "Total students", value: data.totals.students.toLocaleString("en-IN"), icon: Users, tone: "text-blue-700 bg-blue-50" },
     { label: "Total billing", value: money(data.totals.billing), icon: BookOpen, tone: "text-violet-700 bg-violet-50" },
     { label: "Fees collected", value: money(data.totals.collected), icon: Wallet, tone: "text-emerald-700 bg-emerald-50" },
     { label: "Outstanding balance", value: money(data.totals.pending), icon: AlertCircle, tone: "text-amber-700 bg-amber-50" },
     { label: "Admissions this month", value: data.monthAdmissions.toLocaleString("en-IN"), icon: CalendarDays, tone: "text-sky-700 bg-sky-50" },
+    { label: "Active students", value: data.studentsByStatus.active.toLocaleString("en-IN"), icon: Users, tone: "text-emerald-700 bg-emerald-50" },
   ];
   const durationCards = [
     { label: "6 months", stats: data.durations.sixMonths, tone: "text-violet-700 bg-violet-50" },
     { label: "3 months", stats: data.durations.threeMonths, tone: "text-blue-700 bg-blue-50" },
-    { label: "Other durations & certificates", stats: data.durations.other, tone: "text-emerald-700 bg-emerald-50" },
+    { label: "Other durations", stats: data.durations.other, tone: "text-emerald-700 bg-emerald-50" },
   ];
 
   return (
@@ -111,33 +149,22 @@ export default function CeoOverviewTab() {
 
       {error && <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">Showing last loaded figures. {error}</p>}
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-2">
         {cards.map(({ label, value, icon: Icon, tone }) => (
-          <section key={label} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <span className={`inline-flex rounded-xl p-2.5 ${tone}`}><Icon size={20} /></span>
-            <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
-            <p className="mt-1 text-2xl font-bold tracking-tight text-slate-950 tabular-nums">{value}</p>
+          <section key={label} className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <span className={`inline-flex shrink-0 rounded-xl p-2.5 ${tone}`}><Icon size={20} /></span>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
+              <p className="mt-1 text-2xl font-bold tracking-tight text-slate-950 tabular-nums">{value}</p>
+            </div>
             {label === "Admissions this month" && (
-              <p className={`mt-3 inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-bold ${data.admissionTrend.direction === "up" ? "bg-emerald-50 text-emerald-700" : data.admissionTrend.direction === "down" ? "bg-rose-50 text-rose-700" : "bg-slate-100 text-slate-600"}`}>
+              <p className={`inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-xs font-bold ${data.admissionTrend.direction === "up" ? "bg-emerald-50 text-emerald-700" : data.admissionTrend.direction === "down" ? "bg-rose-50 text-rose-700" : "bg-slate-100 text-slate-600"}`}>
                 {data.admissionTrend.direction === "up" ? <ArrowUpRight size={15} /> : data.admissionTrend.direction === "down" ? <ArrowDownRight size={15} /> : <Minus size={15} />}
                 {data.admissionTrend.label} <span className="font-medium">vs same dates last month</span>
               </p>
             )}
           </section>
         ))}
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <section className="rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Active students</p>
-          <p className="mt-2 text-3xl font-bold text-slate-950 tabular-nums">{data.studentsByStatus.active.toLocaleString("en-IN")}</p>
-          <p className="mt-1 text-xs text-slate-500">People with at least one active program</p>
-        </section>
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Not active students</p>
-          <p className="mt-2 text-3xl font-bold text-slate-950 tabular-nums">{data.studentsByStatus.inactive.toLocaleString("en-IN")}</p>
-          <p className="mt-1 text-xs text-slate-500">People with completed or cancelled programs and none active</p>
-        </section>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -152,7 +179,7 @@ export default function CeoOverviewTab() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <MonthlyChart title="Monthly fee collection" subtitle="Payments by recorded date · last 12 months" series={data.series} field="collected" currency />
-        <MonthlyChart title="Monthly admissions" subtitle="Enrollments by joining month · last 12 months" series={data.series} field="admissions" />
+        <MonthlyChart title="Monthly admissions" subtitle="Enrollments by joining month · last 12 months" series={data.series} field="admissions" variant="line" />
       </div>
       <p className="text-xs text-slate-500">Lifetime totals include all recorded installments. For migrated payments without a timestamp, the chart uses the recorded payment date.</p>
     </div>

@@ -215,6 +215,9 @@ export default function AddStudentModal({
                 <input
                   type="tel"
                   required
+                  inputMode="tel"
+                  pattern="[+]?[0-9 ()-]{10,24}"
+                  title="Enter 10–15 digits; spaces, hyphens, parentheses, and a leading + are allowed."
                   placeholder="e.g. 9876543210"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}

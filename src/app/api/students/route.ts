@@ -8,6 +8,7 @@ import { ensureStudentId } from "@/lib/student-id";
 import { createAdminNotification } from "@/lib/admin-notifications";
 import { setEnrollmentStatus } from "@/lib/enrollment-status";
 import { deletionBlockReason } from "@/lib/student-deletion";
+import { isValidStudentText, normalizeStudentEmail, normalizeStudentPhone } from "@/lib/admin-student-input";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 
@@ -186,13 +187,17 @@ export async function POST(req: Request) {
     if (auth.error) return auth.error;
     const body = await req.json();
     await connectToDatabase();
-    const phone = String(body.phone || "").replace(/\D/g, "");
+    const phone = normalizeStudentPhone(body.phone);
     const name = String(body.name || "").trim();
-    if (!name || phone.length < 10 || phone.length > 15)
+    const college = String(body.college || "").trim();
+    const email = normalizeStudentEmail(body.email);
+    if (!isValidStudentText(name) || !isValidStudentText(college) || !phone)
       return NextResponse.json(
-        { success: false, error: "Valid name and phone are required." },
+        { success: false, error: "Enter a name and college containing letters, plus a valid 10–15 digit phone number." },
         { status: 400 },
       );
+    if (email === null)
+      return NextResponse.json({ success: false, error: "Enter a valid email address or leave it blank." }, { status: 400 });
     if (body.programId && !mongoose.isValidObjectId(body.programId))
       return NextResponse.json(
         { success: false, error: "Select an existing internship program." },
@@ -222,9 +227,10 @@ export async function POST(req: Request) {
         { success: false, error: "Select a valid manual payment method." },
         { status: 400 },
       );
-    const email = String(body.email || "")
-      .trim()
-      .toLowerCase();
+    const dateText = body.batchStartDate || body.doj;
+    const joinedAt = dateText ? new Date(`${dateText}T00:00:00`) : new Date();
+    if (dateText && (!/^\d{4}-\d{2}-\d{2}$/.test(dateText) || Number.isNaN(joinedAt.getTime())))
+      return NextResponse.json({ success: false, error: "Enter a valid joining date." }, { status: 400 });
     let user = await User.findOne({ phone });
     if (user && await Enrollment.exists({ userId: user._id, type: "internship", offeringId: program._id }))
       return NextResponse.json(
@@ -235,7 +241,7 @@ export async function POST(req: Request) {
       user = new User({
         name,
         phone,
-        college: String(body.college || "N/A").trim(),
+        college,
         degree: body.degree ? String(body.degree).trim() : undefined,
         role: "student",
       });
@@ -250,10 +256,6 @@ export async function POST(req: Request) {
     }
     await user.save();
     const studentId = await ensureStudentId(user._id, program.duration || "");
-    const joinedAt =
-      body.batchStartDate || body.doj
-        ? new Date(`${body.batchStartDate || body.doj}T00:00:00`)
-        : new Date();
     const installments =
       paid > 0
         ? [
@@ -303,6 +305,8 @@ export async function POST(req: Request) {
       { status: 201 },
     );
   } catch (error) {
+    if (error instanceof mongoose.mongo.MongoServerError && error.code === 11000)
+      return NextResponse.json({ success: false, error: "Another account already uses that phone or email." }, { status: 409 });
     return NextResponse.json(
       {
         success: false,
@@ -333,6 +337,18 @@ export async function PUT(req: Request) {
       { success: false, error: "Account not found." },
       { status: 404 },
     );
+  const name = String(body.name || "").trim();
+  const college = String(body.college || "").trim();
+  const phone = normalizeStudentPhone(body.phone);
+  const email = normalizeStudentEmail(body.email);
+  if (!isValidStudentText(name) || !isValidStudentText(college) || !phone)
+    return NextResponse.json({ success: false, error: "Enter a name and college containing letters, plus a valid 10–15 digit phone number." }, { status: 400 });
+  if (email === null || (!email && user.email))
+    return NextResponse.json({ success: false, error: "Enter a valid email address; an existing account email cannot be removed." }, { status: 400 });
+  if (phone !== user.phone && await User.exists({ phone, _id: { $ne: user._id } }))
+    return NextResponse.json({ success: false, error: "That phone number belongs to another account." }, { status: 409 });
+  if (email && email !== user.email && await User.exists({ email, _id: { $ne: user._id } }))
+    return NextResponse.json({ success: false, error: "That email belongs to another account." }, { status: 409 });
   if (body.status !== undefined && !["active", "completed", "cancelled"].includes(body.status))
     return NextResponse.json(
       { success: false, error: "Select Active, Completed, or Cancelled." },
@@ -362,10 +378,21 @@ export async function PUT(req: Request) {
       { success: false, error: "Total fee cannot be less than collected." },
       { status: 400 },
     );
-  if (body.name) user.name = String(body.name).trim();
-  if (body.college !== undefined) user.college = String(body.college).trim();
+  user.name = name;
+  user.college = college;
+  if (phone !== user.phone) {
+    user.phone = phone;
+    user.phoneVerifiedAt = undefined;
+  }
+  if (email) user.email = email;
   if (body.degree !== undefined) user.degree = String(body.degree).trim();
-  await user.save();
+  try {
+    await user.save();
+  } catch (error) {
+    if (error instanceof mongoose.mongo.MongoServerError && error.code === 11000)
+      return NextResponse.json({ success: false, error: "Another account already uses that phone or email." }, { status: 409 });
+    throw error;
+  }
   enrollment.totalBilling = body.clearFees
     ? enrollment.totalCollection
     : requestedBilling;
