@@ -2,14 +2,15 @@ import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db";
 import User from "@/models/user"; // Fixed path to match your layout standard
 import { createAdminNotification } from "@/lib/admin-notifications";
+import { normalizeStudentPhone, studentPhoneVariants } from "@/lib/admin-student-input";
 
 export async function POST(req: Request) {
   try {
     const { name, email, password, phone } = await req.json();
-    const cleanPhone = String(phone || "").replace(/\D/g, "");
+    const cleanPhone = normalizeStudentPhone(phone);
 
     // 1. Basic validation
-    if (!name?.trim() || !email || !password || cleanPhone.length < 10 || cleanPhone.length > 15) {
+    if (!name?.trim() || !email || !password || !cleanPhone) {
       return NextResponse.json(
         { error: "Name, email, password, and a valid phone number are required." },
         { status: 400 }
@@ -28,7 +29,7 @@ export async function POST(req: Request) {
 
     // 3. Check if user exists (using case-insensitive lowercase matching)
     const normalizedEmail = email.toLowerCase();
-    const existingUser = await User.findOne({ $or: [{ email: normalizedEmail }, { phone: cleanPhone }] });
+    const existingUser = await User.findOne({ $or: [{ email: normalizedEmail }, { phone: { $in: studentPhoneVariants(cleanPhone) } }] });
     
     if (existingUser) {
       return NextResponse.json(

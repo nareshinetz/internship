@@ -5,13 +5,18 @@ import { sendPaymentReceipt } from "@/lib/payment-receipt-email";
 import Enrollment from "@/models/Enrollment";
 import User from "@/models/user";
 import { NextResponse } from "next/server";
+import { normalizeStudentPhone, studentPhoneVariants } from "@/lib/admin-student-input";
 
 export async function GET(req: Request) {
   const auth = await requireRole("admin"); if (auth.error) return auth.error;
   await connectToDatabase(); const params = new URL(req.url).searchParams;
-  const phone = params.get("phone")?.replace(/\D/g, "");
-  if (phone) {
-    const user = await User.findOne({ phone }).lean(); if (!user) return NextResponse.json({ exists: false });
+  const phoneInput = params.get("phone");
+  if (phoneInput) {
+    const phone = normalizeStudentPhone(phoneInput);
+    if (!phone) return NextResponse.json({ success: false, error: "Enter a valid Indian mobile number." }, { status: 400 });
+    const users = await User.find({ phone: { $in: studentPhoneVariants(phone) } }).limit(2).lean();
+    if (users.length > 1) return NextResponse.json({ success: false, error: "Multiple accounts use this mobile number. Resolve them before recording payment." }, { status: 409 });
+    const user = users[0]; if (!user) return NextResponse.json({ exists: false });
     const enrollment = await Enrollment.findOne({ userId: user._id, type: "internship", status: { $ne: "cancelled" } }).sort({ joinedAt: -1 }).lean();
     if (!enrollment) return NextResponse.json({ exists: false });
     return NextResponse.json({ exists: true, _id: enrollment._id, name: user.name, phone: user.phone, college: user.college || "", domain: enrollment.domain, duration: enrollment.duration, courseName: enrollment.duration, totalBilling: enrollment.totalBilling, totalCollection: enrollment.totalCollection, installments: enrollment.installments, totalAccumulatedPaid: enrollment.totalCollection });
@@ -31,7 +36,11 @@ export async function POST(req: Request) {
   try {
     const auth = await requireRole("admin"); if (auth.error) return auth.error;
     const data = await req.json(); await connectToDatabase();
-    const user = await User.findOne({ phone: String(data.phone || "").replace(/\D/g, "") });
+    const phone = normalizeStudentPhone(data.phone);
+    if (!phone) return NextResponse.json({ success: false, error: "Enter a valid Indian mobile number." }, { status: 400 });
+    const users = await User.find({ phone: { $in: studentPhoneVariants(phone) } }).limit(2);
+    if (users.length > 1) return NextResponse.json({ success: false, error: "Multiple accounts use this mobile number. Resolve them before recording payment." }, { status: 409 });
+    const user = users[0];
     if (!user) return NextResponse.json({ success: false, error: "Create the student enrollment before recording payment." }, { status: 404 });
     const enrollment = await Enrollment.findOne({ userId: user._id, type: "internship", domain: data.domain, status: { $ne: "cancelled" } });
     if (!enrollment) return NextResponse.json({ success: false, error: "Matching internship enrollment not found." }, { status: 404 });

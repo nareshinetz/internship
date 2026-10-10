@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Eye, Loader2, AlertCircle } from "lucide-react";
+import { Eye, Pencil, Loader2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface Installment {
@@ -70,7 +70,6 @@ export default function StudentTable({ students, loading, onOpenEditModal }: Stu
             <tr className="border-b border-slate-200 bg-slate-50 text-[10px] font-semibold uppercase text-slate-500 tracking-[0.075em]">
               <th className="py-3.5 px-4">Student ID</th>
               <th className="py-3.5 px-4">Student Name</th>
-              <th className="py-3.5 px-4">Contact Info</th>
               <th className="py-3.5 px-4">Domain</th>
               <th className="py-3.5 px-4">Duration</th>
               <th className="py-3.5 px-4">Total Fees</th>
@@ -87,11 +86,9 @@ export default function StudentTable({ students, loading, onOpenEditModal }: Stu
                     {st.studentId || `#${st.sNo || "N/A"}`}
                   </span>
                 </td>
-                <td className="py-3 px-4">
+                <td className="min-w-[150px] py-3 px-4">
                   <p className="font-semibold text-slate-900">{st.name}</p>
-                </td>
-                <td className="py-3 px-4">
-                  <p className="font-mono text-slate-700 tabular-nums">{st.phone}</p>
+                  <p className="mt-0.5 whitespace-nowrap font-mono text-[11px] font-normal text-slate-500 tabular-nums">{st.phone}</p>
                 </td>
                 <td className="py-3 px-4">
                   <p className="font-medium text-slate-800 truncate max-w-[180px]">{st.domain}</p>
@@ -106,30 +103,33 @@ export default function StudentTable({ students, loading, onOpenEditModal }: Stu
                   <span
                     className={cn(
                       "px-2.5 py-1 rounded-full text-[9px] font-semibold uppercase border tracking-[0.06em]",
-                      st.pendingAmount <= 0 || st.feesStatus === "Clear" || st.feesStatus === "Fully Paid"
+                      st.pendingAmount <= 0
                         ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                         : "bg-amber-50 text-amber-700 border-amber-200"
                     )}
                   >
-                    {st.pendingAmount <= 0 ? "Clear" : `Pending · ₹${st.pendingAmount}`}
+                    {st.pendingAmount <= 0 ? "Clear" : `₹${st.pendingAmount.toLocaleString("en-IN")}`}
                   </span>
                 </td>
                 <td className="py-3 px-4">
                   <span className={cn(
                     "inline-flex rounded-full border px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.06em]",
+                    st.status === "active" && st.pendingAmount > 0 ? "border-amber-200 bg-amber-50 text-amber-700" :
                     st.status === "active" ? "border-emerald-200 bg-emerald-50 text-emerald-700" :
                     st.status === "completed" ? "border-blue-200 bg-blue-50 text-blue-700" :
                     "border-slate-200 bg-slate-100 text-slate-600",
                   )}>
-                    {st.status === "payment_pending" ? "Payment pending" : st.status}
+                    {st.status === "active" && st.pendingAmount > 0 ? "Due" : st.status === "payment_pending" ? "Payment pending" : st.status}
                   </span>
                 </td>
                 <td className="py-3 px-4 text-right">
                   <button
                     onClick={() => onOpenEditModal(st)}
-                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors ml-auto cursor-pointer"
+                    aria-label={`View or edit ${st.name}`}
+                    title="View or edit student"
+                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg flex items-center gap-1.5 transition-colors ml-auto cursor-pointer"
                   >
-                    <Eye size={12} /> View / Edit
+                    <Eye size={15} aria-hidden="true" /><Pencil size={14} aria-hidden="true" />
                   </button>
                 </td>
               </tr>

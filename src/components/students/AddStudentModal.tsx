@@ -217,7 +217,7 @@ export default function AddStudentModal({
                   required
                   inputMode="tel"
                   pattern="[+]?[0-9 ()-]{10,24}"
-                  title="Enter 10–15 digits; spaces, hyphens, parentheses, and a leading + are allowed."
+                  title="Enter a 10-digit Indian mobile number; an optional +91 prefix is allowed."
                   placeholder="e.g. 9876543210"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
@@ -321,11 +321,11 @@ export default function AddStudentModal({
             </div>
 
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-zinc-700">Initial Payment (₹)</label>
+              <label className="block text-xs font-bold text-zinc-700">Initial Payment (₹) *</label>
               <input
                 type="number"
                 required
-                min={0}
+                min={1}
                 max={form.totalBilling}
                 value={form.initialPayment}
                 onChange={(e) => setForm({ ...form, initialPayment: Number(e.target.value) })}

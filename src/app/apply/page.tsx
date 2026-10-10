@@ -448,7 +448,7 @@ function ReviewAndPayContent() {
 
   // Validation flags
   const isOverAmount = customAmount > discountedFee;
-  const isUnderAmount = customAmount < 500 && !isAdmin;
+  const isUnderAmount = customAmount < (isAdmin ? 1 : 500);
   const isAmountInvalid = isOverAmount || isUnderAmount;
 
   // ─── MAIN PAY / ADMIT SUBMISSION HANDLER ────────────────────────────────────
@@ -460,7 +460,7 @@ function ReviewAndPayContent() {
       return;
     }
 
-    if (isUnderAmount) return alert("Min payment is ₹500");
+    if (isUnderAmount) return alert(`Min payment is ₹${isAdmin ? 1 : 500}`);
     if (isOverAmount)
       return alert(`Max payment is ₹${discountedFee.toLocaleString()}`);
     if (!form.fullName || !form.phone)
@@ -870,11 +870,11 @@ function ReviewAndPayContent() {
                         </p>
                       ) : isUnderAmount ? (
                         <p className="text-[7px] font-black text-amber-500 uppercase tracking-wide">
-                          Min ₹500
+                           Min ₹{isAdmin ? 1 : 500}
                         </p>
                       ) : (
                         <p className="text-[7px] font-bold text-slate-400 italic">
-                          ({isAdmin ? "Custom Admin Entry" : "Min ₹500"})
+                           ({isAdmin ? "Admin min ₹1" : "Min ₹500"})
                         </p>
                       )}
                     </div>

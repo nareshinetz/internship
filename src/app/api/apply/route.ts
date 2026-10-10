@@ -6,6 +6,7 @@ import RazorpayOrder from "@/models/RazorpayOrder";
 import User from "@/models/user";
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
+import { normalizeStudentPhone } from "@/lib/admin-student-input";
 import Razorpay from "razorpay";
 
 export const runtime = "nodejs";
@@ -41,7 +42,7 @@ export async function POST(req: Request) {
       const joinedAt = new Date(`${body.batchStartDate}T00:00:00`);
       const today = new Date(); today.setHours(0, 0, 0, 0);
       if (!/^\d{4}-\d{2}-\d{2}$/.test(body.batchStartDate || "") || Number.isNaN(joinedAt.getTime()) || joinedAt < today || ![1, 5].includes(joinedAt.getDay())) return NextResponse.json({ success: false, error: "Choose an upcoming Monday or Friday as your date of joining." }, { status: 400 });
-      if (body.phone && String(body.phone).replace(/\D/g, "") !== user.phone) return NextResponse.json({ success: false, error: "Payment details must match your account." }, { status: 400 });
+      if (body.phone && (!normalizeStudentPhone(body.phone) || normalizeStudentPhone(body.phone) !== normalizeStudentPhone(user.phone))) return NextResponse.json({ success: false, error: "Payment details must match your account." }, { status: 400 });
       user.name = String(body.fullName || body.name || user.name).trim();
       if (body.college) user.college = String(body.college).trim();
       await user.save();

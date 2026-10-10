@@ -61,6 +61,10 @@ Primary files:
 - `src/app/api/student/link-phone/route.ts`: links an authenticated account to
   an enrollment where needed.
 
+Indian mobile input may include `+91`, but shared `User.phone` is stored as the
+10-digit mobile number. Identity and payment lookups also recognize legacy `91`
+and `+91` values; ambiguous matches must be resolved manually, never guessed.
+
 Roles are `student` and `admin`. Google sign-in creates student accounts. Page
 gating is convenience, not the security boundary: protected route handlers
 must independently call `requireRole` before reading input or mutating data.

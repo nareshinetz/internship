@@ -8,7 +8,7 @@ import { ensureStudentId } from "@/lib/student-id";
 import { createAdminNotification } from "@/lib/admin-notifications";
 import { setEnrollmentStatus } from "@/lib/enrollment-status";
 import { deletionBlockReason } from "@/lib/student-deletion";
-import { isValidStudentText, normalizeStudentEmail, normalizeStudentPhone } from "@/lib/admin-student-input";
+import { isValidAdminInitialPayment, isValidStudentText, normalizeStudentEmail, normalizeStudentPhone, studentPhoneVariants } from "@/lib/admin-student-input";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 
@@ -99,7 +99,7 @@ export async function GET(req: Request) {
     }).distinct("_id");
     query.$or = [{ domain: rx }, { userId: { $in: userIds } }];
   }
-  const [docs, total, domains, durations, summary, durationSummary] =
+  const [docs, total, domains, durations, summary, durationSummary, pendingUsers, activeUsers] =
     await Promise.all([
       Enrollment.find(query)
         .populate("userId", "studentId name email phone college degree")
@@ -134,6 +134,8 @@ export async function GET(req: Request) {
           },
         },
       ]),
+      Enrollment.distinct("userId", { ...query, pendingAmount: { $gt: 0 } }),
+      Enrollment.distinct("userId", { $and: [query, { status: "active" }] }),
     ]);
   const stats = summary[0] || {
     totalCollected: 0,
@@ -168,6 +170,8 @@ export async function GET(req: Request) {
       totalStudents: total,
       totalCollected: stats.totalCollected,
       totalPending: stats.totalPending,
+      pendingStudents: pendingUsers.length,
+      activeStudents: activeUsers.length,
       duesCount: stats.duesCount,
       clearCount: total - stats.duesCount,
       byDuration: {
@@ -193,7 +197,7 @@ export async function POST(req: Request) {
     const email = normalizeStudentEmail(body.email);
     if (!isValidStudentText(name) || !isValidStudentText(college) || !phone)
       return NextResponse.json(
-        { success: false, error: "Enter a name and college containing letters, plus a valid 10–15 digit phone number." },
+        { success: false, error: "Enter a name and college containing letters, plus a valid Indian mobile number." },
         { status: 400 },
       );
     if (email === null)
@@ -216,9 +220,9 @@ export async function POST(req: Request) {
       );
     const paid = Number(body.initialPayment ?? 0);
     const total = Number(body.totalBilling ?? program.price ?? 0);
-    if (!Number.isFinite(paid) || !Number.isFinite(total) || paid < 0 || total < 0 || paid > total)
+    if (!isValidAdminInitialPayment(paid, total))
       return NextResponse.json(
-        { success: false, error: "Enter a valid fee and an initial payment no greater than the fee." },
+        { success: false, error: "Enter a positive initial payment no greater than the total fee." },
         { status: 400 },
       );
     const paymentMethod = body.paymentMethod || "Cash";
@@ -231,7 +235,10 @@ export async function POST(req: Request) {
     const joinedAt = dateText ? new Date(`${dateText}T00:00:00`) : new Date();
     if (dateText && (!/^\d{4}-\d{2}-\d{2}$/.test(dateText) || Number.isNaN(joinedAt.getTime())))
       return NextResponse.json({ success: false, error: "Enter a valid joining date." }, { status: 400 });
-    let user = await User.findOne({ phone });
+    const matchingUsers = await User.find({ phone: { $in: studentPhoneVariants(phone) } }).limit(2);
+    if (matchingUsers.length > 1)
+      return NextResponse.json({ success: false, error: "Multiple accounts use this mobile number. Resolve them before enrolling." }, { status: 409 });
+    let user = matchingUsers[0];
     if (user && await Enrollment.exists({ userId: user._id, type: "internship", offeringId: program._id }))
       return NextResponse.json(
         { success: false, error: "This student is already enrolled in that program." },
@@ -254,6 +261,7 @@ export async function POST(req: Request) {
         );
       user.email = email;
     }
+    user.phone = phone;
     await user.save();
     const studentId = await ensureStudentId(user._id, program.duration || "");
     const installments =
@@ -342,10 +350,10 @@ export async function PUT(req: Request) {
   const phone = normalizeStudentPhone(body.phone);
   const email = normalizeStudentEmail(body.email);
   if (!isValidStudentText(name) || !isValidStudentText(college) || !phone)
-    return NextResponse.json({ success: false, error: "Enter a name and college containing letters, plus a valid 10–15 digit phone number." }, { status: 400 });
+    return NextResponse.json({ success: false, error: "Enter a name and college containing letters, plus a valid Indian mobile number." }, { status: 400 });
   if (email === null || (!email && user.email))
     return NextResponse.json({ success: false, error: "Enter a valid email address; an existing account email cannot be removed." }, { status: 400 });
-  if (phone !== user.phone && await User.exists({ phone, _id: { $ne: user._id } }))
+  if (await User.exists({ phone: { $in: studentPhoneVariants(phone) }, _id: { $ne: user._id } }))
     return NextResponse.json({ success: false, error: "That phone number belongs to another account." }, { status: 409 });
   if (email && email !== user.email && await User.exists({ email, _id: { $ne: user._id } }))
     return NextResponse.json({ success: false, error: "That email belongs to another account." }, { status: 409 });
@@ -381,8 +389,9 @@ export async function PUT(req: Request) {
   user.name = name;
   user.college = college;
   if (phone !== user.phone) {
+    const changedNumber = normalizeStudentPhone(user.phone) !== phone;
     user.phone = phone;
-    user.phoneVerifiedAt = undefined;
+    if (changedNumber) user.phoneVerifiedAt = undefined;
   }
   if (email) user.email = email;
   if (body.degree !== undefined) user.degree = String(body.degree).trim();

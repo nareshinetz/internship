@@ -10,8 +10,6 @@ import {
   Clock, 
   Loader2, 
   Users, 
-  Wallet, 
-  AlertCircle,
   FileSpreadsheet
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -20,6 +18,8 @@ interface SummaryData {
   totalStudents: number;
   totalCollected: number;
   totalPending: number;
+  pendingStudents: number;
+  activeStudents: number;
   duesCount: number;
   clearCount: number;
 }
@@ -259,11 +259,11 @@ export default function StudentHeaderControls({
       {/* ─── OVERALL KPI SUMMARY CARDS ────────────────────────────────────────── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         
-        {/* Total Enrolled Students */}
+        {/* Total students */}
         <div className="metric-card bg-white p-5 rounded-3xl border border-zinc-200/80 shadow-xs flex items-center justify-between">
           <div className="space-y-0.5">
             <span className="text-[10px] font-black uppercase tracking-wider text-zinc-400 block">
-              Total Enrolled Students
+              Total Students
             </span>
             <h3 className="text-3xl font-black text-zinc-900 tracking-tight">
               {(summary?.totalStudents || 0).toLocaleString("en-IN")}
@@ -274,22 +274,22 @@ export default function StudentHeaderControls({
           </div>
         </div>
 
-        {/* Total Fees Collected */}
+        {/* Active students */}
         <div className="metric-card bg-white p-5 rounded-3xl border border-zinc-200/80 shadow-xs flex items-center justify-between">
           <div className="space-y-0.5">
             <span className="text-[10px] font-black uppercase tracking-wider text-emerald-600 block">
-              Total Fees Collected
+              Total Active Students
             </span>
             <h3 className="text-3xl font-black text-emerald-600 tracking-tight">
-              ₹{(summary?.totalCollected || 0).toLocaleString("en-IN")}
+              {(summary?.activeStudents || 0).toLocaleString("en-IN")}
             </h3>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center">
-            <Wallet size={22} />
+            <Users size={22} />
           </div>
         </div>
 
-        {/* Outstanding Balance */}
+        {/* Pending students */}
         <button
           type="button"
           onClick={onOutstandingBalanceClick}
@@ -298,14 +298,14 @@ export default function StudentHeaderControls({
         >
           <div className="space-y-0.5">
             <span className="text-[10px] font-black uppercase tracking-wider text-amber-600 block">
-              Outstanding Balance
+              Pending Student Count
             </span>
             <h3 className="text-3xl font-black text-amber-600 tracking-tight">
-              ₹{(summary?.totalPending || 0).toLocaleString("en-IN")}
+              {(summary?.pendingStudents || 0).toLocaleString("en-IN")}
             </h3>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center">
-            <AlertCircle size={22} />
+            <Clock size={22} />
           </div>
         </button>
 

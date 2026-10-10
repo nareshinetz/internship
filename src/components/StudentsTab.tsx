@@ -21,6 +21,8 @@ export default function StudentsTab() {
     totalStudents: 0,
     totalCollected: 0,
     totalPending: 0,
+    pendingStudents: 0,
+    activeStudents: 0,
     duesCount: 0,
     clearCount: 0,
   });
@@ -134,7 +136,10 @@ export default function StudentsTab() {
           });
         }
         if (Array.isArray(res.data.availableDurations) && res.data.availableDurations.length > 0) {
-          setAvailableDurations(Array.from(new Set(res.data.availableDurations)) as string[]);
+          const durations = (res.data.availableDurations as string[]).map((value) =>
+            DEFAULT_DURATIONS.find((standard) => standard.toLowerCase() === value.trim().toLowerCase()) || value.trim()
+          );
+          setAvailableDurations(["All", ...new Set(durations.filter((value) => value.toLowerCase() !== "all"))]);
         }
 
         if (res.data.pagination) {

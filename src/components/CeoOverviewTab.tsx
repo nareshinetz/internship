@@ -132,14 +132,14 @@ export default function CeoOverviewTab() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">Executive dashboard</p>
-          <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">CEO Overview</h2>
-          <p className="mt-2 text-sm text-slate-500">Admissions and collections across the enrollment portfolio.</p>
+          <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">CEO Overview</h2>
+          <p className="mt-1 text-sm text-slate-500">Admissions and collections across the enrollment portfolio.</p>
         </div>
-        <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 shadow-sm">
           <div className="flex items-center gap-2 border-r border-slate-200 pr-4"><CalendarDays size={21} className="text-blue-700" /><span className="text-sm font-bold text-slate-900">Today’s summary</span></div>
           <div className="px-2"><p className="text-xs text-slate-500">Admissions</p><p className="text-lg font-bold text-slate-950 tabular-nums">{data.today.admissions}</p></div>
           <div className="px-2"><p className="text-xs text-slate-500">Fees collected</p><p className="text-lg font-bold text-slate-950 tabular-nums">{money(data.today.collected)}</p></div>
@@ -149,30 +149,32 @@ export default function CeoOverviewTab() {
 
       {error && <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">Showing last loaded figures. {error}</p>}
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {cards.map(({ label, value, icon: Icon, tone }) => (
-          <section key={label} className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <span className={`inline-flex shrink-0 rounded-xl p-2.5 ${tone}`}><Icon size={20} /></span>
+          <section key={label} className="flex min-w-0 flex-wrap items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <span className={`inline-flex shrink-0 rounded-xl p-2 ${tone}`}><Icon size={18} /></span>
             <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
-              <p className="mt-1 text-2xl font-bold tracking-tight text-slate-950 tabular-nums">{value}</p>
+              <div className="mt-0.5 flex flex-wrap items-center gap-2">
+                <p className="text-xl font-bold tracking-tight text-slate-950 tabular-nums">{value}</p>
+                {label === "Admissions this month" && (
+                  <span title="Compared with the same dates last month" className={`inline-flex items-center gap-1 whitespace-nowrap rounded-lg px-2 py-1 text-xs font-bold ${data.admissionTrend.direction === "up" ? "bg-emerald-50 text-emerald-700" : data.admissionTrend.direction === "down" ? "bg-rose-50 text-rose-700" : "bg-slate-100 text-slate-600"}`}>
+                    {data.admissionTrend.direction === "up" ? <ArrowUpRight size={15} /> : data.admissionTrend.direction === "down" ? <ArrowDownRight size={15} /> : <Minus size={15} />}
+                    {data.admissionTrend.label}<span className="sr-only"> compared with the same dates last month</span>
+                  </span>
+                )}
+              </div>
             </div>
-            {label === "Admissions this month" && (
-              <p className={`inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-xs font-bold ${data.admissionTrend.direction === "up" ? "bg-emerald-50 text-emerald-700" : data.admissionTrend.direction === "down" ? "bg-rose-50 text-rose-700" : "bg-slate-100 text-slate-600"}`}>
-                {data.admissionTrend.direction === "up" ? <ArrowUpRight size={15} /> : data.admissionTrend.direction === "down" ? <ArrowDownRight size={15} /> : <Minus size={15} />}
-                {data.admissionTrend.label} <span className="font-medium">vs same dates last month</span>
-              </p>
-            )}
           </section>
         ))}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-3 lg:grid-cols-3">
         {durationCards.map(({ label, stats, tone }) => (
-          <section key={label} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <div className="flex items-center justify-between gap-3"><span className={`rounded-xl px-3 py-2 text-sm font-bold ${tone}`}>{label}</span><span className="text-xl font-bold text-slate-950 tabular-nums">{stats.count} <small className="text-xs font-medium text-slate-500">enrollments</small></span></div>
-            <div className="mt-5 border-t border-slate-100 pt-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total billing</p><p className="mt-1 text-xl font-bold text-slate-950 tabular-nums">{money(stats.billing)}</p></div>
-            <div className="mt-4 grid grid-cols-2 gap-3 text-sm"><div className="rounded-xl bg-emerald-50 p-3"><p className="text-slate-600">Collected</p><p className="mt-1 font-bold text-emerald-700 tabular-nums">{money(stats.collected)}</p></div><div className="rounded-xl bg-amber-50 p-3"><p className="text-slate-600">Outstanding</p><p className="mt-1 font-bold text-amber-700 tabular-nums">{money(stats.pending)}</p></div></div>
+          <section key={label} className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-2"><span className={`rounded-xl px-3 py-1.5 text-sm font-bold ${tone}`}>{label}</span><span className="text-lg font-bold text-slate-950 tabular-nums">{stats.count} <small className="text-xs font-medium text-slate-500">enrollments</small></span></div>
+            <div className="mt-3 border-t border-slate-100 pt-3"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total billing</p><p className="mt-0.5 text-lg font-bold text-slate-950 tabular-nums">{money(stats.billing)}</p></div>
+            <div className="mt-3 grid grid-cols-2 gap-2 text-sm"><div className="min-w-0 rounded-xl bg-emerald-50 p-2.5"><p className="text-slate-600">Collected</p><p className="mt-0.5 font-bold text-emerald-700 tabular-nums">{money(stats.collected)}</p></div><div className="min-w-0 rounded-xl bg-amber-50 p-2.5"><p className="text-slate-600">Outstanding</p><p className="mt-0.5 font-bold text-amber-700 tabular-nums">{money(stats.pending)}</p></div></div>
           </section>
         ))}
       </div>
