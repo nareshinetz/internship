@@ -73,7 +73,8 @@ export default function StudentTable({ students, loading, onOpenEditModal }: Stu
               <th className="py-3.5 px-4">Domain</th>
               <th className="py-3.5 px-4">Duration</th>
               <th className="py-3.5 px-4">Total Fees</th>
-              <th className="py-3.5 px-4">Fee Status</th>
+              <th className="py-3.5 px-4">Paid Fees</th>
+              <th className="py-3.5 px-4">Pending Fees</th>
               <th className="py-3.5 px-4">Enrollment Status</th>
               <th className="py-3.5 px-4 text-right">Actions</th>
             </tr>
@@ -97,19 +98,13 @@ export default function StudentTable({ students, loading, onOpenEditModal }: Stu
                   <p className="font-medium text-slate-800 truncate max-w-[180px]">{st.duration}</p>
                 </td>
                 <td className="py-3 px-4">
-                  <p className="font-semibold text-slate-900 tabular-nums truncate max-w-[180px]">{st.totalBilling}</p>
+                  <p className="whitespace-nowrap font-semibold text-slate-900 tabular-nums">₹{st.totalBilling.toLocaleString("en-IN")}</p>
                 </td>
                 <td className="py-3 px-4">
-                  <span
-                    className={cn(
-                      "px-2.5 py-1 rounded-full text-[9px] font-semibold uppercase border tracking-[0.06em]",
-                      st.pendingAmount <= 0
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                        : "bg-amber-50 text-amber-700 border-amber-200"
-                    )}
-                  >
-                    {st.pendingAmount <= 0 ? "Clear" : `₹${st.pendingAmount.toLocaleString("en-IN")}`}
-                  </span>
+                  <p className="whitespace-nowrap font-semibold text-emerald-700 tabular-nums">₹{st.totalCollection.toLocaleString("en-IN")}</p>
+                </td>
+                <td className="py-3 px-4">
+                  <p className={cn("whitespace-nowrap font-semibold tabular-nums", st.pendingAmount > 0 ? "text-amber-700" : "text-slate-600")}>₹{st.pendingAmount.toLocaleString("en-IN")}</p>
                 </td>
                 <td className="py-3 px-4">
                   <span className={cn(

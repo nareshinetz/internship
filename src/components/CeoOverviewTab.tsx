@@ -1,7 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { AlertCircle, ArrowDownRight, ArrowUpRight, BookOpen, CalendarDays, Minus, RefreshCw, Users, Wallet } from "lucide-react";
+import { AlertCircle, ArrowDownRight, ArrowUpRight, BookOpen, CalendarDays, Minus, RefreshCw, Users, Wallet, X } from "lucide-react";
+import StudentTable, { StudentRecord } from "@/components/students/StudentTable";
+import StudentPagination from "@/components/students/StudentPagination";
+import EditStudentModal from "@/components/students/EditStudentModal";
 
 interface MoneyStats {
   count: number;
@@ -96,6 +99,15 @@ export default function CeoOverviewTab() {
   const [data, setData] = useState<OverviewData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedDuration, setSelectedDuration] = useState<"sixMonths" | "threeMonths" | "other" | null>(null);
+  const [durationPage, setDurationPage] = useState(1);
+  const [durationStudents, setDurationStudents] = useState<StudentRecord[]>([]);
+  const [durationPages, setDurationPages] = useState(1);
+  const [durationTotal, setDurationTotal] = useState(0);
+  const [durationLoading, setDurationLoading] = useState(false);
+  const [durationError, setDurationError] = useState("");
+  const [durationRefresh, setDurationRefresh] = useState(0);
+  const [selectedStudent, setSelectedStudent] = useState<StudentRecord | null>(null);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -114,6 +126,34 @@ export default function CeoOverviewTab() {
 
   useEffect(() => { void refresh(); }, [refresh]);
 
+  useEffect(() => {
+    if (!selectedDuration || selectedStudent) return;
+    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") setSelectedDuration(null); };
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [selectedDuration, selectedStudent]);
+
+  useEffect(() => {
+    if (!selectedDuration) return;
+    const controller = new AbortController();
+    setDurationLoading(true);
+    setDurationError("");
+    const params = new URLSearchParams({ durationGroup: selectedDuration, status: "current", page: String(durationPage), limit: "15" });
+    fetch(`/api/students?${params}`, { cache: "no-store", signal: controller.signal })
+      .then(async (response) => {
+        const result = await response.json();
+        if (!response.ok || !result.success) throw new Error(result.error || "Could not load students.");
+        if (!controller.signal.aborted) {
+          setDurationStudents(result.students || []);
+          setDurationPages(result.pagination?.totalPages || 1);
+          setDurationTotal(result.pagination?.totalStudents || 0);
+        }
+      })
+      .catch((cause) => { if (!controller.signal.aborted) setDurationError(cause instanceof Error ? cause.message : "Could not load students."); })
+      .finally(() => { if (!controller.signal.aborted) setDurationLoading(false); });
+    return () => controller.abort();
+  }, [selectedDuration, durationPage, durationRefresh]);
+
   if (loading && !data) return <div className="rounded-2xl border border-slate-200 bg-white p-8 text-sm text-slate-500">Loading executive overview…</div>;
   if (!data) return <div className="rounded-2xl border border-rose-200 bg-white p-8 text-sm text-rose-700"><AlertCircle className="mb-3" size={22} />{error}<button onClick={refresh} className="ml-3 font-semibold underline">Try again</button></div>;
 
@@ -126,12 +166,13 @@ export default function CeoOverviewTab() {
     { label: "Active students", value: data.studentsByStatus.active.toLocaleString("en-IN"), icon: Users, tone: "text-emerald-700 bg-emerald-50" },
   ];
   const durationCards = [
-    { label: "6 months", stats: data.durations.sixMonths, tone: "text-violet-700 bg-violet-50" },
-    { label: "3 months", stats: data.durations.threeMonths, tone: "text-blue-700 bg-blue-50" },
-    { label: "Other durations", stats: data.durations.other, tone: "text-emerald-700 bg-emerald-50" },
-  ];
+    { group: "sixMonths", label: "6 months", stats: data.durations.sixMonths, tone: "text-violet-700 bg-violet-50" },
+    { group: "threeMonths", label: "3 months", stats: data.durations.threeMonths, tone: "text-blue-700 bg-blue-50" },
+    { group: "other", label: "Other durations", stats: data.durations.other, tone: "text-emerald-700 bg-emerald-50" },
+  ] as const;
 
   return (
+    <>
     <div className="space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
@@ -170,11 +211,12 @@ export default function CeoOverviewTab() {
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">
-        {durationCards.map(({ label, stats, tone }) => (
-          <section key={label} className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        {durationCards.map(({ group, label, stats, tone }) => (
+          <section key={label} className="relative min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
             <div className="flex flex-wrap items-center justify-between gap-2"><span className={`rounded-xl px-3 py-1.5 text-sm font-bold ${tone}`}>{label}</span><span className="text-lg font-bold text-slate-950 tabular-nums">{stats.count} <small className="text-xs font-medium text-slate-500">enrollments</small></span></div>
             <div className="mt-3 border-t border-slate-100 pt-3"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total billing</p><p className="mt-0.5 text-lg font-bold text-slate-950 tabular-nums">{money(stats.billing)}</p></div>
             <div className="mt-3 grid grid-cols-2 gap-2 text-sm"><div className="min-w-0 rounded-xl bg-emerald-50 p-2.5"><p className="text-slate-600">Collected</p><p className="mt-0.5 font-bold text-emerald-700 tabular-nums">{money(stats.collected)}</p></div><div className="min-w-0 rounded-xl bg-amber-50 p-2.5"><p className="text-slate-600">Outstanding</p><p className="mt-0.5 font-bold text-amber-700 tabular-nums">{money(stats.pending)}</p></div></div>
+            <button type="button" aria-label={`View ${label} students`} onClick={() => { setDurationStudents([]); setDurationTotal(stats.count); setDurationLoading(true); setDurationPage(1); setSelectedDuration(group); }} className="absolute inset-0 cursor-pointer rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600" />
           </section>
         ))}
       </div>
@@ -185,5 +227,24 @@ export default function CeoOverviewTab() {
       </div>
       <p className="text-xs text-slate-500">Lifetime totals include all recorded installments. For migrated payments without a timestamp, the chart uses the recorded payment date.</p>
     </div>
+      {selectedDuration && (
+        <div className="fixed inset-0 z-[900] flex items-center justify-center bg-slate-950/50 p-3 sm:p-6">
+          <div role="dialog" aria-modal="true" aria-labelledby="duration-students-heading" className="flex max-h-[90dvh] w-full max-w-7xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-2xl">
+            <div className="flex shrink-0 items-center justify-between gap-4 border-b border-slate-200 bg-white px-5 py-4">
+              <div>
+                <h3 id="duration-students-heading" className="text-lg font-bold text-slate-950">{durationCards.find((card) => card.group === selectedDuration)?.label} students</h3>
+                <p className="text-xs text-slate-500">{durationTotal.toLocaleString("en-IN")} enrollments · newest joining date first</p>
+              </div>
+              <button type="button" onClick={() => setSelectedDuration(null)} aria-label="Close student list" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900"><X size={20} /></button>
+            </div>
+            <div className="min-h-0 overflow-y-auto p-3 sm:p-5">
+              {durationError ? <div role="alert" className="flex items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><span>{durationError}</span><button type="button" onClick={() => setDurationRefresh((value) => value + 1)} className="font-semibold underline">Retry</button></div> : <StudentTable students={durationStudents} loading={durationLoading} onOpenEditModal={setSelectedStudent} />}
+              {!durationError && <div className="mt-3"><StudentPagination page={durationPage} totalPages={durationPages} onPageChange={setDurationPage} /></div>}
+            </div>
+          </div>
+        </div>
+      )}
+      <EditStudentModal isOpen={Boolean(selectedStudent)} student={selectedStudent} onClose={() => setSelectedStudent(null)} onSuccess={() => { setDurationRefresh((value) => value + 1); void refresh(); }} />
+    </>
   );
 }

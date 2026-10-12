@@ -10,6 +10,13 @@ export interface PaymentEntry {
   date?: string;
 }
 
+export const sixMonthDuration = /^\s*6\s*months?\s*$/i;
+export const threeMonthDuration = /^\s*3\s*months?\s*$/i;
+
+export function durationGroup(value: string): "sixMonths" | "threeMonths" | "other" {
+  return sixMonthDuration.test(value) ? "sixMonths" : threeMonthDuration.test(value) ? "threeMonths" : "other";
+}
+
 const monthsByName = new Map(["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"].map((name, index) => [name, index]));
 
 export function paymentDate(payment: PaymentEntry): Date | null {

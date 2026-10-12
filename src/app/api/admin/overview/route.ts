@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/api-auth";
 import { connectToDatabase } from "@/lib/db";
-import { admissionChange, fillMonthlySeries, PaymentEntry, reportingWindow, summarizePayments } from "@/lib/ceo-dashboard";
+import { admissionChange, durationGroup, fillMonthlySeries, PaymentEntry, reportingWindow, summarizePayments } from "@/lib/ceo-dashboard";
 import Enrollment from "@/models/Enrollment";
 
 const visibleEnrollments = {
@@ -75,7 +75,7 @@ export async function GET() {
     const durations = { sixMonths: { count: 0, billing: 0, collected: 0, pending: 0 }, threeMonths: { count: 0, billing: 0, collected: 0, pending: 0 }, other: { count: 0, billing: 0, collected: 0, pending: 0 } };
     for (const item of enrollmentData.durations) {
       const duration = String(item._id || "").trim();
-      const key = /^6\s*months?$/i.test(duration) ? "sixMonths" : /^3\s*months?$/i.test(duration) ? "threeMonths" : "other";
+      const key = durationGroup(duration);
       durations[key].count += item.count;
       durations[key].billing += item.billing;
       durations[key].collected += item.collected;

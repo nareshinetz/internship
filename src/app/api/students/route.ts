@@ -8,6 +8,7 @@ import { ensureStudentId } from "@/lib/student-id";
 import { createAdminNotification } from "@/lib/admin-notifications";
 import { setEnrollmentStatus } from "@/lib/enrollment-status";
 import { deletionBlockReason } from "@/lib/student-deletion";
+import { sixMonthDuration, threeMonthDuration } from "@/lib/ceo-dashboard";
 import { isValidAdminInitialPayment, isValidStudentText, normalizeStudentEmail, normalizeStudentPhone, studentPhoneVariants } from "@/lib/admin-student-input";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
@@ -52,10 +53,16 @@ export async function GET(req: Request) {
     return NextResponse.json({ success: false, error: "Invalid enrollment status filter." }, { status: 400 });
   const domain = params.get("domain")?.trim();
   const duration = params.get("duration")?.trim();
+  const durationGroup = params.get("durationGroup");
+  if (durationGroup && !["sixMonths", "threeMonths", "other"].includes(durationGroup))
+    return NextResponse.json({ success: false, error: "Invalid duration group." }, { status: 400 });
   if (domain && domain.toLowerCase() !== "all")
     query.domain = new RegExp(`^${escapeRegex(domain)}$`, "i");
   if (duration && duration.toLowerCase() !== "all")
     query.duration = new RegExp(`^${escapeRegex(duration)}$`, "i");
+  if (durationGroup === "sixMonths") query.duration = sixMonthDuration;
+  else if (durationGroup === "threeMonths") query.duration = threeMonthDuration;
+  else if (durationGroup === "other") query.duration = { $nin: [sixMonthDuration, threeMonthDuration] };
   if (params.get("feesPending") === "true") query.pendingAmount = { $gt: 0 };
   const joiningDate = params.get("joiningDate")?.trim();
   const fromDate = params.get("fromDate")?.trim();

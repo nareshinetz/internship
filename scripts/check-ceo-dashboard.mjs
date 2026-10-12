@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { admissionChange, fillMonthlySeries, paymentDate, reportingWindow, summarizePayments } from "../src/lib/ceo-dashboard.ts";
+import { admissionChange, durationGroup, fillMonthlySeries, paymentDate, reportingWindow, summarizePayments } from "../src/lib/ceo-dashboard.ts";
 
 const window = reportingWindow(new Date("2026-01-01T00:00:00Z"));
 assert.equal(window.currentMonth, "2026-01");
@@ -23,4 +23,10 @@ assert.deepEqual(collections.monthly, [{ _id: "2025-12", collected: 500 }, { _id
 assert.equal(collections.today, 200);
 assert.deepEqual(admissionChange(12, 10), { direction: "up", label: "20%" });
 assert.deepEqual(admissionChange(8, 10), { direction: "down", label: "20%" });
+assert.equal(durationGroup("6 Months"), "sixMonths");
+assert.equal(durationGroup("6 months"), "sixMonths");
+assert.equal(durationGroup(" 6 Months "), "sixMonths");
+assert.equal(durationGroup("3 Months"), "threeMonths");
+assert.equal(durationGroup("Certificate"), "other");
+assert.equal(durationGroup("2 Weeks"), "other");
 console.log("CEO dashboard month buckets passed.");
