@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
-const [auth, register, me, students, apply, paymentRecorder, notifications, notificationStream, notificationModel, userModel, enrollmentModel] = await Promise.all([
+const [auth, register, me, students, apply, paymentRecorder, notifications, notificationStream, notificationModel, userModel, enrollmentModel, manualPayments, paymentModal] = await Promise.all([
   read("src/lib/authOptions.ts"),
   read("src/app/api/auth/register/route.ts"),
   read("src/app/api/auth/me/route.ts"),
@@ -14,6 +14,8 @@ const [auth, register, me, students, apply, paymentRecorder, notifications, noti
   read("src/models/Notification.ts"),
   read("src/models/user.ts"),
   read("src/models/Enrollment.ts"),
+  read("src/app/api/payments/route.ts"),
+  read("src/components/PaymentModel.tsx"),
 ]);
 
 assert.doesNotMatch(auth, /token\.role\s*=\s*session\.role/);
@@ -32,5 +34,12 @@ assert.match(userModel, /default: "public"/);
 assert.match(userModel, /partialFilterExpression: \{ phone: \{ \$type: "string" \} \}/);
 assert.match(enrollmentModel, /pre\("validate"/);
 assert.match(enrollmentModel, /default: "payment_pending"/);
+assert.match(manualPayments, /_id: data\.enrollmentId, userId: user\._id, status:/);
+assert.doesNotMatch(manualPayments, /type: "internship"/);
+assert.match(manualPayments, /select\("type domain duration joinedAt totalBilling totalCollection pendingAmount"\)/);
+assert.match(manualPayments, /type: enrollment\.type/);
+assert.doesNotMatch(manualPayments, /domain: data\.domain/);
+assert.match(paymentModal, /enrollmentId: form\.enrollmentId/);
+assert.match(paymentModal, /item\.type/);
 
 console.log("Authentication security checks passed.");

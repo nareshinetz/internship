@@ -17,6 +17,7 @@ interface Transaction {
   name: string;
   phone: string;
   college: string;
+  type: string;
   domain: string;
   paidAmount: number;
   paymentMethod: PaymentMethod;
@@ -71,6 +72,7 @@ function normalizeTransaction(item: any): Transaction {
     name:               String(item.name               || "N/A"),
     phone:              String(item.phone              || "N/A"),
     college:            String(item.college            || "N/A"),
+    type:               String(item.type               || "internship"),
     domain:             String(item.domain             || "Web development"),
     paidAmount:         num(item.paidAmount),
     paymentMethod,
@@ -125,6 +127,7 @@ function AuditModal({ tx, onClose, onPrint, onDownload }: ModalProps) {
     ["Receipt",           <span key="receipt" className="font-mono text-zinc-900">{tx.receiptNo}</span>],
     ["Student",           <span key="student" className="text-zinc-900 font-semibold">{tx.name} ({tx.phone})</span>],
     ["College",           tx.college],
+    ["Enrollment type",   tx.type],
     ["Domain",            tx.domain],
     ["Amount Processed",  <span key="amount" className="text-emerald-600 font-bold text-sm">{inr(tx.paidAmount)} ({tx.paymentMethod})</span>],
     ...(tx.alreadyPaid > 0
@@ -350,6 +353,7 @@ export default function TransactionsList({ startDate, endDate }: TransactionsLis
                       <span className="px-2.5 py-1 bg-zinc-100 text-zinc-800 text-xs font-semibold rounded-lg border border-zinc-200/50">
                         {tx.domain}
                       </span>
+                      <div className="mt-1 text-xs capitalize text-zinc-500">{tx.type}</div>
                     </td>
 
                     <td className="py-4 px-6 space-y-1">

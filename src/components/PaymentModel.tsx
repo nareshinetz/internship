@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { 
   CreditCard, 
   Printer, 
@@ -21,6 +21,7 @@ interface PaymentModalProps {
 }
 
 interface FormState {
+  enrollmentId: string;
   name: string;
   phone: string;
   college: string;
@@ -34,6 +35,19 @@ interface FormState {
   method: "Cash" | "GPay";
   txn: string;
   customDate: string;
+}
+
+interface PaymentEnrollment {
+  _id: string;
+  type: "internship" | "course" | "certificate";
+  name: string;
+  college: string;
+  domain: string;
+  duration: string;
+  joinedAt: string;
+  totalBilling: number;
+  totalCollection: number;
+  pendingAmount: number;
 }
 
 const BILLING_STAFF = [
@@ -78,6 +92,7 @@ const AdminInput = ({ placeholder, value, onChangeText, type = "text", disabled,
 
 export default function PaymentModal({ onClose }: PaymentModalProps) {
   const [form, setForm] = useState<FormState>({
+    enrollmentId: "",
     name: "",
     phone: "",
     college: "",
@@ -96,11 +111,14 @@ export default function PaymentModal({ onClose }: PaymentModalProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [isCheckingPhone, setIsCheckingPhone] = useState(false);
   const [studentFound, setStudentFound] = useState<boolean | null>(null);
+  const [availableEnrollments, setAvailableEnrollments] = useState<PaymentEnrollment[]>([]);
+  const [lookupError, setLookupError] = useState("");
+  const lookupVersion = useRef(0);
+  const lookedUpPhone = useRef("");
   const [receiptNo, setReceiptNo] = useState("");
   const [currentTimestamp, setCurrentTimestamp] = useState<Date | null>(null);
 
   // Endpoint routes
-  const studentApiUrl = "/api/students";
   const paymentApiUrl = "/api/payments";
 
   useEffect(() => {
@@ -145,104 +163,54 @@ export default function PaymentModal({ onClose }: PaymentModalProps) {
     }
   };
 
-  // Fetch Student profile strictly by phone number
- // Fetch Student profile strictly by phone number match
+  const selectEnrollment = (enrollment: PaymentEnrollment) => {
+    const alreadyFull = enrollment.pendingAmount <= 0;
+    setStudentFound(true);
+    setForm((current) => ({
+      ...current,
+      enrollmentId: enrollment._id,
+      name: enrollment.name,
+      college: enrollment.college,
+      domain: enrollment.domain,
+      courseName: enrollment.duration,
+      total: String(enrollment.totalBilling),
+      alreadyPaid: String(enrollment.totalCollection),
+      paid: "",
+      type: alreadyFull ? "Full Payment" : "Part Payment",
+    }));
+  };
+
   const checkPhoneExistence = async () => {
     const cleanPhone = form.phone.trim();
-    const inputDigits = cleanPhone.replace(/\D/g, "").slice(-10);
-
-    if (inputDigits.length < 10) return;
+    if (cleanPhone.replace(/\D/g, "").length < 10) return;
+    if (cleanPhone === lookedUpPhone.current && availableEnrollments.length) return;
+    const version = ++lookupVersion.current;
 
     setIsCheckingPhone(true);
+    setLookupError("");
     try {
-      // Query students endpoint
-      const response = await fetch(`${studentApiUrl}?phone=${encodeURIComponent(cleanPhone)}&search=${encodeURIComponent(cleanPhone)}`);
-      const data = await response.json();
-
-      let matchedStudent: any = null;
-
-      // 1. If API returns a single student object directly ({ success: true, student: {...} })
-      if (data.student && typeof data.student === "object" && !Array.isArray(data.student)) {
-        const studentPhoneDigits = String(data.student.phone || "").replace(/\D/g, "").slice(-10);
-        if (studentPhoneDigits === inputDigits) {
-          matchedStudent = data.student;
-        }
-      } 
-      
-      // 2. If API returns an array of students ({ success: true, data: [...] }), find the EXACT phone match
-      if (!matchedStudent) {
-        const studentList = Array.isArray(data.data) 
-          ? data.data 
-          : Array.isArray(data.students) 
-            ? data.students 
-            : [];
-
-        matchedStudent = studentList.find((s: any) => {
-          if (!s.phone) return false;
-          const sDigits = String(s.phone).replace(/\D/g, "").slice(-10);
-          return sDigits === inputDigits;
-        });
+      const response = await fetch(`${paymentApiUrl}?phone=${encodeURIComponent(cleanPhone)}`);
+      const data: { exists?: boolean; error?: string; name?: string; college?: string; enrollments?: Omit<PaymentEnrollment, "name" | "college">[] } = await response.json();
+      if (version !== lookupVersion.current) return;
+      if (!response.ok) throw new Error(data.error || "Could not find enrollments.");
+      const options = data.exists
+        ? (data.enrollments || []).map((item) => ({ ...item, name: data.name || "", college: data.college || "" }))
+        : [];
+      lookedUpPhone.current = cleanPhone;
+      setAvailableEnrollments(options);
+      if (options.length === 1) selectEnrollment(options[0]);
+      else {
+        setStudentFound(options.length ? null : false);
+        setForm((current) => ({ ...current, enrollmentId: "", name: "", college: "", domain: "", courseName: "", total: "", alreadyPaid: "", paid: "" }));
       }
-
-      // If a matching student is verified in the database
-      if (matchedStudent) {
-        setStudentFound(true);
-
-        const fetchedTotal = Number(matchedStudent.totalBilling ?? matchedStudent.totalCoursePayment ?? matchedStudent.total ?? 0);
-
-        // Sum previous payments from installments array if present
-        let fetchedAlreadyPaid = 0;
-        if (Array.isArray(matchedStudent.installments) && matchedStudent.installments.length > 0) {
-          fetchedAlreadyPaid = matchedStudent.installments.reduce(
-            (sum: number, item: { paidAmount?: number | string }) => sum + (Number(item.paidAmount) || 0),
-            0
-          );
-        } else {
-          fetchedAlreadyPaid = Number(matchedStudent.totalCollection ?? matchedStudent.alreadyPaidAmount ?? matchedStudent.alreadyPaid ?? 0);
-        }
-
-        const alreadyFull = fetchedTotal > 0 && fetchedAlreadyPaid >= fetchedTotal;
-
-        setForm((f) => ({
-          ...f,
-          name: matchedStudent.name || "",
-          college: matchedStudent.college || "",
-          domain: matchedStudent.domain || "",
-          courseName: matchedStudent.duration || matchedStudent.courseName || "",
-          total: fetchedTotal.toString(),
-          alreadyPaid: fetchedAlreadyPaid.toString(),
-          paid: "",
-          type: alreadyFull ? "Full Payment" : "Part Payment",
-        }));
-      } else {
-        // Clear fields when phone number does not exist
-        setStudentFound(false);
-        setForm((f) => ({
-          ...f,
-          name: "",
-          college: "",
-          domain: "",
-          courseName: "",
-          total: "",
-          alreadyPaid: "",
-          paid: "",
-        }));
-      }
-    } catch (error) {
-      console.error("Failed to fetch student record:", error);
+    } catch (cause) {
+      if (version !== lookupVersion.current) return;
+      setLookupError(cause instanceof Error ? cause.message : "Could not find internship enrollments.");
+      setAvailableEnrollments([]);
       setStudentFound(false);
-      setForm((f) => ({
-        ...f,
-        name: "",
-        college: "",
-        domain: "",
-        courseName: "",
-        total: "",
-        alreadyPaid: "",
-        paid: "",
-      }));
+      setForm((current) => ({ ...current, enrollmentId: "", name: "", college: "", domain: "", courseName: "", total: "", alreadyPaid: "", paid: "" }));
     } finally {
-      setIsCheckingPhone(false);
+      if (version === lookupVersion.current) setIsCheckingPhone(false);
     }
   };
 
@@ -258,8 +226,8 @@ export default function PaymentModal({ onClose }: PaymentModalProps) {
     : "";
 
   const handleSave = async () => {
-    if (!studentFound) {
-      return alert("Please enter a registered student's mobile number first.");
+    if (!studentFound || !form.enrollmentId) {
+      return alert("Please select an enrollment first.");
     }
     if (!form.billing || !form.customDate) {
       return alert("Please select a billing authority and date.");
@@ -278,6 +246,7 @@ export default function PaymentModal({ onClose }: PaymentModalProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          enrollmentId: form.enrollmentId,
           receiptNo,
           name: form.name.trim(),
           phone: form.phone.trim(),
@@ -388,8 +357,13 @@ export default function PaymentModal({ onClose }: PaymentModalProps) {
                 type="tel"
                 value={form.phone} 
                 onChangeText={(v) => {
+                  lookupVersion.current += 1;
+                  lookedUpPhone.current = "";
+                  setIsCheckingPhone(false);
                   setStudentFound(null);
-                  setForm(f => ({ ...f, phone: v, name: "", college: "", domain: "", courseName: "", total: "", alreadyPaid: "", paid: "" }));
+                  setAvailableEnrollments([]);
+                  setLookupError("");
+                  setForm(f => ({ ...f, enrollmentId: "", phone: v, name: "", college: "", domain: "", courseName: "", total: "", alreadyPaid: "", paid: "" }));
                 }} 
                 onBlur={checkPhoneExistence}
               />
@@ -403,13 +377,23 @@ export default function PaymentModal({ onClose }: PaymentModalProps) {
 
             {studentFound === true && (
               <div className="mt-2 text-[11px] text-emerald-600 font-bold flex items-center gap-1 bg-emerald-50 p-2.5 rounded-xl border border-emerald-100">
-                <CheckCircle2 size={14} /> Student profile found and details populated!
+                <CheckCircle2 size={14} /> {availableEnrollments.find((item) => item._id === form.enrollmentId)?.type} enrollment selected for billing.
               </div>
             )}
 
             {studentFound === false && (
               <div className="mt-2 text-[11px] text-red-600 font-bold flex items-center gap-1 bg-red-50 p-2.5 rounded-xl border border-red-100">
-                <AlertCircle size={14} /> Student not found in database. Please register the student first.
+                <AlertCircle size={14} /> {lookupError || "No eligible enrollment found for this number."}
+              </div>
+            )}
+
+            {availableEnrollments.length > 1 && (
+              <div className="mt-3 space-y-1">
+                <label htmlFor="payment-enrollment" className="text-xs font-semibold text-zinc-700">Enrollment to bill</label>
+                <select id="payment-enrollment" value={form.enrollmentId} onChange={(event) => { const selected = availableEnrollments.find((item) => item._id === event.target.value); if (selected) selectEnrollment(selected); }} className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-800">
+                  <option value="">Select an enrollment</option>
+                  {availableEnrollments.map((item) => <option key={item._id} value={item._id}>{item.type} · {item.domain} · {item.duration} · Joined {new Date(item.joinedAt).toLocaleDateString("en-IN")} · ₹{item.pendingAmount.toLocaleString("en-IN")} due</option>)}
+                </select>
               </div>
             )}
           </div>

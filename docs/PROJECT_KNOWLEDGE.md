@@ -125,8 +125,10 @@ Key files:
 - `src/app/student/dashboard/components/CoursesTab.tsx`: balance/payment UI.
 - `src/app/student/dashboard/components/TransactionsTab.tsx`: payment history
   and PDF receipt download using the established admin receipt format.
-- `src/app/api/payments/route.ts` and `src/components/PaymentModel.tsx`: admin
-  manual payment recording; keep its authorization and billing invariants.
+- `src/app/api/payments/route.ts` and `src/components/PaymentModel.tsx`: company-wide
+  admin manual payment recording across enrollment types. Phone lookup lists
+  eligible enrollments, and the selected enrollment ID is checked against that
+  User before recording. Keep its authorization and billing invariants.
 
 The database row is retained after completion as an audit/idempotency record;
 its active lock is released and status becomes `processed`. Never delete it as

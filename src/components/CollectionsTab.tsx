@@ -37,6 +37,7 @@ export default function CollectionsTab({ setIsPayOpen }: CollectionsTabProps) {
         "Student Name",
         "Mobile Number",
         "Institution/College",
+        "Enrollment Type",
         "Domain Selected",
         "Course Track Duration",
         "Total Course Fee (INR)",
@@ -54,6 +55,7 @@ export default function CollectionsTab({ setIsPayOpen }: CollectionsTabProps) {
         t.name || "N/A",
         t.phone ? `'${t.phone}` : "N/A", // The apostrophe prevents Excel from dropping leading zeros
         t.college || "N/A",
+        t.type || "internship",
         t.domain || "Web development",
         t.courseName || "1 Month",
         t.totalCoursePayment || 0,
