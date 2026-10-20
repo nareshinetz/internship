@@ -52,6 +52,13 @@ export const BRAND_DATA: Record<string, BrandInfo> = {
   matplotlib: { color: "#11557C" },
   linux: { color: "#FCC624" },
   firebase: { color: "#FFCA28" },
+  google: { color: "#4285F4" },
+  facebook: { color: "#1877F2" },
+  canva: { color: "#00C4CC" },
+  wordpress: { color: "#21759B" },
+  linkedin: { color: "#0A66C2" },
+  slack: { color: "#4A154B" },
+  notion: { color: "#111111" },
 };
 
 export const DEVICON_MAP: Record<string, string> = {
@@ -99,6 +106,13 @@ export const DEVICON_MAP: Record<string, string> = {
   c: "devicon-c-plain",
   cpp: "devicon-cplusplus-plain",
   firebase: "devicon-firebase-plain",
+  google: "devicon-google-plain",
+  facebook: "devicon-facebook-plain",
+  canva: "devicon-canva-original",
+  wordpress: "devicon-wordpress-plain",
+  linkedin: "devicon-linkedin-plain",
+  slack: "devicon-slack-plain",
+  notion: "devicon-notion-plain",
 };
 
 export const STACK_MAPPING: Record<string, string[]> = {
@@ -114,6 +128,8 @@ export const STACK_MAPPING: Record<string, string[]> = {
   ai: ["python", "pytorch", "tensorflow", "docker", "git"],
   javascript: ["javascript", "react", "nodejs", "html5", "css3"],
   react: ["react", "javascript", "typescript", "html5", "css3"],
+  digital: ["google", "facebook", "canva", "wordpress"],
+  human: ["linkedin", "slack", "notion", "excel"],
 };
 
 export const MARKET_INSIGHTS: Record<string, { demand: string; trend: string }> = {
@@ -129,10 +145,16 @@ export const MARKET_INSIGHTS: Record<string, { demand: string; trend: string }> 
   ai: { demand: "Explosive", trend: "Generative AI & Agentic Workflows" },
   javascript: { demand: "High", trend: "Reliability & Scalable Production" },
   edge_ai: { demand: "Rising", trend: "IoT & On-Device Intelligence" },
+  digital: { demand: "Rising", trend: "Digital Growth" },
+  digitalmarketing: { demand: "Rising", trend: "Digital Growth" },
+  human: { demand: "Stable", trend: "People Operations" },
+  humanresources: { demand: "Stable", trend: "People Operations" },
 };
 
 export const getStackLogos = (stack: TechStack | string): string[] => {
   const key = String(stack).toLowerCase().replace(/[^a-z0-9]/g, "");
+  if (key.startsWith("digital")) return STACK_MAPPING.digital;
+  if (key.startsWith("human") || key === "hr") return STACK_MAPPING.human;
   return STACK_MAPPING[key] || STACK_MAPPING[String(stack).toLowerCase()] || STACK_MAPPING["default"];
 };
 

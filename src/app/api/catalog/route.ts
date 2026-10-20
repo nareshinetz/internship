@@ -32,7 +32,9 @@ export async function GET() {
         _id: p._id,
         stack: stackKey,
         title: p.title,
-        image: p.heroImg,
+        image: p.heroImg || (/(ai|machine learning|\bml\b)/i.test(p.title || "")
+          ? "/ai-ml-workspace.webp"
+          : "/programs.png"),
         subtitle: p.subtitle,
         description: p.subtitle,
         modules: p.modulesCount,

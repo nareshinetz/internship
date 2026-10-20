@@ -36,6 +36,11 @@ const CourseCard = ({
   onSelect,
 }: CourseCardProps) => {
   const logos = getStackLogos(stack) || [];
+  const normalizedStack = String(stack).toLowerCase().replace(/[^a-z0-9]/g, "");
+  const fallbackImage = ["ai", "ml", "deeplearning", "datascience"].includes(normalizedStack)
+    ? "/ai-ml-workspace.webp"
+    : "/programs.png";
+  const cardImage = image && image !== "/programs.png" ? image : fallbackImage;
   const market =
     MARKET_INSIGHTS[stack] ||
     MARKET_INSIGHTS[String(stack).toLowerCase()] ||
@@ -57,8 +62,13 @@ const CourseCard = ({
       {/* 1. IMAGE SECTION */}
       <div className="relative w-full md:w-[32%] h-48 md:h-56 rounded-[1.5rem] overflow-hidden shrink-0 border border-zinc-100 dark:border-zinc-800 z-10">
         <img
-          src={image}
+          src={cardImage}
           alt={title}
+          loading="lazy"
+          decoding="async"
+          onError={(event) => {
+            event.currentTarget.src = fallbackImage;
+          }}
           className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 group-hover:scale-105 transition-transform duration-700"
         />
 

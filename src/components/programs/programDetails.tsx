@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Code2, LayoutGrid, ArrowRight, CheckCircle2, Video, Mic2, ArrowUpRight,
   Sparkles, Quote, Star, ArrowLeft, X, Download, Lock, UserCheck, Briefcase, Loader2,
-  PhoneCall,
+  PhoneCall, CalendarDays, ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -24,7 +24,7 @@ const TRACK_IMAGES: Record<string, string> = {
 };
 
 const CAREER_FEATURES = [
-  { title: "Industry Expert Sessions", description: "Participate in weekly technical deep-dives with Senior SDEs from FAANG. Get your code reviewed and architecture critiqued by the best in the software industry.", icon: <Video className="w-5 h-5" />, color: "bg-blue-600", tag: "Mentorship", image: "https://images.unsplash.com/photo-1591115765373-520b7a217294?auto=format&fit=crop&q=80" },
+  { title: "Industry Expert Sessions", description: "Participate in weekly technical deep-dives with Senior SDEs from FAANG. Get your code reviewed and architecture critiqued by the best in the software industry.", icon: <Video className="w-5 h-5" />, color: "bg-blue-600", tag: "Mentorship", image: "/industry-expert-sessions.webp" },
   { title: "Daily Agile Tasks", description: "Receive daily tickets on our private dashboard. Submit Pull Requests, handle merge conflicts, and master the professional Git workflow used by top tech firms in Chennai.", icon: <Briefcase className="w-5 h-5" />, color: "bg-orange-600", tag: "Daily Sprints", image: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80" },
   { title: "Mock Interview Series", description: "Prepare for high-stakes technical rounds with 1-on-1 mock interviews and real-time feedback. We cover DSA, System Design, and behavioral preparation for placements in Chennai.", icon: <UserCheck className="w-5 h-5" />, color: "bg-purple-600", tag: "Placement", image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&q=80" },
   { title: "Communication Lab", description: "Master technical storytelling. Learn to explain your code logic clearly to recruiters and stakeholders—the critical bridge between technical skills and a successful career.", icon: <Mic2 className="w-5 h-5" />, color: "bg-emerald-600", tag: "Soft Skills", image: theComSession.src },
@@ -391,7 +391,7 @@ const InternshipPrograms = ({ initialStack = "mern", onBack }: { initialStack?: 
                       className="relative w-full h-[320px] md:h-[280px] overflow-hidden rounded-[2rem] border border-zinc-200 bg-white flex flex-col md:flex-row shadow-[0_20px_50px_rgba(0,0,0,0.1)]"
                     >
                       <div className="w-full md:w-[40%] h-32 md:h-full relative overflow-hidden">
-                        <img src={f.image} alt={f.title} className="w-full h-full object-cover" />
+                        <img src={f.image} alt={f.title} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                         <div className="absolute top-4 left-4 bg-white/95 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest text-zinc-900 shadow-sm backdrop-blur-sm">{f.tag}</div>
                       </div>
                       <div className="flex-1 p-6 md:p-10 flex flex-col justify-center relative">
@@ -438,23 +438,53 @@ const InternshipPrograms = ({ initialStack = "mern", onBack }: { initialStack?: 
 
           {/* SIDEBAR */}
           <aside className="lg:col-span-4 sticky top-24 self-start">
-            <div className="bg-white rounded-[2rem] p-8 border border-blue-100 shadow-xl relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-blue-400/5 rounded-full blur-2xl group-hover:scale-150 transition-transform" />
-              <div className="relative z-10 text-center">
-                <Sparkles className="w-8 h-8 text-blue-600 mx-auto mb-4 animate-pulse" />
-                <h3 className="text-xl font-bold mb-1">Start Learning <span className="text-blue-600">Today</span></h3>
-                <div className="my-6">
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="text-3xl font-black">₹{current.price}</span>
-                    {current.originalPrice && <span className="text-sm text-zinc-300 line-through">₹{current.originalPrice}</span>}
-                  </div>
-                  {savings > 0 && <p className="text-[10px] text-emerald-600 font-bold uppercase mt-1 tracking-widest">Save {savings}% Today</p>}
+            <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60">
+              <div className="border-b border-slate-100 bg-slate-50 px-6 py-5">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-blue-700">
+                    <Briefcase className="h-3.5 w-3.5" /> Career track
+                  </span>
+                  {savings > 0 && (
+                    <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-bold text-emerald-700">
+                      Save {savings}%
+                    </span>
+                  )}
                 </div>
+                <div className="mt-4 flex items-center gap-3">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-md shadow-blue-200">
+                    <Code2 className="h-6 w-6" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate text-base font-bold text-slate-900">{current.title}</p>
+                    <p className="mt-0.5 text-xs font-medium text-slate-500">{activeDuration} guided program</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6">
+                <p className="text-sm font-semibold text-slate-900">Start learning today</p>
+                <div className="mt-3 rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3.5">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-blue-700">Program fee</p>
+                  <div className="mt-1 flex items-end gap-2">
+                    <span className="text-3xl font-black tracking-tight text-slate-950">₹{current.price}</span>
+                    {current.originalPrice && <span className="mb-1 text-sm text-slate-400 line-through">₹{current.originalPrice}</span>}
+                  </div>
+                </div>
+
+                <ul className="my-5 space-y-3 border-y border-slate-100 py-4 text-xs font-medium text-slate-600">
+                  <li className="flex items-center gap-2.5"><CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" /> Structured, industry-focused curriculum</li>
+                  <li className="flex items-center gap-2.5"><CalendarDays className="h-4 w-4 shrink-0 text-blue-600" /> Flexible {activeDuration} learning plan</li>
+                  <li className="flex items-center gap-2.5"><ShieldCheck className="h-4 w-4 shrink-0 text-violet-600" /> Secure enrollment and payment</li>
+                </ul>
+
                 <button onClick={handleApply} disabled={isLoggedIn === null}
-                  className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-60"
+                  className="w-full rounded-xl bg-blue-600 px-4 py-4 text-[11px] font-bold uppercase tracking-widest text-white shadow-lg shadow-blue-200 transition-all hover:bg-blue-700 hover:shadow-blue-300 active:scale-[0.98] disabled:opacity-60"
                 >
-                  {isLoggedIn === null ? "Checking..." : <>Enroll in {activeStack} Track <ArrowRight className="w-3.5 h-3.5" /></>}
+                  <span className="flex items-center justify-center gap-2">
+                    {isLoggedIn === null ? "Checking..." : <>Enroll in {activeStack} Track <ArrowRight className="h-4 w-4" /></>}
+                  </span>
                 </button>
+                <p className="mt-3 text-center text-[10px] font-medium text-slate-400">You will review your details before payment.</p>
               </div>
             </div>
           </aside>
