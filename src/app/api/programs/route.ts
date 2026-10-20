@@ -44,7 +44,7 @@ export async function GET(req: Request) {
 // 2. POST: Saves or updates structured tracks with slug normalization
 export async function POST(req: Request) {
   try {
-    const auth = await requireRole("admin");
+    const auth = await requireRole("admin", "super_admin");
     if (auth.error) return auth.error;
     await connectToDatabase();
     const body = await req.json();
@@ -84,7 +84,7 @@ export async function POST(req: Request) {
 // 3. DELETE: Removes a program by ID or URL Query ID
 export async function DELETE(req: Request) {
   try {
-    const auth = await requireRole("admin");
+    const auth = await requireRole("admin", "super_admin");
     if (auth.error) return auth.error;
     await connectToDatabase();
 

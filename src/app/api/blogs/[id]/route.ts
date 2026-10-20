@@ -24,7 +24,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const auth = await requireRole("admin");
+    const auth = await requireRole("admin", "super_admin");
     if (auth.error) return auth.error;
     const resolvedParams = await params;
     await connectToDatabase();
@@ -83,7 +83,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const auth = await requireRole("admin");
+    const auth = await requireRole("admin", "super_admin");
     if (auth.error) return auth.error;
     const resolvedParams = await params;
     await connectToDatabase();

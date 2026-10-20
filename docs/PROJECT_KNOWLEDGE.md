@@ -57,6 +57,10 @@ Primary files:
   to student, admin, dashboard, and onboarding pages.
 - `src/lib/api-auth.ts`: `requireRole(...roles)` for server/API authorization.
 - `src/app/api/auth/register/route.ts`: student account registration.
+- `src/app/api/auth/forgot-password/route.ts` and
+  `src/app/api/auth/reset-password/route.ts`: credentials-account password
+  recovery. Reset tokens are hashed, single-use, and expire after 15 minutes;
+  Google-only accounts continue to use Google sign-in and receive no reset link.
 - `src/app/api/auth/me/route.ts`: current account plus linked student data.
 - `src/app/api/student/link-phone/route.ts`: links an authenticated account to
   an enrollment where needed.
@@ -65,9 +69,12 @@ Indian mobile input may include `+91`, but shared `User.phone` is stored as the
 10-digit mobile number. Identity and payment lookups also recognize legacy `91`
 and `+91` values; ambiguous matches must be resolved manually, never guessed.
 
-Roles are `student` and `admin`. Google sign-in creates student accounts. Page
-gating is convenience, not the security boundary: protected route handlers
-must independently call `requireRole` before reading input or mutating data.
+Roles are `student`, `admin`, and `super_admin`. The CEO account uses
+`super_admin`: it can use the full admin workspace and is the only role allowed
+to access the CEO overview and its API. Operational admin routes allow both
+`admin` and `super_admin`; Google sign-in creates student accounts. Page gating
+is convenience, not the security boundary: protected route handlers must
+independently call `requireRole` before reading input or mutating data.
 
 ## Core data ownership
 

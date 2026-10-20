@@ -1,16 +1,30 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { LayoutDashboard, BookOpen, Users, History, Settings, LogOut } from "lucide-react";
+import { useSession } from "next-auth/react";
+import {
+  LayoutDashboard,
+  BookOpen,
+  Users,
+  History,
+  Settings,
+  LogOut,
+} from "lucide-react";
 
 import PaymentModal from "@/components/PaymentModel";
 import TracksTab from "@/components/TracksTab";
 import StudentsTab from "@/components/StudentsTab";
 import CollectionsTab from "@/components/CollectionsTab";
 import BlogsTab from "@/components/BlogsTab";
+import AdminNotifications from "@/components/AdminNotifications";
 import CeoOverviewTab from "@/components/CeoOverviewTab";
 
-type SidebarTab = "overview" | "tracks" | "students" | "transactions" | "journals";
+type SidebarTab =
+  | "overview"
+  | "tracks"
+  | "students"
+  | "transactions"
+  | "journals";
 type FormView = "list" | "form";
 
 const EMPTY_FORM = {
@@ -24,7 +38,9 @@ const EMPTY_FORM = {
 };
 
 export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState<SidebarTab>("overview");
+  const { data: session } = useSession();
+  const isSuperAdmin = session?.user?.role === "super_admin";
+  const [activeTab, setActiveTab] = useState<SidebarTab>("students");
   const [view, setView] = useState<FormView>("list");
 
   const [programs, setPrograms] = useState<any[]>([]);
@@ -32,8 +48,13 @@ export default function AdminPage() {
   const [uploading, setUploading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState(EMPTY_FORM);
-  const [modules, setModules] = useState([{ label: "Day 01", title: "", topics: "", tools: "" }]);
+  const [modules, setModules] = useState([
+    { label: "Day 01", title: "", topics: "", tools: "" },
+  ]);
   const [isPayOpen, setIsPayOpen] = useState(false);
+  const navigationTabs: SidebarTab[] = isSuperAdmin
+    ? ["overview", "students", "transactions", "tracks", "journals"]
+    : ["students", "transactions", "tracks", "journals"];
 
   const fetchPrograms = useCallback(async () => {
     setListLoading(true);
@@ -53,6 +74,10 @@ export default function AdminPage() {
   useEffect(() => {
     fetchPrograms();
   }, [fetchPrograms]);
+
+  useEffect(() => {
+    if (isSuperAdmin) setActiveTab("overview");
+  }, [isSuperAdmin]);
 
   const handleNew = () => {
     setEditingId(null);
@@ -76,10 +101,12 @@ export default function AdminPage() {
       p.syllabus?.length
         ? p.syllabus.map((m: any) => ({
             ...m,
-            topics: Array.isArray(m.topics) ? m.topics.join(", ") : m.topics || "",
+            topics: Array.isArray(m.topics)
+              ? m.topics.join(", ")
+              : m.topics || "",
             tools: Array.isArray(m.tools) ? m.tools.join(", ") : m.tools || "",
           }))
-        : [{ label: "Day 01", title: "", topics: "", tools: "" }]
+        : [{ label: "Day 01", title: "", topics: "", tools: "" }],
     );
     setView("form");
   };
@@ -95,7 +122,8 @@ export default function AdminPage() {
   };
 
   const handleSave = async () => {
-    if (!formData.title || !formData.slug) return alert("Title and Slug are required.");
+    if (!formData.title || !formData.slug)
+      return alert("Title and Slug are required.");
     setUploading(true);
     const payload = {
       slug: formData.slug,
@@ -108,8 +136,14 @@ export default function AdminPage() {
         heroImg: formData.heroImg,
         syllabus: modules.map((m) => ({
           ...m,
-          topics: m.topics.split(",").map((t) => t.trim()).filter(Boolean),
-          tools: m.tools.split(",").map((t) => t.trim()).filter(Boolean),
+          topics: m.topics
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean),
+          tools: m.tools
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean),
         })),
       },
     };
@@ -118,7 +152,10 @@ export default function AdminPage() {
     data.append("skipPdf", "true");
 
     try {
-      const res = await fetch("/api/programs/manual-save", { method: "POST", body: data });
+      const res = await fetch("/api/programs/manual-save", {
+        method: "POST",
+        body: data,
+      });
       if (res.ok) {
         await fetchPrograms();
         setView("list");
@@ -130,7 +167,6 @@ export default function AdminPage() {
     }
   };
 
-
   return (
     <div className="admin-shell flex min-h-screen bg-slate-100 font-sans">
       {/* PERSISTENT ADMINISTRATIVE SIDEBAR NAVIGATION */}
@@ -141,31 +177,27 @@ export default function AdminPage() {
               <LayoutDashboard size={20} />
             </span>
             <div>
-              <h1 className="text-white text-[15px] font-bold tracking-tight">iNetz Console</h1>
-              <p className="text-[10px] text-slate-500 font-semibold tracking-wide mt-0.5">ADMIN WORKSPACE</p>
+              <h1 className="text-white text-[15px] font-bold tracking-tight">
+                iNetz Console
+              </h1>
+              <p className="text-[10px] text-slate-500 font-semibold tracking-wide mt-0.5">
+                ADMIN WORKSPACE
+              </p>
             </div>
           </div>
 
           <nav className="space-y-1.5">
-            <button
-              onClick={() => { setActiveTab("overview"); setView("list"); }}
-              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-[13px] font-semibold tracking-normal transition-all cursor-pointer ${activeTab === "overview" ? "bg-emerald-600 text-white shadow-lg shadow-emerald-950/30" : "hover:bg-slate-800 hover:text-slate-100"}`}
-            >
-              <LayoutDashboard size={16} /> CEO Overview
-            </button>
-            <button
-              onClick={() => {
-                setActiveTab("tracks");
-                setView("list");
-              }}
-              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-[13px] font-semibold tracking-normal transition-all cursor-pointer ${
-                activeTab === "tracks"
-                  ? "bg-emerald-600 text-white shadow-lg shadow-emerald-950/30"
-                  : "hover:bg-slate-800 hover:text-slate-100"
-              }`}
-            >
-              <BookOpen size={16} /> Track Management
-            </button>
+            {session?.user?.role === "super_admin" && (
+              <button
+                onClick={() => {
+                  setActiveTab("overview");
+                  setView("list");
+                }}
+                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-[13px] font-semibold tracking-normal transition-all cursor-pointer ${activeTab === "overview" ? "bg-emerald-600 text-white shadow-lg shadow-emerald-950/30" : "hover:bg-slate-800 hover:text-slate-100"}`}
+              >
+                <LayoutDashboard size={16} /> CEO Overview
+              </button>
+            )}
 
             <button
               onClick={() => {
@@ -192,7 +224,21 @@ export default function AdminPage() {
                   : "hover:bg-slate-800 hover:text-slate-100"
               }`}
             >
-              <History size={16} /> Audit Collections
+              <History size={16} /> Transactions
+            </button>
+
+            <button
+              onClick={() => {
+                setActiveTab("tracks");
+                setView("list");
+              }}
+              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-[13px] font-semibold tracking-normal transition-all cursor-pointer ${
+                activeTab === "tracks"
+                  ? "bg-emerald-600 text-white shadow-lg shadow-emerald-950/30"
+                  : "hover:bg-slate-800 hover:text-slate-100"
+              }`}
+            >
+              <BookOpen size={16} /> Track Management
             </button>
 
             <button
@@ -208,6 +254,7 @@ export default function AdminPage() {
             >
               <BookOpen size={16} /> Blogs & Events
             </button>
+
           </nav>
         </div>
 
@@ -224,12 +271,36 @@ export default function AdminPage() {
       {/* VIEWPORT CONTROLLER SWITCHBOARD FOR ADMIN ROUTINGS */}
       <main className="flex-1 overflow-y-auto h-screen bg-slate-50 p-6 md:p-12">
         <div className="mx-auto max-w-7xl">
-          <nav className="mb-6 flex gap-2 overflow-x-auto md:hidden" aria-label="Admin sections">
-            {(["overview", "tracks", "students", "transactions", "journals"] as const).map((tab) => (
-              <button key={tab} onClick={() => { setActiveTab(tab); setView("list"); }} className={`shrink-0 rounded-lg px-3 py-2 text-xs font-semibold capitalize ${activeTab === tab ? "bg-emerald-600 text-white" : "border border-slate-200 bg-white text-slate-700"}`}>{tab === "overview" ? "CEO Overview" : tab === "tracks" ? "Tracks" : tab === "students" ? "Students" : tab === "transactions" ? "Collections" : "Blogs"}</button>
+          <div className="mb-4 flex justify-end">
+            <AdminNotifications />
+          </div>
+          <nav
+            className="mb-6 flex gap-2 overflow-x-auto md:hidden"
+            aria-label="Admin sections"
+          >
+            {navigationTabs.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => {
+                  setActiveTab(tab);
+                  setView("list");
+                }}
+                className={`shrink-0 rounded-lg px-3 py-2 text-xs font-semibold capitalize ${activeTab === tab ? "bg-emerald-600 text-white" : "border border-slate-200 bg-white text-slate-700"}`}
+              >
+                {tab === "overview"
+                  ? "CEO Overview"
+                  : tab === "tracks"
+                    ? "Tracks"
+                    : tab === "students"
+                      ? "Students"
+                      : tab === "transactions"
+                        ? "Collections"
+                        : "Blogs"}
+              </button>
             ))}
           </nav>
-          {activeTab === "overview" && <CeoOverviewTab />}
+          {session?.user?.role === "super_admin" &&
+            activeTab === "overview" && <CeoOverviewTab />}
           {activeTab === "tracks" && (
             <TracksTab
               view={view}

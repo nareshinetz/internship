@@ -14,7 +14,7 @@ import {
   Code2, 
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import { FaChrome } from "react-icons/fa";
 
 const LOGIN_QUOTES = [
@@ -45,10 +45,10 @@ function LoginContent() {
 
   // Extract return target from either 'callbackUrl' or 'callback' search parameters
   // Sanitize callback URL to enforce relative internal redirects only
-  const targetDestination = useMemo(() => {
+  const requestedDestination = useMemo(() => {
     const rawCallback = searchParams.get("callbackUrl") || searchParams.get("callback");
     
-    if (!rawCallback) return "/dashboard";
+    if (!rawCallback) return null;
 
     const decoded = decodeURIComponent(rawCallback).trim();
     
@@ -57,7 +57,7 @@ function LoginContent() {
       return decoded;
     }
 
-    return "/dashboard";
+    return null;
   }, [searchParams]);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -80,9 +80,15 @@ function LoginContent() {
       } else if (res?.ok) {
         // 🎯 FIX 2: Check `res?.ok` instead of `res?.url` (res?.url can be null with redirect: false)
         setSuccessMsg("Session initialized successfully! Redirecting...");
+
+        const session = await getSession();
+        const defaultDestination =
+          session?.user?.role === "admin" || session?.user?.role === "super_admin"
+            ? "/admin"
+            : "/dashboard";
         
         // Force full refresh navigation so Next.js server components & middleware register session cookies instantly
-        window.location.href = targetDestination;
+        window.location.href = requestedDestination || defaultDestination;
       } else {
         setError("Failed to establish session. Please try again.");
         setLoading(false);
@@ -162,7 +168,7 @@ function LoginContent() {
           <form className="space-y-4" onSubmit={handleLogin}>
             <div>
               <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-1.5 ml-1">
-                Student Email
+                  Email
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400 group-focus-within:text-orange-500 transition-colors">
@@ -180,11 +186,10 @@ function LoginContent() {
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-1.5 ml-1">
+                <div className="flex items-center justify-between mb-1.5 ml-1">
                 <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-400">
                   Access Key
                 </label>
-                <span className="text-[9px] font-bold text-zinc-400">Contact support to reset</span>
               </div>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400 group-focus-within:text-orange-500 transition-colors">
@@ -198,6 +203,14 @@ function LoginContent() {
                   placeholder="••••••••"
                   className="block w-full pl-10 pr-4 py-2.5 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-sm outline-none transition-all focus:ring-2 focus:ring-orange-500/10 focus:border-orange-500 text-zinc-900 dark:text-zinc-100"
                 />
+              </div>
+              <div className="mt-2 text-right">
+                <Link
+                  href="/forgot-password"
+                  className="text-xs font-bold text-orange-600 hover:text-orange-700 hover:underline underline-offset-4"
+                >
+                  Forgot password? Reset it here
+                </Link>
               </div>
             </div>
 
@@ -226,7 +239,7 @@ function LoginContent() {
 
           <button 
             type="button"
-            onClick={() => signIn("google", { callbackUrl: targetDestination })}
+            onClick={() => signIn("google", { callbackUrl: requestedDestination || undefined })}
             className="w-full flex justify-center items-center gap-2 py-2.5 border border-zinc-200 dark:border-zinc-800 rounded-xl text-[10px] font-black uppercase tracking-widest text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all active:scale-[0.98]"
           >
             <FaChrome className="w-3.5 h-3.5 text-orange-500" />

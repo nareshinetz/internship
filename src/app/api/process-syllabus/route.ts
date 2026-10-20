@@ -1,9 +1,12 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { requireRole } from "@/lib/api-auth";
 import { connectToDatabase } from "@/lib/db";
 import Program from "@/models/Program";
 
 export async function POST(req: Request) {
   try {
+    const auth = await requireRole("admin", "super_admin");
+    if (auth.error) return auth.error;
     const { textContent, manualData } = await req.json();
 
     if (!textContent) {

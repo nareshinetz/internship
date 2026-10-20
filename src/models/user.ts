@@ -1,13 +1,16 @@
 import bcrypt from "bcryptjs";
 import mongoose, { Document, model, models, Schema } from "mongoose";
 
-export type UserRole = "public" | "student" | "employer" | "admin";
+export type UserRole = "public" | "student" | "employer" | "admin" | "super_admin";
 
 export interface IUser extends Document {
   studentId?: string;
   name: string;
   email?: string;
   password?: string;
+  passwordResetTokenHash?: string;
+  passwordResetExpiresAt?: Date;
+  passwordResetRequestedAt?: Date;
   phone?: string;
   phoneVerifiedAt?: Date;
   college?: string;
@@ -29,11 +32,14 @@ const UserSchema = new Schema<IUser>({
   name: { type: String, required: true, trim: true },
   email: { type: String, lowercase: true, trim: true },
   password: { type: String, select: false },
+  passwordResetTokenHash: { type: String, select: false },
+  passwordResetExpiresAt: { type: Date, select: false },
+  passwordResetRequestedAt: { type: Date, select: false },
   phone: { type: String, trim: true },
   phoneVerifiedAt: Date,
   college: { type: String, trim: true },
   degree: { type: String, trim: true },
-  role: { type: String, enum: ["public", "student", "employer", "admin"], default: "public" },
+  role: { type: String, enum: ["public", "student", "employer", "admin", "super_admin"], default: "public" },
   provider: { type: String, enum: ["credentials", "google"] },
   image: String,
   companyName: { type: String, trim: true },

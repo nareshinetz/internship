@@ -6,7 +6,7 @@ export async function proxy(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const role = token?.role;
 
-  const isAuthRoute = pathname.startsWith("/login") || pathname.startsWith("/register");
+  const isAuthRoute = pathname.startsWith("/login") || pathname.startsWith("/register") || pathname.startsWith("/forgot-password");
   const isAdminRoute = pathname.startsWith("/admin");
   const isStudentRoute = pathname.startsWith("/student");
   const isProtectedRoute = pathname.startsWith("/dashboard") || pathname.startsWith("/onboarding") ||
@@ -18,11 +18,20 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (isAdminRoute && role !== "admin") return NextResponse.redirect(new URL("/dashboard", req.url));
-  if (isStudentRoute && role !== "student" && role !== "admin") return NextResponse.redirect(new URL("/dashboard", req.url));
+  if (isAdminRoute && role !== "admin" && role !== "super_admin") return NextResponse.redirect(new URL("/dashboard", req.url));
+  if (
+  isStudentRoute &&
+  role !== "student" &&
+  role !== "admin" &&
+  role !== "super_admin"
+) {
+  return NextResponse.redirect(new URL("/", req.url));
+}
 
   if (isAuthRoute && token) {
-    return NextResponse.redirect(new URL(role === "admin" ? "/admin" : "/dashboard", req.url));
+    return NextResponse.redirect(
+      new URL(role === "admin" || role === "super_admin" ? "/admin" : "/dashboard", req.url),
+    );
   }
 
   return NextResponse.next();

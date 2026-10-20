@@ -9,7 +9,7 @@ import { normalizeStudentPhone, studentPhoneVariants } from "@/lib/admin-student
 import mongoose from "mongoose";
 
 export async function GET(req: Request) {
-  const auth = await requireRole("admin"); if (auth.error) return auth.error;
+  const auth = await requireRole("admin", "super_admin"); if (auth.error) return auth.error;
   await connectToDatabase(); const params = new URL(req.url).searchParams;
   const phoneInput = params.get("phone");
   if (phoneInput) {
@@ -35,7 +35,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const auth = await requireRole("admin"); if (auth.error) return auth.error;
+    const auth = await requireRole("admin", "super_admin"); if (auth.error) return auth.error;
     const data = await req.json(); await connectToDatabase();
     const phone = normalizeStudentPhone(data.phone);
     if (!phone) return NextResponse.json({ success: false, error: "Enter a valid Indian mobile number." }, { status: 400 });

@@ -11,7 +11,7 @@ export default async function DashboardRedirectPage() {
 
   const role = (session.user as any).role;
 
-  if (role === "admin") {
+  if (role === "admin" || role === "super_admin") {
     redirect("/admin");
   } else {
     redirect("/student/dashboard");

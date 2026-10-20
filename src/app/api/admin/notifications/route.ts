@@ -5,7 +5,7 @@ import { connectToDatabase } from "@/lib/db";
 import Notification from "@/models/Notification";
 
 export async function GET(req: NextRequest) {
-  const auth = await requireRole("admin");
+  const auth = await requireRole("admin", "super_admin");
   if (auth.error) return auth.error;
 
   await connectToDatabase();
@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const auth = await requireRole("admin");
+  const auth = await requireRole("admin", "super_admin");
   if (auth.error) return auth.error;
 
   const body = await req.json();

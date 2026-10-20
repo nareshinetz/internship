@@ -4,7 +4,7 @@ import { subscribeToAdminNotifications } from "@/lib/admin-notifications";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const auth = await requireRole("admin");
+  const auth = await requireRole("admin", "super_admin");
   if (auth.error) return auth.error;
 
   const encoder = new TextEncoder();

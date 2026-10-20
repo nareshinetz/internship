@@ -10,7 +10,7 @@ const visibleEnrollments = {
 };
 
 export async function GET() {
-  const auth = await requireRole("admin");
+  const auth = await requireRole("super_admin");
   if (auth.error) return auth.error;
 
   try {

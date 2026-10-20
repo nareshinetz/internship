@@ -36,7 +36,7 @@ const flatten = (enrollment: Record<string, unknown>) => {
 };
 
 export async function GET(req: Request) {
-  const auth = await requireRole("admin");
+  const auth = await requireRole("admin", "super_admin");
   if (auth.error) return auth.error;
   await connectToDatabase();
   const params = new URL(req.url).searchParams;
@@ -47,8 +47,14 @@ export async function GET(req: Request) {
   };
   const query: Record<string, unknown> = { ...enrolledOnly };
   const status = params.get("status") || "current";
-  if (status === "current") query.status = { $ne: "cancelled" };
-  else if (["active", "completed", "cancelled"].includes(status)) query.status = status;
+  if (status === "current") query.status = { $in: ["active", "completed"] };
+  else if (status === "active") {
+    query.status = "active";
+    query.pendingAmount = { $lte: 0 };
+  } else if (status === "due") {
+    query.status = "active";
+    query.pendingAmount = { $gt: 0 };
+  } else if (["completed", "cancelled"].includes(status)) query.status = status;
   else if (status !== "all")
     return NextResponse.json({ success: false, error: "Invalid enrollment status filter." }, { status: 400 });
   const domain = params.get("domain")?.trim();
@@ -194,7 +200,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const auth = await requireRole("admin");
+    const auth = await requireRole("admin", "super_admin");
     if (auth.error) return auth.error;
     const body = await req.json();
     await connectToDatabase();
@@ -334,7 +340,7 @@ export async function POST(req: Request) {
 }
 
 export async function PUT(req: Request) {
-  const auth = await requireRole("admin");
+  const auth = await requireRole("admin", "super_admin");
   if (auth.error) return auth.error;
   const body = await req.json();
   await connectToDatabase();
@@ -428,7 +434,7 @@ export async function PUT(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-  const auth = await requireRole("admin");
+  const auth = await requireRole("admin", "super_admin");
   if (auth.error) return auth.error;
   await connectToDatabase();
   const params = new URL(req.url).searchParams;

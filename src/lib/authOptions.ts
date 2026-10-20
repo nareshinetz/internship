@@ -5,6 +5,12 @@ import { connectToDatabase } from "@/lib/db";
 import bcrypt from "bcryptjs";
 import User from "@/models/user";
 
+type AuthenticatedRole = "student" | "admin" | "super_admin";
+
+function isAuthenticatedRole(role: unknown): role is AuthenticatedRole {
+  return role === "student" || role === "admin" || role === "super_admin";
+}
+
 const DUMMY_HASH =
   "$2b$10$e8m4L.3vT8g9kS.eG2u.3e3/uW9x8Z7Y6X5W4V3U2T1S0R9Q8P7O";
 
@@ -40,7 +46,7 @@ export const authOptions: NextAuthOptions = {
 
         const isPasswordCorrect = await bcrypt.compare(
           credentials.password,
-          hashToCompare
+          hashToCompare,
         );
 
         if (!dbUser || !isPasswordCorrect) {
@@ -49,20 +55,21 @@ export const authOptions: NextAuthOptions = {
 
         if (dbUser.provider === "google" && !dbUser.password) {
           throw new Error(
-            "This account uses Google Login. Please sign in via Google."
+            "This account uses Google Login. Please sign in via Google.",
           );
         }
-
-        if (dbUser.role !== "student" && dbUser.role !== "admin") {
+        if (!isAuthenticatedRole(dbUser.role)) {
           throw new Error("This account role is no longer supported.");
         }
+
+        const role = dbUser.role;
 
         return {
           id: dbUser._id.toString(),
           name: dbUser.name as string,
           email: dbUser.email as string,
           image: dbUser.image ? String(dbUser.image) : null,
-          role: (dbUser.role as string) || "student",
+          role,
           phone: (dbUser.phone as string) || "",
         };
       },
@@ -77,7 +84,7 @@ export const authOptions: NextAuthOptions = {
 
           if (!user.email) {
             console.error(
-              "OAuth Error: No email returned from Google provider."
+              "OAuth Error: No email returned from Google provider.",
             );
             return false;
           }
@@ -91,8 +98,7 @@ export const authOptions: NextAuthOptions = {
           // Shared users require a unique phone. Register/claim the account first,
           // then Google may authenticate the existing identity by email.
           if (!dbUser) return false;
-
-          if (dbUser.role !== "student" && dbUser.role !== "admin") {
+          if (!isAuthenticatedRole(dbUser.role)) {
             return false;
           }
 
@@ -103,10 +109,7 @@ export const authOptions: NextAuthOptions = {
 
           return true;
         } catch (error) {
-          console.error(
-            "Error during Google sign-in sync:",
-            error
-          );
+          console.error("Error during Google sign-in sync:", error);
 
           return false;
         }

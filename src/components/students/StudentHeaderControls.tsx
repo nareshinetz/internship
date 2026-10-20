@@ -466,8 +466,9 @@ export default function StudentHeaderControls({
               onChange={(e) => onStatusChange(e.target.value)}
               className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs font-bold text-zinc-800 outline-none focus:bg-white focus:border-emerald-500 cursor-pointer"
             >
-              <option value="current">Current (Active + Completed)</option>
-              <option value="active">Active</option>
+              <option value="current">Current (Active + Due + Completed)</option>
+              <option value="active">Active (Fee Clear)</option>
+              <option value="due">Due</option>
               <option value="completed">Completed</option>
               <option value="cancelled">Cancelled</option>
               <option value="all">All statuses</option>

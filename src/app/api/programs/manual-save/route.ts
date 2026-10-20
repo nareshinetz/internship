@@ -8,7 +8,7 @@ import { requireRole } from "@/lib/api-auth";
 
 export async function POST(req: NextRequest) {
   try {
-    const auth = await requireRole("admin");
+    const auth = await requireRole("admin", "super_admin");
     if (auth.error) return auth.error;
     await connectToDatabase();
 
