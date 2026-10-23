@@ -20,6 +20,7 @@ export interface ProgramTrackItem {
   title: string;
   slug?: string;
   duration?: string;
+  adminOnly?: boolean;
   price?: number | string;
   originalPrice?: number | string;
 }
@@ -41,6 +42,7 @@ export default function AddStudentModal({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [selectedProgramId, setSelectedProgramId] = useState("");
+  const [enrollmentType, setEnrollmentType] = useState<"internship" | "course" | "certificate">("internship");
 
   const [form, setForm] = useState({
     name: "",
@@ -63,6 +65,7 @@ export default function AddStudentModal({
       setErrorMsg(null);
       setPrograms([]);
       setSelectedProgramId("");
+      setEnrollmentType("internship");
       try {
         let res = await fetch("/api/tracks");
         if (!res.ok) {
@@ -125,6 +128,7 @@ export default function AddStudentModal({
     setErrorMsg(null);
 
     const payload = {
+      type: enrollmentType,
       programId: selectedProgramId,
       name: form.name.trim(),
       email: form.email.trim(),
@@ -257,10 +261,24 @@ export default function AddStudentModal({
           </div>
 
           {/* Course Track, Duration & Date of Joining */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-zinc-100">
-            
-            {/* Select one real program record, including its duration. */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-zinc-100">
             <div className="space-y-1">
+              <label className="block text-xs font-bold text-zinc-700 flex items-center gap-1.5">
+                <BookOpen size={13} className="text-emerald-600" /> Enrollment Type *
+              </label>
+              <select
+                value={enrollmentType}
+                onChange={(e) => setEnrollmentType(e.target.value as "internship" | "course" | "certificate")}
+                className="w-full px-3 py-2.5 bg-zinc-50 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer"
+              >
+                <option value="internship">Internship</option>
+                <option value="course">Course</option>
+                <option value="certificate">Certificate</option>
+              </select>
+            </div>
+
+            {/* Select one real program record, including its duration. */}
+            {enrollmentType !== "certificate" && <div className="space-y-1">
               <label className="block text-xs font-bold text-zinc-700 flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
                   <BookOpen size={13} className="text-emerald-600" /> Program Track *
@@ -277,19 +295,19 @@ export default function AddStudentModal({
                   {!selectedProgramId && <option value="">{loadingTracks ? "Loading programs..." : "No programs available"}</option>}
                   {programs.map((program) => (
                     <option key={program._id} value={program._id}>
-                      {program.title} — {program.duration}
+                      {program.title} — {program.duration}{program.adminOnly ? " (Admin fee entry)" : ""}
                     </option>
                   ))}
                 </select>
-            </div>
+            </div>}
 
             {/* Duration comes from the selected program. */}
-            <div className="space-y-1">
+            {enrollmentType !== "certificate" && <div className="space-y-1">
               <label className="block text-xs font-bold text-zinc-700 flex items-center gap-1.5">
                 <Clock size={13} className="text-emerald-600" /> Duration *
               </label>
               <input readOnly value={form.duration} className="w-full px-3 py-2.5 bg-zinc-100 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-700" />
-            </div>
+            </div>}
 
             {/* Date of Joining (DOJ) */}
             <div className="space-y-1">
@@ -370,7 +388,7 @@ export default function AddStudentModal({
             </button>
             <button
               type="submit"
-              disabled={submitting || loadingTracks || !selectedProgramId}
+              disabled={submitting || (enrollmentType !== "certificate" && (loadingTracks || !selectedProgramId))}
               className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-md shadow-emerald-600/20 disabled:opacity-50 cursor-pointer"
             >
               {submitting ? <Loader2 size={14} className="animate-spin" /> : <UserPlus size={14} />} Enrol Student

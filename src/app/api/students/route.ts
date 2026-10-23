@@ -215,24 +215,34 @@ export async function POST(req: Request) {
       );
     if (email === null)
       return NextResponse.json({ success: false, error: "Enter a valid email address or leave it blank." }, { status: 400 });
+    const enrollmentType = body.type || "internship";
+    if (!["internship", "course", "certificate"].includes(enrollmentType))
+      return NextResponse.json({ success: false, error: "Select Internship, Course, or Certificate." }, { status: 400 });
+    // Certificate records still need an internal unique reference for the schema,
+    // but staff do not need to enter one in the admission form.
+    const certificateNumber = enrollmentType === "certificate"
+      ? `CERT-${new mongoose.Types.ObjectId().toString().toUpperCase()}`
+      : "";
     if (body.programId && !mongoose.isValidObjectId(body.programId))
       return NextResponse.json(
-        { success: false, error: "Select an existing internship program." },
+        { success: false, error: "Select an existing program." },
         { status: 400 },
       );
-    const program = body.programId
+    const program = enrollmentType === "certificate"
+      ? null
+      : body.programId
       ? await Program.findById(body.programId).select("title slug duration price")
       : await Program.findOne({
           title: String(body.domain || "").trim(),
           duration: String(body.duration || "").trim(),
         }).select("title slug duration price");
-    if (!program)
+    if (enrollmentType !== "certificate" && !program)
       return NextResponse.json(
-        { success: false, error: "Select an existing internship program." },
+        { success: false, error: "Select an existing program." },
         { status: 400 },
       );
     const paid = Number(body.initialPayment ?? 0);
-    const total = Number(body.totalBilling ?? program.price ?? 0);
+    const total = Number(body.totalBilling ?? program?.price ?? 0);
     if (!isValidAdminInitialPayment(paid, total))
       return NextResponse.json(
         { success: false, error: "Enter a positive initial payment no greater than the total fee." },
@@ -252,7 +262,7 @@ export async function POST(req: Request) {
     if (matchingUsers.length > 1)
       return NextResponse.json({ success: false, error: "Multiple accounts use this mobile number. Resolve them before enrolling." }, { status: 409 });
     let user = matchingUsers[0];
-    if (user && await Enrollment.exists({ userId: user._id, type: "internship", offeringId: program._id }))
+    if (user && program && await Enrollment.exists({ userId: user._id, type: enrollmentType, offeringId: program._id }))
       return NextResponse.json(
         { success: false, error: "This student is already enrolled in that program." },
         { status: 409 },
@@ -276,7 +286,7 @@ export async function POST(req: Request) {
     }
     user.phone = phone;
     await user.save();
-    const studentId = await ensureStudentId(user._id, program.duration || "");
+    const studentId = await ensureStudentId(user._id, program?.duration || "Certificate");
     const installments =
       paid > 0
         ? [
@@ -296,12 +306,11 @@ export async function POST(req: Request) {
         : [];
     const enrollment = await Enrollment.create({
       userId: user._id,
-      type: "internship",
-      offeringId: program._id,
-      offeringSlug: program.slug,
+      type: enrollmentType,
+      ...(program ? { offeringId: program._id, offeringSlug: program.slug } : { certificateNumber }),
       joinedAt,
-      domain: program.title,
-      duration: program.duration,
+      domain: program?.title || "Certificate",
+      duration: program?.duration || "Certificate",
       status: paid > 0 ? "active" : "payment_pending",
       totalBilling: total,
       installments,

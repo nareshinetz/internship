@@ -85,6 +85,7 @@ independently call `requireRole` before reading input or mutating data.
   installments, derived collection/balance/status, and certificate state.
 - `Student`: preserved legacy migration source; active flows do not write it.
 - `Program`: public catalog content, official price, syllabus, projects, reviews.
+- `Program.adminOnly`: private admin enrollment tracks. They are excluded from public catalog/detail APIs but are available through the protected admin track API for manual fee collection.
 - `RazorpayOrder`: local order lock and audit trail (`creating`, `created`,
   `processed`, `expired`, `failed`), with unique lock/order/payment IDs.
 - `Blog`: editorial content and Cloudinary-backed media references.

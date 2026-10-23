@@ -38,6 +38,7 @@ const ProgramSchema = new Schema(
     price: { type: Number },
     originalPrice: { type: Number },
     heroImg: { type: String },
+    adminOnly: { type: Boolean, default: false },
     pdfFileName: { type: String },
     syllabus: [ModuleSchema],
     projects: [ProjectSchema],

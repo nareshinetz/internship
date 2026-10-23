@@ -8,6 +8,7 @@ export async function GET() {
 
     // ⚡ Fast Aggregation: Excludes heavy nested arrays; counts modules in DB engine
     const programs = await Program.aggregate([
+      { $match: { adminOnly: { $ne: true } } },
       {
         $project: {
           _id: 1,

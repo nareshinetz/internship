@@ -155,7 +155,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed font-medium hover:text-orange-500 transition-colors"
                 >
-                  No. 159, 3rd Floor, KP Towers, Arcot Road <br />
+                  No. 159, 2nd Floor, KP Towers, Arcot Road <br />
                   Opp. Nexus Vijaya Mall, Vadapalani, <br />
                   Chennai - 600026
                 </a>
@@ -169,7 +169,7 @@ export default function Footer() {
                     href="tel:+919840234475"
                     className="hover:text-orange-500 transition-colors"
                   >
-                    +91 98402 34475
+                    +91 98848 68681
                   </a>
                   <a
                     href="tel:+919884468682"

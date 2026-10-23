@@ -17,7 +17,8 @@
     "migration:apply": "node scripts/apply-student-enrollment-migration.mjs",
     "migration:verify": "node scripts/verify-student-enrollment-migration.mjs",
     "migration:sync-joined-at": "node scripts/sync-enrollment-joined-at.mjs",
-    "migration:backfill-student-ids": "node scripts/backfill-student-ids.mjs"
+    "migration:backfill-student-ids": "node scripts/backfill-student-ids.mjs",
+    "admin:sync-six-month-tracks": "node scripts/sync-admin-six-month-tracks.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

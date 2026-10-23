@@ -19,7 +19,7 @@ export async function GET(req: Request) {
       ? "-__v"
       : "title slug subtitle duration price originalPrice heroImg badges isPopular createdAt updatedAt";
 
-    const programs = await Program.find({})
+    const programs = await Program.find({ adminOnly: { $ne: true } })
       .select(projection)
       .sort({ updatedAt: -1 })
       .lean();

@@ -22,7 +22,7 @@ export async function GET(
     const decodedSlug = decodeURIComponent(slug).trim();
 
     // 2. Build Exact Equality Query (avoids slow unindexed regex scans)
-    const query: Record<string, any> = { slug: decodedSlug };
+    const query: Record<string, any> = { slug: decodedSlug, adminOnly: { $ne: true } };
 
     if (duration) {
       const formattedDuration = duration.replace(/-/g, " ").trim();
@@ -38,7 +38,7 @@ export async function GET(
 
     // Fallback: If duration exact match failed, match by slug only
     if (!program && duration) {
-      program = await Program.findOne({ slug: decodedSlug })
+      program = await Program.findOne({ slug: decodedSlug, adminOnly: { $ne: true } })
         .select("-__v")
         .lean();
     }
