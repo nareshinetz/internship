@@ -264,8 +264,10 @@ function ReviewAndPayContent() {
   const isAdmin = userRole === "admin";
 
   // URL Parameters
-  const urlTrack = searchParams.get("track") || "WEB DEVELOPMENT";
-  const urlDuration = searchParams.get("duration") || "1 Week";
+  // Query parameters can preselect a real catalog item, but the catalog is
+  // always the source of truth for the displayed program and duration.
+  const urlTrack = searchParams.get("track") || "";
+  const urlDuration = searchParams.get("duration") || "";
   const urlPrice = parseInt(searchParams.get("price") || "0");
   const urlOriginalPrice = parseInt(searchParams.get("originalPrice") || "0");
   const urlCourseTitle = searchParams.get("courseTitle") || "";
@@ -330,12 +332,13 @@ function ReviewAndPayContent() {
     }
   };
 
-  // 1. Fetch tracks and programs from API
+  // Public enrollment may only use the public catalog. Admin-only manual-fee
+  // tracks are deliberately excluded by this endpoint.
   useEffect(() => {
     async function fetchPrograms() {
       try {
         setLoadingTracks(true);
-        const res = await fetch("/api/tracks");
+        const res = await fetch("/api/programs");
         if (res.ok) {
           const data: ProgramItem[] = await res.json();
           setPrograms(data);
@@ -400,10 +403,7 @@ function ReviewAndPayContent() {
     ),
   );
 
-  const durationOptions =
-    availableDurations.length > 0
-      ? availableDurations
-      : ["1 Week", "2 Weeks", "1 Month", "2 Months"];
+  const durationOptions = availableDurations;
 
   // 4. Handle Track change
   const handleTrackChange = (selectedTitle: string) => {
@@ -752,17 +752,28 @@ function ReviewAndPayContent() {
                   ) : (
                     <StaticField
                       label="Track"
-                      value={form.track.toUpperCase()}
+                      value="No programs available"
                     />
                   )}
 
-                  {/* Duration Dropdown */}
-                  <Select
-                    label="Duration"
-                    value={form.duration}
-                    options={durationOptions}
-                    onChange={handleDurationChange}
-                  />
+                  {/* Durations always come from the selected catalog track. */}
+                  {loadingTracks ? (
+                    <Field label="Duration">
+                      <div className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-xs font-bold text-slate-400 flex items-center gap-2">
+                        <Loader2 className="w-3 h-3 animate-spin text-indigo-600" />
+                        Loading...
+                      </div>
+                    </Field>
+                  ) : durationOptions.length > 0 ? (
+                    <Select
+                      label="Duration"
+                      value={form.duration}
+                      options={durationOptions}
+                      onChange={handleDurationChange}
+                    />
+                  ) : (
+                    <StaticField label="Duration" value="No duration available" />
+                  )}
 
                   <Select
                     label="Mode"
