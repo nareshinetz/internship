@@ -176,7 +176,7 @@ compact, professional, light, and blue-accented.
   status filter for reactivation, while the overview reports distinct people
   with an active enrollment versus only completed/cancelled enrollments. Cancelled enrollments cannot
   initiate balance payments, and recording a payment does not reopen completed ones.
-  Admin deletion affects only the selected internship enrollment, never the shared User:
+  Admin deletion affects only the selected enrollment, never the shared User:
   partial deletion requires no fee/certificate history; full deletion removes its
   embedded manual fee history, while any Razorpay order blocks either deletion.
 - Admin notifications: registrations, enrollments, and successful payments are

@@ -118,7 +118,7 @@ export default function EditStudentModal({
     const detail = mode === "full"
       ? `This also erases ₹${student.totalCollection.toLocaleString("en-IN")} of embedded fee history and any certificate status for this enrollment.`
       : "This works only if there are no fees or issued certificate.";
-    if (!confirm(`Permanently delete only the ${student.domain} internship enrollment for ${student.name}? ${detail} The User account and other enrollments stay. This cannot be undone.`)) return;
+    if (!confirm(`Permanently delete only the ${student.domain} ${student.type || "internship"} enrollment for ${student.name}? ${detail} The User account and other enrollments stay. This cannot be undone.`)) return;
     setIsDeleting(true);
     try {
       await axios.delete(`/api/students?id=${student._id}&mode=${mode}`);
@@ -448,7 +448,7 @@ export default function EditStudentModal({
                 </button>
                 {showDeleteOptions && (
                   <div className="absolute bottom-full left-0 z-10 mb-3 w-[min(28rem,calc(100vw-3rem))] rounded-2xl border border-red-100 bg-white p-3 shadow-xl" role="group" aria-label="Delete enrollment options">
-                    <p className="mb-2 text-[11px] text-zinc-600">Only this internship enrollment is removed; the User account stays.</p>
+                    <p className="mb-2 text-[11px] text-zinc-600">Only this selected enrollment is removed; the User account stays.</p>
                     <div className="flex flex-wrap items-center gap-2">
                       <button type="button" disabled={isDeleting || isSaving} onClick={() => handleDelete("partial")} className="px-3 py-2.5 rounded-xl border border-red-200 text-red-700 text-xs font-bold disabled:opacity-50">Partial: unpaid only</button>
                       <button type="button" disabled={isDeleting || isSaving} onClick={() => handleDelete("full")} className="px-3 py-2.5 rounded-xl bg-red-700 text-white text-xs font-bold disabled:opacity-50">Full: delete fees too</button>

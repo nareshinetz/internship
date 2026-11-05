@@ -453,7 +453,7 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ success: false, error: "Select Partial Delete or Full Delete." }, { status: 400 });
   if (!id || !mongoose.isValidObjectId(id))
     return NextResponse.json({ success: false, error: "Select a valid enrollment." }, { status: 400 });
-  const enrollment = await Enrollment.findOne({ _id: id, type: "internship" });
+  const enrollment = await Enrollment.findById(id);
   if (!enrollment)
     return NextResponse.json(
       { success: false, error: "Enrollment not found." },
@@ -473,5 +473,5 @@ export async function DELETE(req: Request) {
   });
   if (!deleted.deletedCount)
     return NextResponse.json({ success: false, error: "Enrollment changed; refresh and try again." }, { status: 409 });
-  return NextResponse.json({ success: true, message: "Selected internship enrollment deleted. The shared User account and other enrollments were kept." });
+  return NextResponse.json({ success: true, message: "Selected enrollment deleted. The shared User account and other enrollments were kept." });
 }
