@@ -16,7 +16,6 @@ import TracksTab from "@/components/TracksTab";
 import StudentsTab from "@/components/StudentsTab";
 import CollectionsTab from "@/components/CollectionsTab";
 import BlogsTab from "@/components/BlogsTab";
-import AdminNotifications from "@/components/AdminNotifications";
 import CeoOverviewTab from "@/components/CeoOverviewTab";
 
 type SidebarTab =
@@ -271,9 +270,6 @@ export default function AdminPage() {
       {/* VIEWPORT CONTROLLER SWITCHBOARD FOR ADMIN ROUTINGS */}
       <main className="flex-1 overflow-y-auto h-screen bg-slate-50 p-6 md:p-12">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-4 flex justify-end">
-            <AdminNotifications />
-          </div>
           <nav
             className="mb-6 flex gap-2 overflow-x-auto md:hidden"
             aria-label="Admin sections"
