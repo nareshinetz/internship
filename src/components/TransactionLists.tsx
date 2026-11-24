@@ -179,9 +179,10 @@ function AuditModal({ tx, onClose, onPrint, onDownload }: ModalProps) {
 interface TransactionsListProps {
   startDate: string;
   endDate: string;
+  todayOnly?: boolean;
 }
 
-export default function TransactionsList({ startDate, endDate }: TransactionsListProps) {
+export default function TransactionsList({ startDate, endDate, todayOnly = false }: TransactionsListProps) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading]       = useState(true);
   const [error, setError]               = useState<string | null>(null);
@@ -210,6 +211,7 @@ export default function TransactionsList({ startDate, endDate }: TransactionsLis
     try {
       // 🎯 Passes filters and page offsets straight to your updated API route
       const params = new URLSearchParams({ search: debouncedSearch, page: String(currentPage), limit: "20" });
+      if (todayOnly) params.set("today", "true");
       if (startDate) params.set("startDate", startDate);
       if (endDate) params.set("endDate", endDate);
       const response = await fetch(`/api/payments?${params.toString()}`);
@@ -231,7 +233,7 @@ export default function TransactionsList({ startDate, endDate }: TransactionsLis
     } finally {
       setIsLoading(false);
     }
-  }, [debouncedSearch, currentPage, startDate, endDate]);
+  }, [debouncedSearch, currentPage, startDate, endDate, todayOnly]);
 
   useEffect(() => {
     fetchTransactions();

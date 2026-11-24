@@ -5,6 +5,7 @@ import { AlertCircle, ArrowDownRight, ArrowUpRight, BookOpen, CalendarDays, Minu
 import StudentTable, { StudentRecord } from "@/components/students/StudentTable";
 import StudentPagination from "@/components/students/StudentPagination";
 import EditStudentModal from "@/components/students/EditStudentModal";
+import TransactionsList from "@/components/TransactionLists";
 
 interface MoneyStats {
   count: number;
@@ -23,7 +24,7 @@ interface OverviewData {
   series: { key: string; label: string; admissions: number; collected: number }[];
 }
 
-type StudentList = "sixMonths" | "threeMonths" | "other" | "outstanding";
+type StudentList = "sixMonths" | "threeMonths" | "other" | "outstanding" | "monthAdmissions" | "todayAdmissions" | "activeStudents";
 
 const money = (value: number) => `₹${value.toLocaleString("en-IN")}`;
 
@@ -110,6 +111,7 @@ export default function CeoOverviewTab() {
   const [durationError, setDurationError] = useState("");
   const [durationRefresh, setDurationRefresh] = useState(0);
   const [selectedStudent, setSelectedStudent] = useState<StudentRecord | null>(null);
+  const [showTodayPayments, setShowTodayPayments] = useState(false);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -129,20 +131,32 @@ export default function CeoOverviewTab() {
   useEffect(() => { void refresh(); }, [refresh]);
 
   useEffect(() => {
-    if (!selectedDuration || selectedStudent) return;
-    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") setSelectedDuration(null); };
+    if ((!selectedDuration && !showTodayPayments) || selectedStudent) return;
+    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") { setSelectedDuration(null); setShowTodayPayments(false); } };
     document.addEventListener("keydown", closeOnEscape);
     return () => document.removeEventListener("keydown", closeOnEscape);
-  }, [selectedDuration, selectedStudent]);
+  }, [selectedDuration, selectedStudent, showTodayPayments]);
 
   useEffect(() => {
     if (!selectedDuration) return;
     const controller = new AbortController();
     setDurationLoading(true);
     setDurationError("");
-    const isOutstandingList = selectedDuration === "outstanding";
-    const params = new URLSearchParams({ status: isOutstandingList ? "outstanding" : "current", page: String(durationPage), limit: "15" });
-    if (!isOutstandingList) params.set("durationGroup", selectedDuration);
+    const params = new URLSearchParams({ page: String(durationPage), limit: "15" });
+    if (selectedDuration === "outstanding") params.set("status", "outstanding");
+    else if (selectedDuration === "monthAdmissions") {
+      params.set("status", "visible");
+      params.set("joinedThisMonth", "true");
+    } else if (selectedDuration === "todayAdmissions") {
+      params.set("status", "visible");
+      params.set("joinedToday", "true");
+    } else if (selectedDuration === "activeStudents") {
+      params.set("status", "activeAll");
+      params.set("uniqueUsers", "true");
+    } else {
+      params.set("status", "current");
+      params.set("durationGroup", selectedDuration);
+    }
     fetch(`/api/students?${params}`, { cache: "no-store", signal: controller.signal })
       .then(async (response) => {
         const result = await response.json();
@@ -161,19 +175,28 @@ export default function CeoOverviewTab() {
   if (loading && !data) return <div className="rounded-2xl border border-slate-200 bg-white p-8 text-sm text-slate-500">Loading executive overview…</div>;
   if (!data) return <div className="rounded-2xl border border-rose-200 bg-white p-8 text-sm text-rose-700"><AlertCircle className="mb-3" size={22} />{error}<button onClick={refresh} className="ml-3 font-semibold underline">Try again</button></div>;
 
-  const cards = [
-    { label: "Total students", value: data.totals.students.toLocaleString("en-IN"), icon: Users, tone: "text-blue-700 bg-blue-50" },
-    { label: "Total billing", value: money(data.totals.billing), icon: BookOpen, tone: "text-violet-700 bg-violet-50" },
-    { label: "Fees collected", value: money(data.totals.collected), icon: Wallet, tone: "text-emerald-700 bg-emerald-50" },
-    { label: "Outstanding balance", value: money(data.totals.pending), icon: AlertCircle, tone: "text-amber-700 bg-amber-50" },
-    { label: "Admissions this month", value: data.monthAdmissions.toLocaleString("en-IN"), icon: CalendarDays, tone: "text-sky-700 bg-sky-50" },
-    { label: "Active students", value: data.studentsByStatus.active.toLocaleString("en-IN"), icon: Users, tone: "text-emerald-700 bg-emerald-50" },
+  const cards: { label: string; value: string; icon: typeof Users; tone: string; detail: StudentList | null }[] = [
+    { label: "Total students", value: data.totals.students.toLocaleString("en-IN"), icon: Users, tone: "text-blue-700 bg-blue-50", detail: null },
+    { label: "Total billing", value: money(data.totals.billing), icon: BookOpen, tone: "text-violet-700 bg-violet-50", detail: null },
+    { label: "Fees collected", value: money(data.totals.collected), icon: Wallet, tone: "text-emerald-700 bg-emerald-50", detail: null },
+    { label: "Outstanding balance", value: money(data.totals.pending), icon: AlertCircle, tone: "text-amber-700 bg-amber-50", detail: "outstanding" },
+    { label: "Admissions this month", value: data.monthAdmissions.toLocaleString("en-IN"), icon: CalendarDays, tone: "text-sky-700 bg-sky-50", detail: "monthAdmissions" },
+    { label: "Active students", value: data.studentsByStatus.active.toLocaleString("en-IN"), icon: Users, tone: "text-emerald-700 bg-emerald-50", detail: "activeStudents" },
   ];
   const durationCards = [
     { group: "sixMonths", label: "6 months", stats: data.durations.sixMonths, tone: "text-violet-700 bg-violet-50" },
     { group: "threeMonths", label: "3 months", stats: data.durations.threeMonths, tone: "text-blue-700 bg-blue-50" },
     { group: "other", label: "Other durations", stats: data.durations.other, tone: "text-emerald-700 bg-emerald-50" },
   ] as const;
+  const listTitles: Record<StudentList, string> = {
+    sixMonths: "6 months students",
+    threeMonths: "3 months students",
+    other: "Other duration students",
+    outstanding: "Outstanding balances",
+    monthAdmissions: "Admissions this month",
+    todayAdmissions: "Today’s admissions",
+    activeStudents: "Active students",
+  };
 
   return (
     <>
@@ -186,8 +209,8 @@ export default function CeoOverviewTab() {
         </div>
         <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 shadow-sm">
           <div className="flex items-center gap-2 border-r border-slate-200 pr-4"><CalendarDays size={21} className="text-blue-700" /><span className="text-sm font-bold text-slate-900">Today’s summary</span></div>
-          <div className="px-2"><p className="text-xs text-slate-500">Admissions</p><p className="text-lg font-bold text-slate-950 tabular-nums">{data.today.admissions}</p></div>
-          <div className="px-2"><p className="text-xs text-slate-500">Fees collected</p><p className="text-lg font-bold text-slate-950 tabular-nums">{money(data.today.collected)}</p></div>
+          <button type="button" onClick={() => { setShowTodayPayments(false); setDurationStudents([]); setDurationTotal(data.today.admissions); setDurationLoading(true); setDurationPage(1); setSelectedDuration("todayAdmissions"); }} className="rounded-lg px-2 py-1 text-left hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-blue-600" aria-label="View today's admissions"><p className="text-xs text-slate-500">Admissions</p><p className="text-lg font-bold text-slate-950 tabular-nums">{data.today.admissions}</p></button>
+          <button type="button" onClick={() => { setSelectedDuration(null); setShowTodayPayments(true); }} className="rounded-lg px-2 py-1 text-left hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-blue-600" aria-label="View today's fee collections"><p className="text-xs text-slate-500">Fees collected</p><p className="text-lg font-bold text-slate-950 tabular-nums">{money(data.today.collected)}</p></button>
           <button onClick={refresh} disabled={loading} aria-label="Refresh overview" title="Refresh overview" className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 disabled:opacity-50"><RefreshCw size={16} className={loading ? "animate-spin" : ""} /></button>
         </div>
       </div>
@@ -195,7 +218,7 @@ export default function CeoOverviewTab() {
       {error && <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">Showing last loaded figures. {error}</p>}
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {cards.map(({ label, value, icon: Icon, tone }) => (
+        {cards.map(({ label, value, icon: Icon, tone, detail }) => (
           <section key={label} className="relative flex min-w-0 flex-wrap items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <span className={`inline-flex shrink-0 rounded-xl p-2 ${tone}`}><Icon size={18} /></span>
             <div className="min-w-0 flex-1">
@@ -210,7 +233,7 @@ export default function CeoOverviewTab() {
                 )}
               </div>
             </div>
-            {label === "Outstanding balance" && <button type="button" aria-label="View enrollments with outstanding balances" onClick={() => { setDurationStudents([]); setDurationTotal(0); setDurationLoading(true); setDurationPage(1); setSelectedDuration("outstanding"); }} className="absolute inset-0 cursor-pointer rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600" />}
+            {detail && <button type="button" aria-label={`View ${label.toLowerCase()} details`} onClick={() => { setDurationStudents([]); setDurationTotal(0); setDurationLoading(true); setDurationPage(1); setSelectedDuration(detail); }} className="absolute inset-0 cursor-pointer rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600" />}
           </section>
         ))}
       </div>
@@ -237,14 +260,30 @@ export default function CeoOverviewTab() {
           <div role="dialog" aria-modal="true" aria-labelledby="duration-students-heading" className="flex max-h-[90dvh] w-full max-w-7xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-2xl">
             <div className="flex shrink-0 items-center justify-between gap-4 border-b border-slate-200 bg-white px-5 py-4">
               <div>
-                <h3 id="duration-students-heading" className="text-lg font-bold text-slate-950">{selectedDuration === "outstanding" ? "Outstanding balances" : `${durationCards.find((card) => card.group === selectedDuration)?.label} students`}</h3>
-                <p className="text-xs text-slate-500">{durationTotal.toLocaleString("en-IN")} enrollments{selectedDuration === "outstanding" ? ` · ${money(data.totals.pending)} outstanding` : ""} · newest joining date first</p>
+                <h3 id="duration-students-heading" className="text-lg font-bold text-slate-950">{listTitles[selectedDuration]}</h3>
+                <p className="text-xs text-slate-500">{durationTotal.toLocaleString("en-IN")} {selectedDuration === "activeStudents" ? "students" : "enrollments"}{selectedDuration === "outstanding" ? ` · ${money(data.totals.pending)} outstanding` : ""} · newest joining date first</p>
               </div>
               <button type="button" onClick={() => setSelectedDuration(null)} aria-label="Close student list" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900"><X size={20} /></button>
             </div>
             <div className="min-h-0 overflow-y-auto p-3 sm:p-5">
               {durationError ? <div role="alert" className="flex items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><span>{durationError}</span><button type="button" onClick={() => setDurationRefresh((value) => value + 1)} className="font-semibold underline">Retry</button></div> : <StudentTable students={durationStudents} loading={durationLoading} onOpenEditModal={setSelectedStudent} />}
               {!durationError && <div className="mt-3"><StudentPagination page={durationPage} totalPages={durationPages} onPageChange={setDurationPage} /></div>}
+            </div>
+          </div>
+        </div>
+      )}
+      {showTodayPayments && (
+        <div className="fixed inset-0 z-[900] flex items-center justify-center bg-slate-950/50 p-3 sm:p-6">
+          <div role="dialog" aria-modal="true" aria-labelledby="today-payments-heading" className="flex max-h-[90dvh] w-full max-w-7xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-2xl">
+            <div className="flex shrink-0 items-center justify-between gap-4 border-b border-slate-200 bg-white px-5 py-4">
+              <div>
+                <h3 id="today-payments-heading" className="text-lg font-bold text-slate-950">Today’s fee collections</h3>
+                <p className="text-xs text-slate-500">{money(data.today.collected)} collected today · newest payment first</p>
+              </div>
+              <button type="button" onClick={() => setShowTodayPayments(false)} aria-label="Close today's fee collections" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900"><X size={20} /></button>
+            </div>
+            <div className="min-h-0 overflow-y-auto p-3 sm:p-5">
+              <TransactionsList startDate="" endDate="" todayOnly />
             </div>
           </div>
         </div>

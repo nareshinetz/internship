@@ -6,7 +6,17 @@ import Enrollment from "@/models/Enrollment";
 import User from "@/models/user";
 import { NextResponse } from "next/server";
 import { normalizeStudentPhone, studentPhoneVariants } from "@/lib/admin-student-input";
+import { paymentDate, reportingWindow } from "@/lib/ceo-dashboard";
 import mongoose from "mongoose";
+
+const indiaDayStart = (value: string) => {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return null;
+  const [year, month, day] = match.slice(1).map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day) - 330 * 60_000);
+  const indiaDate = new Date(date.getTime() + 330 * 60_000);
+  return indiaDate.getUTCFullYear() === year && indiaDate.getUTCMonth() === month - 1 && indiaDate.getUTCDate() === day ? date : null;
+};
 
 export async function GET(req: Request) {
   const auth = await requireRole("admin", "super_admin"); if (auth.error) return auth.error;
@@ -26,9 +36,14 @@ export async function GET(req: Request) {
   const transactions = enrollments.flatMap((enrollment) => {
     const user = enrollment.userId as unknown as { name: string; phone: string; college?: string }; let paidBefore = 0;
     return enrollment.installments.map((installment) => { const row = { receiptNo: installment.receiptNo, date: installment.date, name: user.name, phone: user.phone, college: user.college || "N/A", type: enrollment.type, domain: enrollment.domain, courseName: enrollment.duration, paidAmount: installment.paidAmount, paymentMethod: installment.paymentMethod, transactionId: installment.transactionId, billingBy: installment.billingBy, totalCoursePayment: enrollment.totalBilling, alreadyPaidAmount: paidBefore, balanceAmount: Math.max(0, enrollment.totalBilling - paidBefore - installment.paidAmount), createdAt: installment.createdAt }; paidBefore += installment.paidAmount; return row; });
-  }).sort((a, b) => new Date(b.createdAt || b.date).getTime() - new Date(a.createdAt || a.date).getTime());
+  }).sort((a, b) => (paymentDate({ date: b.date })?.getTime() || paymentDate(b)?.getTime() || 0) - (paymentDate({ date: a.date })?.getTime() || paymentDate(a)?.getTime() || 0) || new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
   const page = Math.max(1, Number(params.get("page")) || 1); const limit = Math.max(1, Number(params.get("limit")) || 20); const search = params.get("search")?.toLowerCase() || "";
-  const filtered = search ? transactions.filter((row) => [row.name, row.phone, row.college, row.receiptNo].some((value) => String(value).toLowerCase().includes(search))) : transactions;
+  const isToday = params.get("today") === "true";
+  const start = isToday ? reportingWindow().todayStart : params.get("startDate") ? indiaDayStart(params.get("startDate")!) : null;
+  const end = isToday ? reportingWindow().tomorrowStart : params.get("endDate") ? indiaDayStart(params.get("endDate")!) : null;
+  if ((!isToday && params.get("startDate") && !start) || (!isToday && params.get("endDate") && !end)) return NextResponse.json({ success: false, error: "Enter a valid payment date range." }, { status: 400 });
+  const dated = start || end ? transactions.filter((row) => { const paidAt = paymentDate(row); return paidAt && (!start || paidAt >= start) && (!end || paidAt < new Date(end.getTime() + (isToday ? 0 : 86_400_000))); }) : transactions;
+  const filtered = search ? dated.filter((row) => [row.name, row.phone, row.college, row.receiptNo].some((value) => String(value).toLowerCase().includes(search))) : dated;
   const download = params.get("download") === "true";
   return NextResponse.json({ success: true, data: download ? filtered : filtered.slice((page - 1) * limit, page * limit), pagination: download ? null : { total: filtered.length, currentPage: page, totalPages: Math.ceil(filtered.length / limit) || 1 } });
 }

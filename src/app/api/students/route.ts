@@ -8,7 +8,7 @@ import { ensureStudentId } from "@/lib/student-id";
 import { createAdminNotification } from "@/lib/admin-notifications";
 import { setEnrollmentStatus } from "@/lib/enrollment-status";
 import { deletionBlockReason } from "@/lib/student-deletion";
-import { sixMonthDuration, threeMonthDuration } from "@/lib/ceo-dashboard";
+import { reportingWindow, sixMonthDuration, threeMonthDuration } from "@/lib/ceo-dashboard";
 import { isValidAdminInitialPayment, isValidStudentText, normalizeStudentEmail, normalizeStudentPhone, studentPhoneVariants } from "@/lib/admin-student-input";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
@@ -57,7 +57,9 @@ export async function GET(req: Request) {
   } else if (status === "outstanding") {
     query.status = { $ne: "cancelled" };
     query.pendingAmount = { $gt: 0 };
-  } else if (["completed", "cancelled"].includes(status)) query.status = status;
+  } else if (status === "visible") query.status = { $ne: "cancelled" };
+  else if (status === "activeAll") query.status = "active";
+  else if (["completed", "cancelled"].includes(status)) query.status = status;
   else if (status !== "all")
     return NextResponse.json({ success: false, error: "Invalid enrollment status filter." }, { status: 400 });
   const domain = params.get("domain")?.trim();
@@ -76,7 +78,13 @@ export async function GET(req: Request) {
   const joiningDate = params.get("joiningDate")?.trim();
   const fromDate = params.get("fromDate")?.trim();
   const toDate = params.get("toDate")?.trim();
-  if (joiningDate) {
+  if (params.get("joinedToday") === "true") {
+    const { todayStart, tomorrowStart } = reportingWindow();
+    query.joinedAt = { $gte: todayStart, $lt: tomorrowStart };
+  } else if (params.get("joinedThisMonth") === "true") {
+    const { monthStart, tomorrowStart } = reportingWindow();
+    query.joinedAt = { $gte: monthStart, $lt: tomorrowStart };
+  } else if (joiningDate) {
     const start = day(joiningDate);
     if (!start)
       return NextResponse.json(
@@ -115,15 +123,29 @@ export async function GET(req: Request) {
     }).distinct("_id");
     query.$or = [{ domain: rx }, { userId: { $in: userIds } }];
   }
-  const [docs, total, domains, durations, summary, durationSummary, pendingUsers, activeUsers] =
-    await Promise.all([
-      Enrollment.find(query)
+  const uniqueUsers = params.get("uniqueUsers") === "true";
+  const listQuery = uniqueUsers
+    ? Enrollment.aggregate([
+        { $match: query },
+        { $sort: { joinedAt: -1, _id: -1 } },
+        { $group: { _id: "$userId", enrollment: { $first: "$$ROOT" } } },
+        { $replaceRoot: { newRoot: "$enrollment" } },
+        { $sort: { joinedAt: -1, _id: -1 } },
+        { $skip: (page - 1) * limit },
+        { $limit: limit },
+      ])
+    : Enrollment.find(query)
         .populate("userId", "studentId name email phone college degree")
         .sort({ joinedAt: -1, _id: -1 })
         .skip((page - 1) * limit)
         .limit(limit)
-        .lean(),
-      Enrollment.countDocuments(query),
+        .lean();
+  const [rawDocs, total, domains, durations, summary, durationSummary, pendingUsers, activeUsers] =
+    await Promise.all([
+      listQuery,
+      uniqueUsers
+        ? Enrollment.distinct("userId", query).then((ids) => ids.length)
+        : Enrollment.countDocuments(query),
       Enrollment.distinct("domain", enrolledOnly),
       Enrollment.distinct("duration", enrolledOnly),
       Enrollment.aggregate([
@@ -153,6 +175,9 @@ export async function GET(req: Request) {
       Enrollment.distinct("userId", { ...query, pendingAmount: { $gt: 0 } }),
       Enrollment.distinct("userId", { $and: [query, { status: "active" }] }),
     ]);
+  const docs = uniqueUsers
+    ? await Enrollment.populate(rawDocs, { path: "userId", select: "studentId name email phone college degree" })
+    : rawDocs;
   const stats = summary[0] || {
     totalCollected: 0,
     totalPending: 0,
