@@ -194,6 +194,7 @@ compact, professional, light, and blue-accented.
 Names only; values belong in deployment secrets/local ignored environment files.
 
 - Core: `MONGODB_URI`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`
+- Internal enrollment creation: `INTERNAL_SERVICE_SECRET` (when used, callers send it as `x-internal-secret`)
 - Google login: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
 - Razorpay: `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`,
   `RAZORPAY_WEBHOOK_SECRET`
