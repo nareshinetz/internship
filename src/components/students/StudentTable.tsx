@@ -41,9 +41,10 @@ interface StudentTableProps {
   students: StudentRecord[];
   loading: boolean;
   onOpenEditModal: (student: StudentRecord) => void;
+  showJoiningDate?: boolean;
 }
 
-export default function StudentTable({ students, loading, onOpenEditModal }: StudentTableProps) {
+export default function StudentTable({ students, loading, onOpenEditModal, showJoiningDate = false }: StudentTableProps) {
   if (loading) {
     return (
       <div className="bg-white rounded-2xl border border-zinc-200/80 shadow-sm h-64 flex flex-col items-center justify-center text-zinc-400">
@@ -72,6 +73,7 @@ export default function StudentTable({ students, loading, onOpenEditModal }: Stu
               <th className="py-3.5 px-4">Student Name</th>
               <th className="py-3.5 px-4">Domain</th>
               <th className="py-3.5 px-4">Duration</th>
+              {showJoiningDate && <th className="py-3.5 px-4 whitespace-nowrap">Date of Joining</th>}
               <th className="py-3.5 px-4">Total Fees</th>
               <th className="py-3.5 px-4">Paid Fees</th>
               <th className="py-3.5 px-4">Pending Fees</th>
@@ -97,6 +99,7 @@ export default function StudentTable({ students, loading, onOpenEditModal }: Stu
                 <td className="py-3 px-4">
                   <p className="font-medium text-slate-800 truncate max-w-[180px]">{st.duration}</p>
                 </td>
+                {showJoiningDate && <td className="py-3 px-4 whitespace-nowrap tabular-nums">{st.doj && !Number.isNaN(new Date(st.doj).getTime()) ? new Date(st.doj).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", timeZone: "Asia/Kolkata" }) : "—"}</td>}
                 <td className="py-3 px-4">
                   <p className="whitespace-nowrap font-semibold text-slate-900 tabular-nums">₹{st.totalBilling.toLocaleString("en-IN")}</p>
                 </td>

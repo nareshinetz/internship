@@ -266,7 +266,7 @@ export default function CeoOverviewTab() {
               <button type="button" onClick={() => setSelectedDuration(null)} aria-label="Close student list" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900"><X size={20} /></button>
             </div>
             <div className="min-h-0 overflow-y-auto p-3 sm:p-5">
-              {durationError ? <div role="alert" className="flex items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><span>{durationError}</span><button type="button" onClick={() => setDurationRefresh((value) => value + 1)} className="font-semibold underline">Retry</button></div> : <StudentTable students={durationStudents} loading={durationLoading} onOpenEditModal={setSelectedStudent} />}
+              {durationError ? <div role="alert" className="flex items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><span>{durationError}</span><button type="button" onClick={() => setDurationRefresh((value) => value + 1)} className="font-semibold underline">Retry</button></div> : <StudentTable students={durationStudents} loading={durationLoading} onOpenEditModal={setSelectedStudent} showJoiningDate />}
               {!durationError && <div className="mt-3"><StudentPagination page={durationPage} totalPages={durationPages} onPageChange={setDurationPage} /></div>}
             </div>
           </div>
